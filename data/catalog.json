@@ -1,0 +1,702 @@
+[
+  {
+    "product_id": "P001",
+    "product_name": "나이키 에어맥스 운동화",
+    "price": 89000,
+    "category": "신발",
+    "description": "편안한 에어맥스 기술이 적용된 운동화"
+  },
+  {
+    "product_id": "P002",
+    "product_name": "아디다스 후드티",
+    "price": 45000,
+    "category": "의류",
+    "description": "따뜻하고 편안한 후드티"
+  },
+  {
+    "product_id": "P003",
+    "product_name": "삼성 갤럭시 케이스",
+    "price": 15000,
+    "category": "전자제품",
+    "description": "갤럭시 S24용 투명 케이스"
+  },
+  {
+    "product_id": "P004",
+    "product_name": "로지텍 무선마우스",
+    "price": 32000,
+    "category": "전자제품",
+    "description": "무선 광학 마우스"
+  },
+  {
+    "product_id": "P005",
+    "product_name": "네이처리퍼블릭 알로에젤",
+    "price": 8000,
+    "category": "화장품",
+    "description": "진정 효과가 있는 알로에 젤"
+  },
+  {
+    "product_id": "P006",
+    "product_name": "컨버스 올스타 스니커즈",
+    "price": 67000,
+    "category": "신발",
+    "description": "클래식한 디자인의 캔버스 스니커즈"
+  },
+  {
+    "product_id": "P007",
+    "product_name": "유니클로 기본 티셔츠",
+    "price": 12000,
+    "category": "의류",
+    "description": "기본 면 티셔츠"
+  },
+  {
+    "product_id": "P008",
+    "product_name": "애플 에어팟 프로",
+    "price": 329000,
+    "category": "전자제품",
+    "description": "노이즈 캔슬링 무선 이어폰"
+  },
+  {
+    "product_id": "P009",
+    "product_name": "입생로랑 립스틱",
+    "price": 42000,
+    "category": "화장품",
+    "description": "매트 피니시 립스틱"
+  },
+  {
+    "product_id": "P010",
+    "product_name": "뉴발란스 러닝화",
+    "price": 98000,
+    "category": "신발",
+    "description": "쿠셔닝이 뛰어난 러닝화"
+  },
+  {
+    "product_id": "P011",
+    "product_name": "H&M 청바지",
+    "price": 29000,
+    "category": "의류",
+    "description": "슬림핏 청바지"
+  },
+  {
+    "product_id": "P012",
+    "product_name": "샤오미 보조배터리",
+    "price": 28000,
+    "category": "전자제품",
+    "description": "20000mAh 대용량 보조배터리"
+  },
+  {
+    "product_id": "P013",
+    "product_name": "더바디샵 핸드크림",
+    "price": 15000,
+    "category": "화장품",
+    "description": "시어버터 핸드크림"
+  },
+  {
+    "product_id": "P014",
+    "product_name": "반스 체커보드 슬립온",
+    "price": 59000,
+    "category": "신발",
+    "description": "클래식 체커보드 패턴 슬립온"
+  },
+  {
+    "product_id": "P015",
+    "product_name": "자라 블레이저",
+    "price": 79000,
+    "category": "의류",
+    "description": "비즈니스 캐주얼 블레이저"
+  },
+  {
+    "product_id": "P016",
+    "product_name": "LG 그램 노트북 파우치",
+    "price": 25000,
+    "category": "전자제품",
+    "description": "17인치 노트북용 파우치"
+  },
+  {
+    "product_id": "P017",
+    "product_name": "이니스프리 클렌징폼",
+    "price": 12000,
+    "category": "화장품",
+    "description": "그린티 클렌징폼"
+  },
+  {
+    "product_id": "P018",
+    "product_name": "닥터마틴 부츠",
+    "price": 180000,
+    "category": "신발",
+    "description": "클래식 1460 부츠"
+  },
+  {
+    "product_id": "P019",
+    "product_name": "무지 스웨터",
+    "price": 39000,
+    "category": "의류",
+    "description": "기본 니트 스웨터"
+  },
+  {
+    "product_id": "P020",
+    "product_name": "소니 헤드폰",
+    "price": 150000,
+    "category": "전자제품",
+    "description": "노이즈 캔슬링 헤드폰"
+  },
+  {
+    "product_id": "P021",
+    "product_name": "클리니크 BB크림",
+    "price": 38000,
+    "category": "화장품",
+    "description": "SPF 30 BB크림"
+  },
+  {
+    "product_id": "P022",
+    "product_name": "어그 무카신",
+    "price": 120000,
+    "category": "신발",
+    "description": "양털 무카신"
+  },
+  {
+    "product_id": "P023",
+    "product_name": "GAP 후드집업",
+    "price": 55000,
+    "category": "의류",
+    "description": "기본 후드 집업"
+  },
+  {
+    "product_id": "P024",
+    "product_name": "삼성 갤럭시 워치",
+    "price": 280000,
+    "category": "전자제품",
+    "description": "스마트워치"
+  },
+  {
+    "product_id": "P025",
+    "product_name": "미샤 쿠션",
+    "price": 18000,
+    "category": "화장품",
+    "description": "커버력이 좋은 쿠션 파운데이션"
+  },
+  {
+    "product_id": "P026",
+    "product_name": "펜디 수영복",
+    "price": 89000,
+    "category": "의류",
+    "description": "원피스 수영복"
+  },
+  {
+    "product_id": "P027",
+    "product_name": "스케쳐스 워킹화",
+    "price": 69000,
+    "category": "신발",
+    "description": "메모리폼 워킹화"
+  },
+  {
+    "product_id": "P028",
+    "product_name": "애플 맥북 어댑터",
+    "price": 79000,
+    "category": "전자제품",
+    "description": "61W USB-C 전원 어댑터"
+  },
+  {
+    "product_id": "P029",
+    "product_name": "아모레퍼시픽 세럼",
+    "price": 85000,
+    "category": "화장품",
+    "description": "안티에이징 세럼"
+  },
+  {
+    "product_id": "P030",
+    "product_name": "조던 농구화",
+    "price": 159000,
+    "category": "신발",
+    "description": "에어 조던 농구화"
+  },
+  {
+    "product_id": "P031",
+    "product_name": "칼하트 작업바지",
+    "price": 89000,
+    "category": "의류",
+    "description": "내구성 좋은 작업바지"
+  },
+  {
+    "product_id": "P032",
+    "product_name": "애플 아이패드 케이스",
+    "price": 45000,
+    "category": "전자제품",
+    "description": "아이패드 프로용 키보드 케이스"
+  },
+  {
+    "product_id": "P033",
+    "product_name": "에스티로더 파운데이션",
+    "price": 52000,
+    "category": "화장품",
+    "description": "더블웨어 파운데이션"
+  },
+  {
+    "product_id": "P034",
+    "product_name": "크록스 샌들",
+    "price": 45000,
+    "category": "신발",
+    "description": "클래식 크록스"
+  },
+  {
+    "product_id": "P035",
+    "product_name": "리바이스 재킷",
+    "price": 89000,
+    "category": "의류",
+    "description": "데님 트러커 재킷"
+  },
+  {
+    "product_id": "P036",
+    "product_name": "하만카돈 스피커",
+    "price": 180000,
+    "category": "전자제품",
+    "description": "블루투스 스피커"
+  },
+  {
+    "product_id": "P037",
+    "product_name": "랑콤 마스카라",
+    "price": 35000,
+    "category": "화장품",
+    "description": "볼륨 마스카라"
+  },
+  {
+    "product_id": "P038",
+    "product_name": "버켄스탁 샌들",
+    "price": 89000,
+    "category": "신발",
+    "description": "아리조나 샌들"
+  },
+  {
+    "product_id": "P039",
+    "product_name": "폴로 셔츠",
+    "price": 65000,
+    "category": "의류",
+    "description": "클래식 폴로 셔츠"
+  },
+  {
+    "product_id": "P040",
+    "product_name": "다이슨 헤어드라이어",
+    "price": 450000,
+    "category": "전자제품",
+    "description": "수퍼소닉 헤어드라이어"
+  },
+  {
+    "product_id": "P041",
+    "product_name": "설화수 토너",
+    "price": 68000,
+    "category": "화장품",
+    "description": "윤조에센스"
+  },
+  {
+    "product_id": "P042",
+    "product_name": "플라잉니트 러닝화",
+    "price": 129000,
+    "category": "신발",
+    "description": "경량 러닝화"
+  },
+  {
+    "product_id": "P043",
+    "product_name": "캐나다구스 패딩",
+    "price": 890000,
+    "category": "의류",
+    "description": "극한 추위용 패딩"
+  },
+  {
+    "product_id": "P044",
+    "product_name": "LG 모니터",
+    "price": 320000,
+    "category": "전자제품",
+    "description": "27인치 4K 모니터"
+  },
+  {
+    "product_id": "P045",
+    "product_name": "샤넬 향수",
+    "price": 120000,
+    "category": "화장품",
+    "description": "No.5 향수"
+  },
+  {
+    "product_id": "P046",
+    "product_name": "티임버랜드 워크부츠",
+    "price": 179000,
+    "category": "신발",
+    "description": "6인치 프리미엄 부츠"
+  },
+  {
+    "product_id": "P047",
+    "product_name": "챔피언 맨투맨",
+    "price": 42000,
+    "category": "의류",
+    "description": "기본 맨투맨"
+  },
+  {
+    "product_id": "P048",
+    "product_name": "젠하이저 이어폰",
+    "price": 89000,
+    "category": "전자제품",
+    "description": "유선 이어폰"
+  },
+  {
+    "product_id": "P049",
+    "product_name": "키엘 크림",
+    "price": 48000,
+    "category": "화장품",
+    "description": "얼트라 페이셜 크림"
+  },
+  {
+    "product_id": "P050",
+    "product_name": "올버즈 울 러너",
+    "price": 98000,
+    "category": "신발",
+    "description": "메리노 울 운동화"
+  },
+  {
+    "product_id": "P051",
+    "product_name": "노스페이스 바람막이",
+    "price": 120000,
+    "category": "의류",
+    "description": "경량 바람막이"
+  },
+  {
+    "product_id": "P052",
+    "product_name": "마이크로소프트 마우스",
+    "price": 45000,
+    "category": "전자제품",
+    "description": "서피스 마우스"
+  },
+  {
+    "product_id": "P053",
+    "product_name": "디올 립밤",
+    "price": 38000,
+    "category": "화장품",
+    "description": "어딕트 립 글로우"
+  },
+  {
+    "product_id": "P054",
+    "product_name": "아식스 러닝화",
+    "price": 109000,
+    "category": "신발",
+    "description": "젤 님버스 러닝화"
+  },
+  {
+    "product_id": "P055",
+    "product_name": "스톤아일랜드 니트",
+    "price": 289000,
+    "category": "의류",
+    "description": "울 니트 스웨터"
+  },
+  {
+    "product_id": "P056",
+    "product_name": "구글 픽셀 폰케이스",
+    "price": 22000,
+    "category": "전자제품",
+    "description": "픽셀 8용 케이스"
+  },
+  {
+    "product_id": "P057",
+    "product_name": "맥 립스틱",
+    "price": 28000,
+    "category": "화장품",
+    "description": "러브미 립스틱"
+  },
+  {
+    "product_id": "P058",
+    "product_name": "호카 트레일 러닝화",
+    "price": 169000,
+    "category": "신발",
+    "description": "트레일 러닝화"
+  },
+  {
+    "product_id": "P059",
+    "product_name": "마르니 티셔츠",
+    "price": 180000,
+    "category": "의류",
+    "description": "로고 티셔츠"
+  },
+  {
+    "product_id": "P060",
+    "product_name": "바이탈라이저 충전기",
+    "price": 35000,
+    "category": "전자제품",
+    "description": "무선 충전패드"
+  },
+  {
+    "product_id": "P061",
+    "product_name": "오리진스 마스크팩",
+    "price": 25000,
+    "category": "화장품",
+    "description": "클리어 임프루브먼트 마스크팩"
+  },
+  {
+    "product_id": "P062",
+    "product_name": "온 러닝화",
+    "price": 139000,
+    "category": "신발",
+    "description": "클라우드 러닝화"
+  },
+  {
+    "product_id": "P063",
+    "product_name": "아미 셔츠",
+    "price": 220000,
+    "category": "의류",
+    "description": "하트 로고 셔츠"
+  },
+  {
+    "product_id": "P064",
+    "product_name": "젠하이저 헤드셋",
+    "price": 250000,
+    "category": "전자제품",
+    "description": "게이밍 헤드셋"
+  },
+  {
+    "product_id": "P065",
+    "product_name": "더페이스샵 선크림",
+    "price": 15000,
+    "category": "화장품",
+    "description": "SPF50+ 선크림"
+  },
+  {
+    "product_id": "P066",
+    "product_name": "반 올드스쿨",
+    "price": 65000,
+    "category": "신발",
+    "description": "올드스쿨 스케이트화"
+  },
+  {
+    "product_id": "P067",
+    "product_name": "라코스테 폴로",
+    "price": 89000,
+    "category": "의류",
+    "description": "클래식 폴로"
+  },
+  {
+    "product_id": "P068",
+    "product_name": "테슬라 차량용 충전기",
+    "price": 89000,
+    "category": "전자제품",
+    "description": "모바일 커넥터"
+  },
+  {
+    "product_id": "P069",
+    "product_name": "후 마스크팩",
+    "price": 8000,
+    "category": "화장품",
+    "description": "소금 마스크"
+  },
+  {
+    "product_id": "P070",
+    "product_name": "골든구스 스니커즈",
+    "price": 560000,
+    "category": "신발",
+    "description": "수퍼스타 스니커즈"
+  },
+  {
+    "product_id": "P071",
+    "product_name": "바엔시아가 후드티",
+    "price": 780000,
+    "category": "의류",
+    "description": "오버사이즈 후드티"
+  },
+  {
+    "product_id": "P072",
+    "product_name": "닌텐도 스위치 케이스",
+    "price": 25000,
+    "category": "전자제품",
+    "description": "하드케이스"
+  },
+  {
+    "product_id": "P073",
+    "product_name": "조말론 향수",
+    "price": 89000,
+    "category": "화장품",
+    "description": "라임 바질 앤 만다린"
+  },
+  {
+    "product_id": "P074",
+    "product_name": "르꼬끄 운동화",
+    "price": 79000,
+    "category": "신발",
+    "description": "클래식 스니커즈"
+  },
+  {
+    "product_id": "P075",
+    "product_name": "몽클레어 조끼",
+    "price": 650000,
+    "category": "의류",
+    "description": "다운 조끼"
+  },
+  {
+    "product_id": "P076",
+    "product_name": "Razer 키보드",
+    "price": 180000,
+    "category": "전자제품",
+    "description": "기계식 게이밍 키보드"
+  },
+  {
+    "product_id": "P077",
+    "product_name": "바니라코 클렌징밤",
+    "price": 18000,
+    "category": "화장품",
+    "description": "클린잇제로 클렌징밤"
+  },
+  {
+    "product_id": "P078",
+    "product_name": "알론 운동화",
+    "price": 189000,
+    "category": "신발",
+    "description": "프리미엄 러닝화"
+  },
+  {
+    "product_id": "P079",
+    "product_name": "아크네 스튜디오 청바지",
+    "price": 280000,
+    "category": "의류",
+    "description": "슬림핏 데님"
+  },
+  {
+    "product_id": "P080",
+    "product_name": "비츠 이어폰",
+    "price": 199000,
+    "category": "전자제품",
+    "description": "스튜디오 버즈"
+  },
+  {
+    "product_id": "P081",
+    "product_name": "헤라 쿠션",
+    "price": 42000,
+    "category": "화장품",
+    "description": "블랙 쿠션"
+  },
+  {
+    "product_id": "P082",
+    "product_name": "솔로몬 등산화",
+    "price": 159000,
+    "category": "신발",
+    "description": "트레킹 부츠"
+  },
+  {
+    "product_id": "P083",
+    "product_name": "보테가 베네타 니트",
+    "price": 1200000,
+    "category": "의류",
+    "description": "카시미어 니트"
+  },
+  {
+    "product_id": "P084",
+    "product_name": "디스코드 게임패드",
+    "price": 89000,
+    "category": "전자제품",
+    "description": "무선 게임패드"
+  },
+  {
+    "product_id": "P085",
+    "product_name": "토니앤가이 샴푸",
+    "price": 25000,
+    "category": "화장품",
+    "description": "볼륨 샴푸"
+  },
+  {
+    "product_id": "P086",
+    "product_name": "펜티 푸마 스니커즈",
+    "price": 120000,
+    "category": "신발",
+    "description": "리한나 컬래버레이션"
+  },
+  {
+    "product_id": "P087",
+    "product_name": "프라다 셔츠",
+    "price": 890000,
+    "category": "의류",
+    "description": "나일론 셔츠"
+  },
+  {
+    "product_id": "P088",
+    "product_name": "맥북 프로 독",
+    "price": 450000,
+    "category": "전자제품",
+    "description": "썬더볼트 도킹스테이션"
+  },
+  {
+    "product_id": "P089",
+    "product_name": "겔랑 립스틱",
+    "price": 45000,
+    "category": "화장품",
+    "description": "키스키스 립스틱"
+  },
+  {
+    "product_id": "P090",
+    "product_name": "콘버스 척테일러",
+    "price": 59000,
+    "category": "신발",
+    "description": "하이탑 스니커즈"
+  },
+  {
+    "product_id": "P091",
+    "product_name": "지베르니 카디건",
+    "price": 129000,
+    "category": "의류",
+    "description": "울 카디건"
+  },
+  {
+    "product_id": "P092",
+    "product_name": "세이지메이커 태블릿",
+    "price": 680000,
+    "category": "전자제품",
+    "description": "드로잉 태블릿"
+  },
+  {
+    "product_id": "P093",
+    "product_name": "가니에 미셀라워터",
+    "price": 12000,
+    "category": "화장품",
+    "description": "스킨액티브 미셀라워터"
+  },
+  {
+    "product_id": "P094",
+    "product_name": "나이키 덩크 로우",
+    "price": 129000,
+    "category": "신발",
+    "description": "덩크 로우 스니커즈"
+  },
+  {
+    "product_id": "P095",
+    "product_name": "이자벨마랑 코트",
+    "price": 1500000,
+    "category": "의류",
+    "description": "울 코트"
+  },
+  {
+    "product_id": "P096",
+    "product_name": "파나소닉 카메라",
+    "price": 1200000,
+    "category": "전자제품",
+    "description": "미러리스 카메라"
+  },
+  {
+    "product_id": "P097",
+    "product_name": "시슬리 아이크림",
+    "price": 180000,
+    "category": "화장품",
+    "description": "이큐 아이 컨투어"
+  },
+  {
+    "product_id": "P098",
+    "product_name": "문스타 부츠",
+    "price": 450000,
+    "category": "신발",
+    "description": "스노우 부츠"
+  },
+  {
+    "product_id": "P099",
+    "product_name": "생로랑 재킷",
+    "price": 3200000,
+    "category": "의류",
+    "description": "레더 재킷"
+  },
+  {
+    "product_id": "P100",
+    "product_name": "소니 플레이스테이션",
+    "price": 620000,
+    "category": "전자제품",
+    "description": "PS5 콘솔"
+  }
+]

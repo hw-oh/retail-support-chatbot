@@ -1,0 +1,422 @@
+[
+  {
+    "test_id": "REF_001",
+    "scenario": "배송완료 후 7일 이내 정상 환불 요청",
+    "user_query": "3일 전에 받은 나이키 운동화 환불하고 싶어요. 사이즈가 안 맞아서요.",
+    "order_info": {
+      "order_id": "ORD20250419050",
+      "purchase_date": "2025-04-19",
+      "delivery_date": "2025-04-22",
+      "delivery_status": "배송완료",
+      "product_name": "나이키 에어맥스 운동화",
+      "category": "신발",
+      "price": 89000
+    }
+  },
+  {
+    "test_id": "REF_002",
+    "scenario": "개인위생용품 환불 요청 (정상 상품)",
+    "user_query": "어제 받은 네이처리퍼블릭 알로에젤 환불 가능한가요? 향이 안 맞아요.",
+    "order_info": {
+      "order_id": "ORD20250420049",
+      "purchase_date": "2025-04-20",
+      "delivery_date": "2025-04-24",
+      "delivery_status": "배송완료",
+      "product_name": "네이처리퍼블릭 알로에젤",
+      "category": "화장품",
+      "price": 8000
+    }
+  },
+  {
+    "test_id": "REF_003",
+    "scenario": "배송 중 취소 요청",
+    "user_query": "주문한 샤오미 보조배터리 취소하고 싶습니다. 배송 중이라고 나오는데 가능한가요?",
+    "order_info": {
+      "order_id": "ORD20250516040",
+      "purchase_date": "2025-05-16",
+      "delivery_date": null,
+      "delivery_status": "배송중",
+      "product_name": "샤오미 보조배터리",
+      "category": "전자제품",
+      "price": 28000
+    }
+  },
+  {
+    "test_id": "REF_004",
+    "scenario": "배송 전 무료 취소 요청",
+    "user_query": "어제 주문한 컨버스 스니커즈 취소하고 싶어요. 아직 배송 안 됐죠?",
+    "order_info": {
+      "order_id": "ORD20250518039",
+      "purchase_date": "2025-05-18",
+      "delivery_date": null,
+      "delivery_status": "상품준비중",
+      "product_name": "컨버스 올스타 스니커즈",
+      "category": "신발",
+      "price": 67000
+    }
+  },
+  {
+    "test_id": "REF_005",
+    "scenario": "7일 초과 환불 요청",
+    "user_query": "5월에 산 닥터마틴 부츠 환불 가능한가요? 신어보니 발이 아파서요.",
+    "order_info": {
+      "order_id": "ORD20250524036",
+      "purchase_date": "2025-05-24",
+      "delivery_date": "2025-05-26",
+      "delivery_status": "배송완료",
+      "product_name": "닥터마틴 부츠",
+      "category": "신발",
+      "price": 180000
+    }
+  },
+  {
+    "test_id": "REF_006",
+    "scenario": "불량품 환불 요청 (화장품)",
+    "user_query": "받은 입생로랑 립스틱이 부러져 있어요. 환불 가능한가요?",
+    "order_info": {
+      "order_id": "ORD20250428046",
+      "purchase_date": "2025-04-28",
+      "delivery_date": "2025-05-02",
+      "delivery_status": "배송완료",
+      "product_name": "입생로랑 립스틱",
+      "category": "화장품",
+      "price": 42000
+    }
+  },
+  {
+    "test_id": "REF_007",
+    "scenario": "존재하지 않는 주문번호",
+    "user_query": "주문번호 ORD99999999로 주문한 상품 환불하고 싶어요.",
+    "order_info": {
+      "order_id": "ORD99999999",
+      "purchase_date": "2025-07-26",
+      "delivery_date": null,
+      "delivery_status": null,
+      "product_name": null,
+      "category": null,
+      "price": null
+    }
+  },
+  {
+    "test_id": "REF_008",
+    "scenario": "최소 환불 수수료 적용 대상 (저가 상품)",
+    "user_query": "유니클로 티셔츠 환불하고 싶어요. 색상이 마음에 안 들어서요.",
+    "order_info": {
+      "order_id": "ORD20250501045",
+      "purchase_date": "2025-05-01",
+      "delivery_date": "2025-05-05",
+      "delivery_status": "배송완료",
+      "product_name": "유니클로 기본 티셔츠",
+      "category": "의류",
+      "price": 12000
+    }
+  },
+  {
+    "test_id": "REF_009",
+    "scenario": "고가 상품 환불 요청",
+    "user_query": "애플 에어팟 프로 환불하고 싶습니다. 귀에 안 맞아요.",
+    "order_info": {
+      "order_id": "ORD20250426047",
+      "purchase_date": "2025-04-26",
+      "delivery_date": "2025-04-30",
+      "delivery_status": "배송완료",
+      "product_name": "애플 에어팟 프로",
+      "category": "전자제품",
+      "price": 329000
+    }
+  },
+  {
+    "test_id": "REF_010",
+    "scenario": "배송완료 후 7일 경계선 (7일째)",
+    "user_query": "정확히 7일 전에 받은 뉴발란스 러닝화 환불 가능한가요?",
+    "order_info": {
+      "order_id": "ORD20250508043",
+      "purchase_date": "2025-05-08",
+      "delivery_date": "2025-05-11",
+      "delivery_status": "배송완료",
+      "product_name": "뉴발란스 러닝화",
+      "category": "신발",
+      "price": 98000
+    }
+  },
+  {
+    "test_id": "REF_011",
+    "scenario": "개인위생용품 불량품 환불",
+    "user_query": "더바디샵 핸드크림이 변질된 것 같아요. 냄새가 이상해요. 환불 가능한가요?",
+    "order_info": {
+      "order_id": "ORD20250514041",
+      "purchase_date": "2025-05-14",
+      "delivery_date": "2025-05-18",
+      "delivery_status": "배송완료",
+      "product_name": "더바디샵 핸드크림",
+      "category": "화장품",
+      "price": 15000
+    }
+  },
+  {
+    "test_id": "REF_012",
+    "scenario": "결제완료 상태 취소 요청",
+    "user_query": "아디다스 후드티 주문 취소하고 싶어요. 아직 배송 안 됐죠?",
+    "order_info": {
+      "order_id": "ORD20250519038",
+      "purchase_date": "2025-05-19",
+      "delivery_date": null,
+      "delivery_status": "결제완료",
+      "product_name": "아디다스 후드티",
+      "category": "의류",
+      "price": 45000
+    }
+  },
+  {
+    "test_id": "REF_013",
+    "scenario": "주문접수 상태 취소 요청",
+    "user_query": "방금 주문한 이니스프리 클렌징폼 취소 가능한가요?",
+    "order_info": {
+      "order_id": "ORD20250521037",
+      "purchase_date": "2025-05-21",
+      "delivery_date": null,
+      "delivery_status": "주문접수",
+      "product_name": "이니스프리 클렌징폼",
+      "category": "화장품",
+      "price": 12000
+    }
+  },
+  {
+    "test_id": "REF_014",
+    "scenario": "사용 흔적 있는 의류 환불",
+    "user_query": "H&M 청바지 환불하고 싶어요. 한 번 입어봤는데 맞지 않네요.",
+    "order_info": {
+      "order_id": "ORD20250511042",
+      "purchase_date": "2025-05-11",
+      "delivery_date": "2025-05-14",
+      "delivery_status": "배송완료",
+      "product_name": "H&M 청바지",
+      "category": "의류",
+      "price": 29000
+    }
+  },
+  {
+    "test_id": "REF_015",
+    "scenario": "전자제품 불량품 환불",
+    "user_query": "로지텍 마우스가 작동하지 않아요. 불량품인 것 같습니다. 환불 해주세요.",
+    "order_info": {
+      "order_id": "ORD20250505044",
+      "purchase_date": "2025-05-05",
+      "delivery_date": "2025-05-08",
+      "delivery_status": "배송완료",
+      "product_name": "로지텍 무선마우스",
+      "category": "전자제품",
+      "price": 32000
+    }
+  },
+  {
+    "test_id": "REF_016",
+    "scenario": "여러 상품 중 일부만 환불",
+    "user_query": "여러 개 주문했는데 삼성 갤럭시 케이스만 환불하고 싶어요.",
+    "order_info": {
+      "order_id": "ORD20250424048",
+      "purchase_date": "2025-04-24",
+      "delivery_date": "2025-04-28",
+      "delivery_status": "배송완료",
+      "product_name": "삼성 갤럭시 케이스",
+      "category": "전자제품",
+      "price": 15000
+    }
+  },
+  {
+    "test_id": "REF_017",
+    "scenario": "배송 파손 신고",
+    "user_query": "다이슨 헤어드라이어가 배송 중에 파손되어 도착했어요. 환불 가능한가요?",
+    "order_info": {
+      "order_id": "ORD20250718013",
+      "purchase_date": "2025-07-18",
+      "delivery_date": "2025-07-22",
+      "delivery_status": "배송완료",
+      "product_name": "다이슨 헤어드라이어",
+      "category": "전자제품",
+      "price": 450000
+    }
+  },
+  {
+    "test_id": "REF_018",
+    "scenario": "화장품 알레르기 반응",
+    "user_query": "설화수 토너 사용 후 알레르기가 생겼어요. 환불 가능한가요?",
+    "order_info": {
+      "order_id": "ORD20250722012",
+      "purchase_date": "2025-07-22",
+      "delivery_date": "2025-07-24",
+      "delivery_status": "배송완료",
+      "product_name": "설화수 토너",
+      "category": "화장품",
+      "price": 68000
+    }
+  },
+  {
+    "test_id": "REF_019",
+    "scenario": "신발 사이즈 교환 vs 환불",
+    "user_query": "플라잉니트 러닝화 사이즈가 작아요. 큰 사이즈로 교환하거나 환불 가능한가요?",
+    "order_info": {
+      "order_id": "ORD20250726011",
+      "purchase_date": "2025-07-26",
+      "delivery_date": "2025-07-29",
+      "delivery_status": "배송완료",
+      "product_name": "플라잉니트 러닝화",
+      "category": "신발",
+      "price": 129000
+    }
+  },
+  {
+    "test_id": "REF_020",
+    "scenario": "고가 의류 환불 (배송 완료 당일)",
+    "user_query": "오늘 받은 캐나다구스 패딩 환불하고 싶어요. 생각보다 너무 두꺼워서요.",
+    "order_info": {
+      "order_id": "ORD20250729010",
+      "purchase_date": "2025-07-29",
+      "delivery_date": null,
+      "delivery_status": "배송완료",
+      "product_name": "캐나다구스 패딩",
+      "category": "의류",
+      "price": 890000
+    }
+  },
+  {
+    "test_id": "REF_021",
+    "scenario": "상품준비중 취소 요청",
+    "user_query": "LG 모니터 주문 취소하고 싶습니다. 다른 모델로 바꾸려고요.",
+    "order_info": {
+      "order_id": "ORD20250802009",
+      "purchase_date": "2025-08-02",
+      "delivery_date": null,
+      "delivery_status": "상품준비중",
+      "product_name": "LG 모니터",
+      "category": "전자제품",
+      "price": 320000
+    }
+  },
+  {
+    "test_id": "REF_022",
+    "scenario": "향수 개봉 후 환불 요청",
+    "user_query": "샤넬 향수를 받았는데 향이 예상과 달라요. 이미 뚜껑을 열어봤는데 환불 가능한가요?",
+    "order_info": {
+      "order_id": "ORD20250804008",
+      "purchase_date": "2025-08-04",
+      "delivery_date": null,
+      "delivery_status": "결제완료",
+      "product_name": "샤넬 향수",
+      "category": "화장품",
+      "price": 120000
+    }
+  },
+  {
+    "test_id": "REF_023",
+    "scenario": "신발 착용 후 환불 (실외 착용)",
+    "user_query": "티임버랜드 부츠를 신고 나갔다 왔는데 발이 너무 아파요. 환불 가능한가요?",
+    "order_info": {
+      "order_id": "ORD20250805007",
+      "purchase_date": "2025-08-05",
+      "delivery_date": null,
+      "delivery_status": "주문접수",
+      "product_name": "티임버랜드 워크부츠",
+      "category": "신발",
+      "price": 179000
+    }
+  },
+  {
+    "test_id": "REF_024",
+    "scenario": "의류 세탁 후 환불 시도",
+    "user_query": "챔피언 맨투맨을 세탁했는데 색이 바랬어요. 환불 가능한가요?",
+    "order_info": {
+      "order_id": "ORD20250807006",
+      "purchase_date": "2025-08-07",
+      "delivery_date": null,
+      "delivery_status": "결제완료",
+      "product_name": "챔피언 맨투맨",
+      "category": "의류",
+      "price": 42000
+    }
+  },
+  {
+    "test_id": "REF_025",
+    "scenario": "전자제품 박스 개봉 후 환불",
+    "user_query": "젠하이저 이어폰 박스를 열어서 확인해봤는데 생각과 달라요. 환불 가능한가요?",
+    "order_info": {
+      "order_id": "ORD20250809005",
+      "purchase_date": "2025-08-09",
+      "delivery_date": "2025-08-11",
+      "delivery_status": "배송완료",
+      "product_name": "젠하이저 이어폰",
+      "category": "전자제품",
+      "price": 89000
+    }
+  },
+  {
+    "test_id": "REF_026",
+    "scenario": "화장품 패치테스트 후 환불",
+    "user_query": "키엘 크림으로 패치테스트 해봤는데 트러블이 생겼어요. 환불 해주세요.",
+    "order_info": {
+      "order_id": "ORD20250812004",
+      "purchase_date": "2025-08-12",
+      "delivery_date": null,
+      "delivery_status": "주문접수",
+      "product_name": "키엘 크림",
+      "category": "화장품",
+      "price": 48000
+    }
+  },
+  {
+    "test_id": "REF_027",
+    "scenario": "신발 실내 착용 후 환불",
+    "user_query": "올버즈 울 러너를 집에서만 신어봤는데 편하지 않네요. 환불 가능한가요?",
+    "order_info": {
+      "order_id": "ORD20250814003",
+      "purchase_date": "2025-08-14",
+      "delivery_date": "2025-08-16",
+      "delivery_status": "배송완료",
+      "product_name": "올버즈 울 러너",
+      "category": "신발",
+      "price": 98000
+    }
+  },
+  {
+    "test_id": "REF_028",
+    "scenario": "의류 택 제거 후 환불 시도",
+    "user_query": "노스페이스 바람막이 택을 제거했는데 색상이 마음에 안 들어요. 환불 가능한가요?",
+    "order_info": {
+      "order_id": "ORD20250817002",
+      "purchase_date": "2025-08-17",
+      "delivery_date": "2025-08-20",
+      "delivery_status": "배송완료",
+      "product_name": "노스페이스 바람막이",
+      "category": "의류",
+      "price": 120000
+    }
+  },
+  {
+    "test_id": "REF_029",
+    "scenario": "전자제품 작동 테스트 후 환불",
+    "user_query": "마이크로소프트 마우스를 연결해서 테스트해봤는데 손에 안 맞아요. 환불 가능한가요?",
+    "order_info": {
+      "order_id": "ORD20250819001",
+      "purchase_date": "2025-08-19",
+      "delivery_date": null,
+      "delivery_status": "주문접수",
+      "product_name": "마이크로소프트 마우스",
+      "category": "전자제품",
+      "price": 45000
+    }
+  },
+  {
+    "test_id": "REF_030",
+    "scenario": "화장품 소량 사용 후 환불",
+    "user_query": "토니앤가이 샴푸를 조금 써봤는데 머리가 거칠어져요. 환불 가능한가요?",
+    "order_info": {
+      "order_id": "ORD20250717014",
+      "purchase_date": "2025-07-17",
+      "delivery_date": "2025-07-21",
+      "delivery_status": "배송완료",
+      "product_name": "토니앤가이 샴푸",
+      "category": "화장품",
+      "price": 25000
+    }
+  }
+]
