@@ -70,50 +70,52 @@ def main():
     session_id = None
     
     # 대화 루프
-    while True:
-        try:
-            print_divider()
-            
-            # 사용자 입력
-            user_input = input("\n👤 고객님: ").strip()
-            
-            # 빈 입력 처리
-            if not user_input:
-                print("💡 메시지를 입력해주세요.")
-                continue
-            
-            # 종료 명령어 확인
-            if is_exit_command(user_input):
-                print("\n👋 이용해주셔서 감사합니다. 좋은 하루 되세요!")
+    with weave.thread() as thread_ctx:
+        print(f"Thread ID: {thread_ctx.thread_id}")
+        while True:
+            try:
+                print_divider()
+                
+                # 사용자 입력
+                user_input = input("\n👤 고객님: ").strip()
+                
+                # 빈 입력 처리
+                if not user_input:
+                    print("💡 메시지를 입력해주세요.")
+                    continue
+                
+                # 종료 명령어 확인
+                if is_exit_command(user_input):
+                    print("\n👋 이용해주셔서 감사합니다. 좋은 하루 되세요!")
+                    break
+                
+                # 새 세션 시작
+                if is_new_session_command(user_input):
+                    session_id = None
+                    print("\n🔄 새로운 대화를 시작합니다.")
+                    print_welcome()
+                    continue
+                
+                # 처리 중 메시지
+                print("\n⏳ 답변을 준비하고 있습니다...")
+                
+                # 메시지 처리
+                response = agent.process_message(user_input, session_id)
+                session_id = response.get("session_id")
+                
+                # 응답 출력
+                format_response(response)
+                
+                # 확인이 필요한 경우 안내
+                if response.get("needs_confirmation"):
+                    print("\n💡 위 내용을 확인하시고 진행 여부를 말씀해주세요. (네/아니요)")
+                
+            except KeyboardInterrupt:
+                print("\n\n👋 대화가 중단되었습니다. 이용해주셔서 감사합니다!")
                 break
-            
-            # 새 세션 시작
-            if is_new_session_command(user_input):
-                session_id = None
-                print("\n🔄 새로운 대화를 시작합니다.")
-                print_welcome()
-                continue
-            
-            # 처리 중 메시지
-            print("\n⏳ 답변을 준비하고 있습니다...")
-            
-            # 메시지 처리
-            response = agent.process_message(user_input, session_id)
-            session_id = response.get("session_id")
-            
-            # 응답 출력
-            format_response(response)
-            
-            # 확인이 필요한 경우 안내
-            if response.get("needs_confirmation"):
-                print("\n💡 위 내용을 확인하시고 진행 여부를 말씀해주세요. (네/아니요)")
-            
-        except KeyboardInterrupt:
-            print("\n\n👋 대화가 중단되었습니다. 이용해주셔서 감사합니다!")
-            break
-        except Exception as e:
-            print(f"\n❌ 오류가 발생했습니다: {e}")
-            print("💡 다시 시도해주세요.")
+            except Exception as e:
+                print(f"\n❌ 오류가 발생했습니다: {e}")
+                print("💡 다시 시도해주세요.")
     
     # 세션 정리
     if session_id:
