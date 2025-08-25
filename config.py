@@ -21,6 +21,7 @@ class Config:
     
     # System Settings
     CURRENT_DATE: str = "2025-08-22"
+    LANGUAGE: str = os.getenv("LANGUAGE", "ko")  # Default to Korean (ko, en, jp)
     
     # Retry Settings
     MAX_RETRIES: int = 3
