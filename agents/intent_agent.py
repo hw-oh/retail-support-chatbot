@@ -6,7 +6,7 @@ import json
 from typing import List, Dict, Any
 from datetime import datetime
 from .base import LLMClient
-from prompts.intent_prompts import INTENT_PROMPTS
+from prompts.weave_prompts import prompt_manager
 
 
 class IntentAgent:
@@ -26,17 +26,16 @@ class IntentAgent:
             for turn in recent_turns:
                 history_text += f"사용자: {turn.get('user', '')}\n봇: {turn.get('bot', '')}\n"
         
-        # 프롬프트 준비
-        system_prompt = INTENT_PROMPTS["ko"]["system"].format(
+        # Weave에서 프롬프트 가져오기
+        system_prompt = prompt_manager.get_intent_prompt(
             current_date=datetime.now().strftime("%Y-%m-%d")
         )
         
-        user_prompt = f"""## 분석할 입력
+        user_prompt = f"""
+**현재 사용자 입력:** "{user_input}"
 
 **대화 히스토리:**
 {history_text if history_text.strip() else "(첫 대화)"}
-
-**현재 사용자 입력:** "{user_input}"
 
 ## 작업
 위 사용자 입력을 분석하여 의도를 분류하고 엔티티를 추출하세요.

@@ -4,7 +4,7 @@ General Response Agent
 import weave
 from typing import List, Dict, Any
 from .base import LLMClient
-from prompts.agent_prompts import AGENT_PROMPTS
+from prompts.weave_prompts import prompt_manager
 
 
 class GeneralAgent:
@@ -25,12 +25,13 @@ class GeneralAgent:
                 context_text += f"사용자: {turn.get('user', '')}\n"
                 context_text += f"봇: {turn.get('bot', '')}\n\n"
         
-        system_prompt = AGENT_PROMPTS["general_agent"]["system"]
-        user_prompt = f"""## 대화 맥락
-{context_text if context_text.strip() else "(첫 대화)"}
+        # Weave에서 프롬프트 가져오기
+        system_prompt = prompt_manager.get_general_agent_prompt()
+        user_prompt = f"""
+## 현재 사용자 입력: {user_input}
 
-## 현재 사용자 요청
-{user_input}
+## 대화 맥락
+{context_text if context_text.strip() else "(첫 대화)"}
 
 ## 작업 지시
 위 대화 맥락을 고려하여 친근하고 도움이 되는 응답을 해주세요."""

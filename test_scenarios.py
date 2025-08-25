@@ -127,7 +127,7 @@ def run_all_tests():
     print(f"📅 테스트 실행 시간: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
     # Weave 초기화
-    weave.init('chatbot-test-scenarios')
+    weave.init('retail-chatbot-dev')
     
     try:
         test_refund_after_7_days()

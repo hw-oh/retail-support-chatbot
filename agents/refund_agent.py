@@ -4,7 +4,7 @@ Refund Management Agent
 import weave
 from typing import List, Dict, Any
 from .base import LLMClient
-from prompts.agent_prompts import AGENT_PROMPTS
+from prompts.weave_prompts import prompt_manager
 
 
 class RefundAgent:
@@ -29,12 +29,13 @@ class RefundAgent:
                 context_text += f"사용자: {turn.get('user', '')}\n"
                 context_text += f"봇: {turn.get('bot', '')}\n\n"
         
-        system_prompt = AGENT_PROMPTS["refund_agent"]["system"]
-        user_prompt = f"""## 대화 맥락
-{context_text if context_text.strip() else "(첫 대화)"}
+        # Weave에서 프롬프트 가져오기
+        system_prompt = prompt_manager.get_refund_agent_prompt()
+        user_prompt = f"""
+**현재 사용자 입력:** "{user_input}"
 
-## 현재 사용자 요청
-{user_input}
+## 대화 맥락
+{context_text if context_text.strip() else "(첫 대화)"}
 
 ## 환불 정책
 {self.refund_policy}
