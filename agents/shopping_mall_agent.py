@@ -181,14 +181,16 @@ CRITICAL RULES FOR INTENT HANDLING:
      → Create MULTIPLE actions: one RefundValidatorTool execution for EACH order
      → Example: If 3 orders exist, return 3 separate tool_execution actions
      → NEVER combine multiple orders into one action
-   - If selection_type is "other":
-     → Execute RefundValidatorTool for orders not yet checked in tool_results_cache
+   - If selection_type is "other" or user says "다른":
+     → ALWAYS execute OrderHistoryTool to get different/additional orders
+     → Add params with time_reference="다른" and quantity=10
    - Examples:
-     * "그 중에 뭘 환불할 수 있어?" → Return MULTIPLE actions like:
-       [{"type": "tool_execution", "tool_name": "RefundValidatorTool", "params": {"order_id": "ORD001"}},
-        {"type": "tool_execution", "tool_name": "RefundValidatorTool", "params": {"order_id": "ORD002"}},
-        {"type": "tool_execution", "tool_name": "RefundValidatorTool", "params": {"order_id": "ORD003"}}]
-     * "다른 물건을 환불하고 싶어" → Check unchecked orders
+     * "그 중에 뭘 환불할 수 있어?" → Return MULTIPLE actions:
+       - action 1: type="tool_execution", tool_name="RefundValidatorTool", params with order_id="ORD001"
+       - action 2: type="tool_execution", tool_name="RefundValidatorTool", params with order_id="ORD002"
+       - action 3: type="tool_execution", tool_name="RefundValidatorTool", params with order_id="ORD003"
+     * "다른 물건을 환불하고 싶어" → Get more orders:
+       action with type="tool_execution", tool_name="OrderHistoryTool", params with time_reference="다른", quantity=10
 
 3. For "refund_inquiry" intent:
    - If has_order_history is true and available_orders exists:
@@ -216,7 +218,7 @@ Recent conversation: {conversation_history[-3:] if conversation_history else []}
 
 User intent: {intent}
 User entities: {entities}
-Available orders (first 10): {[{'order_id': o['order_id'], 'product': o['product_name']} for o in dialog_state.active_context.get('available_orders', [])[:10]]}
+Available orders: {[{'order_id': o['order_id'], 'product': o['product_name']} for o in dialog_state.active_context.get('available_orders', [])]}
 Already checked with RefundValidatorTool: {[k for k in dialog_state.tool_results_cache.keys() if k.startswith('RefundValidatorTool_')]}
 
 Determine next actions. Each action should have:
@@ -226,8 +228,15 @@ Determine next actions. Each action should have:
 - context: (if context_update)
 - question: (if clarification_needed, MUST be in Korean)
 
-IMPORTANT: For clarification intent with refund_reference, create actions for ALL available orders (limit to 5-7 for practical reasons).
-For "다른" (other) selection_type, EXCLUDE already checked orders."""
+IMPORTANT: For clarification intent with refund_reference, create actions for ALL available orders shown to the user.
+
+For "다른 물건을 환불하고 싶어" or similar requests:
+- This is ALWAYS a request for DIFFERENT/ADDITIONAL orders
+- Execute OrderHistoryTool with params containing time_reference="다른" and quantity=10
+- Do NOT recheck orders that were already validated
+
+User said "다른 물건을 환불하고 싶어"? → OrderHistoryTool (get new orders)
+User said "그 중에 뭘 환불할 수 있어"? → RefundValidatorTool (check shown orders)"""
             }
         ]
         
@@ -286,8 +295,12 @@ For "다른" (other) selection_type, EXCLUDE already checked orders."""
         """대화 상태를 기반으로 파라미터 보강"""
         enriched = params.copy()
         
+        # OrderHistoryTool에 대화 컨텍스트 전달
+        if tool_name == "OrderHistoryTool":
+            enriched["conversation_context"] = dialog_state.active_context
+        
         # 예: RefundValidatorTool이 order_id가 필요한데 없으면 active_context에서 가져옴
-        if tool_name == "RefundValidatorTool" and "order_id" not in enriched:
+        elif tool_name == "RefundValidatorTool" and "order_id" not in enriched:
             if dialog_state.active_context.get("selected_order"):
                 enriched["order_id"] = dialog_state.active_context["selected_order"]["order_id"]
                 

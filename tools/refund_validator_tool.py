@@ -23,7 +23,7 @@ class RefundValidatorTool(BaseTool):
         self.order_tool = order_tool or OrderHistoryTool()
         self.policy_tool = policy_tool or RefundPolicyTool()
         self.refund_period_days = 7
-        self.llm = get_llm_client()
+        self.llm = get_llm_client(use_mini=True)  # Use smaller model for cost efficiency
     
     def execute(self, **kwargs) -> Dict[str, Any]:
         """
@@ -83,7 +83,7 @@ class RefundValidatorTool(BaseTool):
         
         # LLM에 전달할 정보 구성
         validation_context = {
-            "current_date": config.CURRENT_DATE,
+            "current_date": "2025-08-22",  # Fixed date for demo
             "order_info": {
                 "order_id": order.get('order_id'),
                 "product_name": order.get('product_name', ''),
@@ -207,23 +207,181 @@ Output in JSON format:
         except ValueError:
             return None
     
-    def batch_validate(self, order_ids: list) -> Dict[str, Any]:
-        """여러 주문의 환불 가능 여부 일괄 검증"""
-        results = []
+    def batch_validate(self, order_ids: list, is_defective: bool = False, 
+                       has_usage_trace: bool = False) -> Dict[str, Any]:
+        """여러 주문의 환불 가능 여부 일괄 검증 - 한 번의 LLM 호출로 처리"""
         
+        # 모든 주문 정보 수집
+        orders_info = []
         for order_id in order_ids:
-            validation = self.execute(order_id=order_id)
-            results.append({
-                "order_id": order_id,
-                **validation
-            })
+            order = self.order_tool.get_order_by_id(order_id)
+            if order:
+                # 각 주문에 대한 정책 정보 조회
+                status_policy = self.policy_tool.execute(
+                    query_type='status_policy', 
+                    delivery_status=order.get('delivery_status', '')
+                )
+                
+                category_check = self.policy_tool.execute(
+                    query_type='category_check',
+                    product_name=order.get('product_name', ''),
+                    category=order.get('category', '')
+                )
+                
+                orders_info.append({
+                    "order_id": order_id,
+                    "product_name": order.get('product_name', ''),
+                    "category": order.get('category', ''),
+                    "delivery_status": order.get('delivery_status', ''),
+                    "delivery_date": order.get('delivery_date'),
+                    "price": order.get('price', 0),
+                    "days_since_delivery": self._calculate_days_since_delivery(order),
+                    "is_hygiene_product": category_check.get('is_hygiene_product', False),
+                    "status_policy": status_policy.get('policy', {})
+                })
         
-        refundable_count = sum(1 for r in results if r.get('refundable', False))
+        if not orders_info:
+            return {
+                "success": False,
+                "total_orders": 0,
+                "results": []
+            }
         
-        return {
-            "success": True,
-            "total_orders": len(order_ids),
-            "refundable_count": refundable_count,
-            "non_refundable_count": len(order_ids) - refundable_count,
-            "results": results
+        # LLM에 일괄 검증 요청
+        batch_context = {
+            "current_date": "2025-08-22",  # Fixed date for demo
+            "orders": orders_info,
+            "product_conditions": {
+                "is_defective": is_defective,
+                "has_usage_trace": has_usage_trace
+            },
+            "refund_policies": {
+                "refund_period_days": self.refund_period_days,
+                "hygiene_product_policy": "개인위생용품은 불량품이 아닌 경우 환불 불가",
+                "defective_product_policy": "불량품은 기간 제한 없이 환불 가능",
+                "usage_trace_policy": "사용 흔적이 있는 경우 추가 수수료 적용 가능"
+            }
         }
+        
+        messages = [
+            {
+                "role": "system",
+                "content": """You are a refund validation expert for a Korean e-commerce platform.
+Evaluate multiple orders at once for refund eligibility.
+
+Consider for EACH order:
+1. Delivery status and whether refunds are allowed in that status
+2. Time elapsed since delivery (if applicable)
+3. Product category restrictions (e.g., hygiene products)
+4. Product condition (defective, usage traces)
+5. Applicable fees
+
+Provide clear reasoning for EACH order in Korean."""
+            },
+            {
+                "role": "user",
+                "content": f"""Please validate if the following orders are eligible for refund:
+
+{json.dumps(batch_context, ensure_ascii=False, indent=2)}
+
+Output in JSON format:
+{{
+    "orders": [
+        {{
+            "order_id": "ORD...",
+            "refundable": boolean,
+            "reasons": ["list of reasons in Korean"],
+            "fee_applies": boolean,
+            "fee_percentage": number (0-100)
+        }},
+        ...
+    ]
+}}"""
+            }
+        ]
+        
+        try:
+            # LLM 응답 schema
+            schema = {
+                "type": "object",
+                "properties": {
+                    "orders": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "order_id": {"type": "string"},
+                                "refundable": {"type": "boolean"},
+                                "reasons": {
+                                    "type": "array",
+                                    "items": {"type": "string"}
+                                },
+                                "fee_applies": {"type": "boolean"},
+                                "fee_percentage": {"type": "number", "minimum": 0, "maximum": 100}
+                            },
+                            "required": ["order_id", "refundable", "reasons"]
+                        }
+                    }
+                },
+                "required": ["orders"]
+            }
+            
+            result = self.llm.generate_json(messages, schema=schema)
+            
+            # 결과 정리
+            results = []
+            for order_result in result.get("orders", []):
+                # 원본 주문 정보 찾기
+                order_info = next((o for o in orders_info if o["order_id"] == order_result["order_id"]), {})
+                
+                results.append({
+                    "order_id": order_result["order_id"],
+                    "success": True,
+                    "refundable": order_result.get("refundable", False),
+                    "reasons": order_result.get("reasons", []),
+                    "details": {
+                        "order_id": order_result["order_id"],
+                        "product_name": order_info.get("product_name", ""),
+                        "category": order_info.get("category", ""),
+                        "delivery_status": order_info.get("delivery_status", ""),
+                        "is_hygiene_product": order_info.get("is_hygiene_product", False),
+                        "is_defective": is_defective,
+                        "has_usage_trace": has_usage_trace,
+                        "days_since_delivery": order_info.get("days_since_delivery"),
+                        "price": order_info.get("price", 0),
+                        "fee_applies": order_result.get("fee_applies", False),
+                        "fee_percentage": order_result.get("fee_percentage", 0)
+                    }
+                })
+            
+            refundable_count = sum(1 for r in results if r.get('refundable', False))
+            
+            return {
+                "success": True,
+                "total_orders": len(order_ids),
+                "refundable_count": refundable_count,
+                "non_refundable_count": len(order_ids) - refundable_count,
+                "results": results
+            }
+            
+        except Exception as e:
+            print(f"Batch LLM validation error: {e}")
+            # 에러 시 개별 처리로 fallback
+            results = []
+            for order_id in order_ids:
+                validation = self.execute(order_id=order_id, is_defective=is_defective, 
+                                        has_usage_trace=has_usage_trace)
+                results.append({
+                    "order_id": order_id,
+                    **validation
+                })
+            
+            refundable_count = sum(1 for r in results if r.get('refundable', False))
+            
+            return {
+                "success": True,
+                "total_orders": len(order_ids),
+                "refundable_count": refundable_count,
+                "non_refundable_count": len(order_ids) - refundable_count,
+                "results": results
+            }

@@ -58,7 +58,19 @@ Guidelines:
 Response style:
 - Use honorifics (존댓말)
 - Be warm but professional
-- Structure information clearly with bullet points or numbered lists when appropriate"""
+- Structure information clearly with bullet points or numbered lists when appropriate
+
+When showing order lists:
+- Show ALL orders returned by the tool, not just a subset
+- For "다른 물건" requests, show the newly retrieved orders
+- Ask if user wants to check refund eligibility for the shown orders when appropriate
+
+When showing refund validation results:
+- If multiple RefundValidatorTool results exist in tool_results, show ALL of them
+- Group refundable and non-refundable items separately
+- Provide clear reasons for each item
+- Format as comprehensive list, not just single item
+- Look for any key containing "RefundValidatorTool" in tool_results"""
         
         messages = [{"role": "system", "content": system_prompt}]
         

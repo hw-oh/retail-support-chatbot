@@ -130,8 +130,17 @@ class MockLLMClient(LLMClient):
         return {"mock": True, "message": "This is a mock JSON response"}
 
 
-def get_llm_client(use_mock: bool = False) -> LLMClient:
-    """Factory function to get LLM client"""
+def get_llm_client(use_mock: bool = False, use_mini: bool = False) -> LLMClient:
+    """Factory function to get LLM client
+    
+    Args:
+        use_mock: Use mock client for testing
+        use_mini: Use smaller model (gpt-4o-mini) for cost efficiency
+    """
     if use_mock or not config.OPENAI_API_KEY:
         return MockLLMClient()
+    
+    if use_mini:
+        return OpenAIClient(model=config.OPENAI_MINI_MODEL)
+    
     return OpenAIClient()
