@@ -19,7 +19,7 @@ class IntentClassifierAgent:
             "properties": {
                 "intent": {
                     "type": "string",
-                    "enum": ["refund_inquiry", "order_status", "product_inquiry", "general_chat"],
+                    "enum": ["refund_inquiry", "order_status", "product_inquiry", "clarification", "general_chat"],
                     "description": "사용자의 주요 의도"
                 },
                 "confidence": {
@@ -35,6 +35,10 @@ class IntentClassifierAgent:
                         "product_name": {"type": "string"},
                         "time_reference": {"type": "string"},
                         "refund_reason": {"type": "string"},
+                        "quantity": {"type": "integer"},
+                        "refund_reference": {"type": "boolean", "description": "True if user mentions refund in clarification"},
+                        "selection_type": {"type": "string", "enum": ["first", "second", "third", "other", "specific"], "description": "Type of selection user is making"},
+                        "reference_context": {"type": "string", "description": "What the user is referring to from previous conversation"},
                         "price_range": {
                             "type": "object",
                             "properties": {
@@ -77,8 +81,8 @@ class IntentClassifierAgent:
             
         except Exception as e:
             print(f"Intent classification error: {e}")
-            # Fallback to rule-based classification
-            return self._fallback_classify(user_input)
+            # Return default values on error
+            return "general_chat", 0.5, {}
     
     @weave.op()
     def _build_messages(self, user_input: str, conversation_history: List[Dict[str, str]] = None) -> List[Dict[str, str]]:
@@ -88,18 +92,31 @@ Current date: {config.CURRENT_DATE}
 
 Classify user intents into one of these categories:
 - refund_inquiry: 환불, 취소, 반품 관련 문의
-- order_status: 주문 상태, 배송 추적, 구매 내역 조회
+- order_status: 주문 상태, 배송 추적, 구매 내역/주문 내역 조회 (구매내역, 주문내역, 주문 조회 등)
 - product_inquiry: 제품 검색, 가격 문의, 상품 추천
+- clarification: 이전 대화 참조, 선택, 추가 정보 제공 (그 중에, 다른 것, 첫 번째, 두 번째, 위에서 말한 것 등)
 - general_chat: 인사, 감사, 일반 대화
 
 Also extract relevant entities:
 - order_id: 주문번호 (ORD로 시작하는 숫자)
 - product_name: 제품명
-- time_reference: 시간 표현 (어제, 지난주, 3일 전, 일주일 동안 등)
+- time_reference: 시간 표현 (어제, 지난주, 3일 전, 일주일 동안, 최근, 일주일 이내 등)
 - refund_reason: 환불 사유
+- quantity: 수량 (5개, 3개 등에서 숫자 추출)
+- refund_reference: clarification에서 환불을 언급하면 true
+- selection_type: 선택 유형 (first/second/third/other/specific)
+- reference_context: 이전 대화에서 참조하는 내용
 - price_range: 가격 범위
 
-Consider the conversation history for context."""
+Important:
+- "구매내역" or "주문내역" MUST be classified as order_status
+- Extract numbers from phrases like "최근 구매내역 5개" as quantity
+- "최근" or "일주일 이내" should be extracted as time_reference
+- When user refers to previous conversation ("그 중에", "이 중에", "위에서", "다른 것"), classify as clarification
+- If user is making a selection or providing additional info about previous topic, classify as clarification
+- Examples of clarification: "그 중에 뭘 환불할 수 있어?", "다른 물건을 환불하고 싶어", "첫 번째 것", "마우스 말고 다른 거"
+
+Consider the conversation history for context. If the user is clearly referring to previous messages, it's likely clarification."""
         
         messages = [{"role": "system", "content": system_prompt}]
         
@@ -113,32 +130,7 @@ Consider the conversation history for context."""
         
         return messages
     
-    @weave.op()
-    def _fallback_classify(self, user_input: str) -> Tuple[str, float, Dict[str, Any]]:
-        """Fallback rule-based classification"""
-        entities = {}
-        
-        # Simple keyword matching
-        if any(word in user_input for word in ["환불", "취소", "반품"]):
-            intent = "refund_inquiry"
-            confidence = 0.8
-        elif any(word in user_input for word in ["주문", "배송", "구매", "산", "샀"]):
-            intent = "order_status"
-            confidence = 0.8
-        elif any(word in user_input for word in ["제품", "상품", "가격", "추천"]):
-            intent = "product_inquiry"
-            confidence = 0.7
-        else:
-            intent = "general_chat"
-            confidence = 0.5
-        
-        # Extract order ID
-        import re
-        order_match = re.search(r'ORD\d+', user_input)
-        if order_match:
-            entities["order_id"] = order_match.group()
-        
-        return intent, confidence, entities
+
     
     def is_confirmation(self, user_input: str) -> Optional[bool]:
         """Check if user input is a confirmation/denial"""

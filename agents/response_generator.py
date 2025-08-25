@@ -31,8 +31,8 @@ class ResponseGeneratorAgent:
             
         except Exception as e:
             print(f"Response generation error: {e}")
-            # Fallback to template-based response
-            return self._fallback_generate_response(intent, tool_results, needs_confirmation)
+            # Return simple error message
+            return "죄송합니다. 일시적인 오류가 발생했습니다. 다시 시도해 주세요."
     
     @weave.op()
     def _build_messages(self, 
@@ -82,41 +82,7 @@ Based on the above information, generate an appropriate response in Korean."""
         
         return messages
     
-    @weave.op()
-    def _fallback_generate_response(self, intent: str, tool_results: Dict[str, Any], needs_confirmation: bool) -> str:
-        """Fallback template-based response generation"""
-        
-        if intent == "refund_inquiry":
-            if "RefundValidatorTool" in tool_results:
-                validation = tool_results["RefundValidatorTool"]
-                if validation.get("refundable"):
-                    if needs_confirmation:
-                        return "환불이 가능합니다. 환불을 진행하시겠습니까? (네/아니요)"
-                    else:
-                        return "환불 처리가 완료되었습니다."
-                else:
-                    reasons = validation.get("reasons", [])
-                    return f"죄송합니다. 환불이 불가능합니다.\n사유: {', '.join(reasons)}"
-                    
-        elif intent == "order_status":
-            if "OrderHistoryTool" in tool_results:
-                order_result = tool_results["OrderHistoryTool"]
-                if order_result.get("success") and order_result.get("orders"):
-                    count = len(order_result["orders"])
-                    return f"총 {count}개의 주문을 찾았습니다."
-                else:
-                    return "주문 정보를 찾을 수 없습니다."
-                    
-        elif intent == "product_inquiry":
-            if "CatalogTool" in tool_results:
-                catalog_result = tool_results["CatalogTool"]
-                if catalog_result.get("success") and catalog_result.get("products"):
-                    count = len(catalog_result["products"])
-                    return f"총 {count}개의 제품을 찾았습니다."
-                else:
-                    return "조건에 맞는 제품을 찾을 수 없습니다."
-        
-        return "무엇을 도와드릴까요?"
+
     
     @weave.op()
     def generate_error_response(self, error_type: str, error_details: str = None) -> str:

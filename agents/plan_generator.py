@@ -88,8 +88,8 @@ class PlanGeneratorAgent:
             
         except Exception as e:
             print(f"Plan generation error: {e}")
-            # Fallback to rule-based planning
-            return self._fallback_generate_plan(intent, context)
+            # Return empty plan on error
+            return []
     
     @weave.op()
     def _build_messages(self, intent: str, context: Dict[str, Any], conversation_history: List[Dict[str, str]] = None) -> List[Dict[str, str]]:
@@ -135,65 +135,8 @@ Generate a plan to handle this request."""
         
         return messages
     
-    @weave.op()
-    def _fallback_generate_plan(self, intent: str, context: Dict[str, Any]) -> List[PlanStep]:
-        """Fallback rule-based plan generation"""
-        steps = []
-        
-        if intent == "refund_inquiry":
-            # Check if we have order info
-            if context.get("order_id"):
-                steps.append(PlanStep(
-                    tool_name="OrderHistoryTool",
-                    description="주문 정보 조회",
-                    params={"order_id": context["order_id"]}
-                ))
-                steps.append(PlanStep(
-                    tool_name="RefundValidatorTool",
-                    description="환불 가능 여부 검증",
-                    params={},
-                    depends_on=["OrderHistoryTool"]
-                ))
-                steps.append(PlanStep(
-                    tool_name="RefundCalculatorTool",
-                    description="환불 금액 계산",
-                    params={},
-                    depends_on=["RefundValidatorTool"]
-                ))
-                
-        elif intent == "order_status":
-            params = {}
-            if context.get("order_id"):
-                params["order_id"] = context["order_id"]
-            elif context.get("time_reference"):
-                # Simple date calculation
-                if "일주일" in context["time_reference"]:
-                    from datetime import datetime, timedelta
-                    today = datetime(2025, 8, 22)
-                    start = today - timedelta(days=7)
-                    params["start_date"] = start.strftime("%Y-%m-%d")
-                    params["end_date"] = today.strftime("%Y-%m-%d")
-                    
-            steps.append(PlanStep(
-                tool_name="OrderHistoryTool",
-                description="주문 내역 조회",
-                params=params
-            ))
-            
-        elif intent == "product_inquiry":
-            params = {}
-            if context.get("category"):
-                params["category"] = context["category"]
-            if context.get("max_price"):
-                params["max_price"] = context["max_price"]
-                
-            steps.append(PlanStep(
-                tool_name="CatalogTool",
-                description="제품 검색",
-                params=params
-            ))
-        
-        return steps
+
+
     
     @weave.op()
     def adapt_plan(self, current_plan: List[PlanStep], tool_results: Dict[str, Any], user_feedback: str = None) -> List[PlanStep]:

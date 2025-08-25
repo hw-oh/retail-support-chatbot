@@ -1,15 +1,18 @@
 """
-환불 가능 여부 검증 툴
+환불 가능 여부 검증 툴 - LLM 기반
 """
 from typing import Any, Dict, Optional
 from datetime import datetime, timedelta
+import json
 from .base import BaseTool
 from .order_history_tool import OrderHistoryTool
 from .refund_policy_tool import RefundPolicyTool
+from agents.base import get_llm_client
+import config
 
 
 class RefundValidatorTool(BaseTool):
-    """환불 가능 여부를 검증하는 툴"""
+    """환불 가능 여부를 검증하는 툴 - LLM 기반"""
     
     def __init__(self, order_tool: Optional[OrderHistoryTool] = None, 
                  policy_tool: Optional[RefundPolicyTool] = None):
@@ -20,6 +23,7 @@ class RefundValidatorTool(BaseTool):
         self.order_tool = order_tool or OrderHistoryTool()
         self.policy_tool = policy_tool or RefundPolicyTool()
         self.refund_period_days = 7
+        self.llm = get_llm_client()
     
     def execute(self, **kwargs) -> Dict[str, Any]:
         """
@@ -61,75 +65,129 @@ class RefundValidatorTool(BaseTool):
     
     def _perform_validation(self, order: Dict[str, Any], 
                           is_defective: bool, has_usage_trace: bool) -> Dict[str, Any]:
-        """환불 가능 여부 상세 검증"""
+        """환불 가능 여부 상세 검증 - LLM 기반"""
         
-        reasons = []
-        refundable = True
-        
-        # 1. 배송 상태 확인
-        delivery_status = order.get('delivery_status', '')
+        # 환불 정책 조회
         status_policy = self.policy_tool.execute(
             query_type='status_policy', 
-            delivery_status=delivery_status
+            delivery_status=order.get('delivery_status', '')
         )
         
-        if not status_policy['success'] or not status_policy['policy'].get('cancellable', False):
-            refundable = False
-            reasons.append(f"{delivery_status} 상태에서는 환불이 불가능합니다.")
-        
-        # 2. 환불 기간 확인 (배송완료인 경우)
-        if delivery_status == '배송완료':
-            days_passed = self._calculate_days_since_delivery(order)
-            if days_passed is not None:
-                if days_passed > self.refund_period_days:
-                    if not is_defective:  # 불량품은 기간 제한 없음
-                        refundable = False
-                        reasons.append(f"배송완료 후 {self.refund_period_days}일이 경과했습니다. (경과일: {days_passed}일)")
-                else:
-                    reasons.append(f"환불 가능 기간 내입니다. (경과일: {days_passed}일)")
-        
-        # 3. 개인위생용품 확인
-        product_name = order.get('product_name', '')
-        category = order.get('category', '')
         category_check = self.policy_tool.execute(
             query_type='category_check',
-            product_name=product_name,
-            category=category
+            product_name=order.get('product_name', ''),
+            category=order.get('category', '')
         )
         
-        if category_check['is_hygiene_product']:
-            if not is_defective:  # 불량품이 아닌 개인위생용품
-                refundable = False
-                reasons.append("개인위생용품은 불량품이 아닌 경우 환불이 불가능합니다.")
-            else:
-                reasons.append("개인위생용품이지만 불량품이므로 환불 가능합니다.")
+        days_since_delivery = self._calculate_days_since_delivery(order)
         
-        # 4. 사용 흔적 확인
-        if has_usage_trace and not is_defective:
-            reasons.append("사용 흔적이 있는 경우 추가 수수료가 발생할 수 있습니다.")
-        
-        # 5. 수수료 정보
-        if refundable and delivery_status in ['배송중', '배송완료']:
-            fee_applies = status_policy['policy'].get('fee', False)
-            if fee_applies:
-                reasons.append("환불 수수료가 적용됩니다.")
-        
-        return {
-            "success": True,
-            "refundable": refundable,
-            "reasons": reasons,
-            "details": {
+        # LLM에 전달할 정보 구성
+        validation_context = {
+            "current_date": config.CURRENT_DATE,
+            "order_info": {
                 "order_id": order.get('order_id'),
-                "product_name": product_name,
-                "category": category,
-                "delivery_status": delivery_status,
-                "is_hygiene_product": category_check.get('is_hygiene_product', False),
+                "product_name": order.get('product_name', ''),
+                "category": order.get('category', ''),
+                "delivery_status": order.get('delivery_status', ''),
+                "delivery_date": order.get('delivery_date'),
+                "price": order.get('price', 0),
+                "days_since_delivery": days_since_delivery
+            },
+            "product_conditions": {
                 "is_defective": is_defective,
                 "has_usage_trace": has_usage_trace,
-                "days_since_delivery": self._calculate_days_since_delivery(order),
-                "price": order.get('price', 0)  # 가격 정보 추가
+                "is_hygiene_product": category_check.get('is_hygiene_product', False)
+            },
+            "refund_policies": {
+                "refund_period_days": self.refund_period_days,
+                "status_policy": status_policy.get('policy', {}),
+                "hygiene_product_policy": "개인위생용품은 불량품이 아닌 경우 환불 불가",
+                "defective_product_policy": "불량품은 기간 제한 없이 환불 가능",
+                "usage_trace_policy": "사용 흔적이 있는 경우 추가 수수료 적용 가능"
             }
         }
+        
+        # LLM에 검증 요청
+        messages = [
+            {
+                "role": "system",
+                "content": """You are a refund validation expert for a Korean e-commerce platform.
+Based on the provided order information and refund policies, determine if a refund is possible.
+
+Consider all relevant factors:
+1. Delivery status and whether refunds are allowed in that status
+2. Time elapsed since delivery (if applicable)
+3. Product category restrictions (e.g., hygiene products)
+4. Product condition (defective, usage traces)
+5. Applicable fees
+
+Provide clear reasoning for your decision in Korean."""
+            },
+            {
+                "role": "user",
+                "content": f"""Please validate if the following order is eligible for refund:
+
+{json.dumps(validation_context, ensure_ascii=False, indent=2)}
+
+Output in JSON format:
+{{
+    "refundable": boolean,
+    "reasons": ["list of reasons in Korean"],
+    "fee_applies": boolean,
+    "fee_percentage": number (0-100)
+}}"""
+            }
+        ]
+        
+        try:
+            # LLM 응답 schema
+            schema = {
+                "type": "object",
+                "properties": {
+                    "refundable": {"type": "boolean"},
+                    "reasons": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    },
+                    "fee_applies": {"type": "boolean"},
+                    "fee_percentage": {"type": "number", "minimum": 0, "maximum": 100}
+                },
+                "required": ["refundable", "reasons"]
+            }
+            
+            result = self.llm.generate_json(messages, schema=schema)
+            
+            return {
+                "success": True,
+                "refundable": result.get("refundable", False),
+                "reasons": result.get("reasons", []),
+                "details": {
+                    "order_id": order.get('order_id'),
+                    "product_name": order.get('product_name', ''),
+                    "category": order.get('category', ''),
+                    "delivery_status": order.get('delivery_status', ''),
+                    "is_hygiene_product": category_check.get('is_hygiene_product', False),
+                    "is_defective": is_defective,
+                    "has_usage_trace": has_usage_trace,
+                    "days_since_delivery": days_since_delivery,
+                    "price": order.get('price', 0),
+                    "fee_applies": result.get("fee_applies", False),
+                    "fee_percentage": result.get("fee_percentage", 0)
+                }
+            }
+            
+        except Exception as e:
+            print(f"LLM validation error: {e}")
+            # Error fallback
+            return {
+                "success": False,
+                "refundable": False,
+                "reasons": ["환불 가능 여부 검증 중 오류가 발생했습니다."],
+                "details": {
+                    "order_id": order.get('order_id'),
+                    "error": str(e)
+                }
+            }
     
     def _calculate_days_since_delivery(self, order: Dict[str, Any]) -> Optional[int]:
         """배송 완료 후 경과 일수 계산"""
