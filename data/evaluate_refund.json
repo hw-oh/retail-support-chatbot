@@ -11,6 +11,15 @@
       "product_name": "나이키 에어맥스 운동화",
       "category": "신발",
       "price": 89000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "배송완료 후 7일 이내 정상 환불 가능",
+      "refund_fee": 8900,
+      "refund_fee_calculation": "상품 가격의 10% (89,000원 × 10% = 8,900원)",
+      "total_refund_amount": 80100,
+      "additional_cost": "왕복 배송비 고객 부담",
+      "notes": "배송완료 후 3일 경과, 7일 이내 환불 정책 적용"
     }
   },
   {
@@ -25,6 +34,15 @@
       "product_name": "네이처리퍼블릭 알로에젤",
       "category": "화장품",
       "price": 8000
+    },
+    "expected_result": {
+      "refund_possible": false,
+      "reason": "화장품은 개인위생용품으로 환불 불가",
+      "refund_fee": null,
+      "refund_fee_calculation": null,
+      "total_refund_amount": 0,
+      "additional_cost": null,
+      "notes": "불량품이 아닌 단순 변심으로는 화장품 환불 불가"
     }
   },
   {
@@ -39,6 +57,15 @@
       "product_name": "샤오미 보조배터리",
       "category": "전자제품",
       "price": 28000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "배송중 상태에서는 취소 가능하나 환불 수수료 적용",
+      "refund_fee": 2800,
+      "refund_fee_calculation": "상품 가격의 10% (28,000원 × 10% = 2,800원)",
+      "total_refund_amount": 25200,
+      "additional_cost": "왕복 배송비 고객 부담",
+      "notes": "상품 회수 후 환불 처리"
     }
   },
   {
@@ -53,6 +80,15 @@
       "product_name": "컨버스 올스타 스니커즈",
       "category": "신발",
       "price": 67000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "상품준비중 상태에서는 무료 취소 가능",
+      "refund_fee": 0,
+      "refund_fee_calculation": "배송 전 취소는 수수료 없음",
+      "total_refund_amount": 67000,
+      "additional_cost": "없음",
+      "notes": "즉시 처리 가능"
     }
   },
   {
@@ -67,6 +103,15 @@
       "product_name": "닥터마틴 부츠",
       "category": "신발",
       "price": 180000
+    },
+    "expected_result": {
+      "refund_possible": false,
+      "reason": "배송완료 후 7일 초과로 환불 불가",
+      "refund_fee": null,
+      "refund_fee_calculation": null,
+      "total_refund_amount": 0,
+      "additional_cost": null,
+      "notes": "2025-05-26 배송완료 기준 7일 초과 (현재 기준일: 2025-08-25 가정)"
     }
   },
   {
@@ -81,6 +126,15 @@
       "product_name": "입생로랑 립스틱",
       "category": "화장품",
       "price": 42000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "개인위생용품이라도 불량품은 환불 가능",
+      "refund_fee": 4200,
+      "refund_fee_calculation": "상품 가격의 10% (42,000원 × 10% = 4,200원)",
+      "total_refund_amount": 37800,
+      "additional_cost": "왕복 배송비 고객 부담",
+      "notes": "불량품 증빙자료(사진) 필요할 수 있음"
     }
   },
   {
@@ -95,6 +149,15 @@
       "product_name": null,
       "category": null,
       "price": null
+    },
+    "expected_result": {
+      "refund_possible": false,
+      "reason": "주문번호가 존재하지 않아 환불 불가",
+      "refund_fee": null,
+      "refund_fee_calculation": null,
+      "total_refund_amount": 0,
+      "additional_cost": null,
+      "notes": "주문 정보 확인 불가"
     }
   },
   {
@@ -109,6 +172,15 @@
       "product_name": "유니클로 기본 티셔츠",
       "category": "의류",
       "price": 12000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "배송완료 후 7일 이내 정상 환불 가능",
+      "refund_fee": 2000,
+      "refund_fee_calculation": "최소 수수료 적용 (12,000원 × 10% = 1,200원이나 최소 2,000원 적용)",
+      "total_refund_amount": 10000,
+      "additional_cost": "왕복 배송비 고객 부담",
+      "notes": "저가 상품으로 최소 환불 수수료 2,000원 적용"
     }
   },
   {
@@ -123,6 +195,15 @@
       "product_name": "애플 에어팟 프로",
       "category": "전자제품",
       "price": 329000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "배송완료 후 7일 이내 정상 환불 가능",
+      "refund_fee": 32900,
+      "refund_fee_calculation": "상품 가격의 10% (329,000원 × 10% = 32,900원)",
+      "total_refund_amount": 296100,
+      "additional_cost": "왕복 배송비 고객 부담",
+      "notes": "고가 상품으로 환불 수수료가 높음"
     }
   },
   {
@@ -137,6 +218,15 @@
       "product_name": "뉴발란스 러닝화",
       "category": "신발",
       "price": 98000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "배송완료 후 정확히 7일째로 환불 가능",
+      "refund_fee": 9800,
+      "refund_fee_calculation": "상품 가격의 10% (98,000원 × 10% = 9,800원)",
+      "total_refund_amount": 88200,
+      "additional_cost": "왕복 배송비 고객 부담",
+      "notes": "7일 이내 규정에 포함 (당일 포함)"
     }
   },
   {
@@ -151,6 +241,15 @@
       "product_name": "더바디샵 핸드크림",
       "category": "화장품",
       "price": 15000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "개인위생용품이라도 불량품(변질)은 환불 가능",
+      "refund_fee": 2000,
+      "refund_fee_calculation": "최소 수수료 적용 (15,000원 × 10% = 1,500원이나 최소 2,000원 적용)",
+      "total_refund_amount": 13000,
+      "additional_cost": "왕복 배송비 고객 부담",
+      "notes": "변질 증빙자료 필요할 수 있음"
     }
   },
   {
@@ -165,6 +264,15 @@
       "product_name": "아디다스 후드티",
       "category": "의류",
       "price": 45000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "결제완료 상태에서는 무료 취소 가능",
+      "refund_fee": 0,
+      "refund_fee_calculation": "배송 전 취소는 수수료 없음",
+      "total_refund_amount": 45000,
+      "additional_cost": "없음",
+      "notes": "즉시 처리 가능"
     }
   },
   {
@@ -179,6 +287,15 @@
       "product_name": "이니스프리 클렌징폼",
       "category": "화장품",
       "price": 12000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "주문접수 상태에서는 무료 취소 가능",
+      "refund_fee": 0,
+      "refund_fee_calculation": "배송 전 취소는 수수료 없음",
+      "total_refund_amount": 12000,
+      "additional_cost": "없음",
+      "notes": "개인위생용품이라도 배송 전에는 취소 가능"
     }
   },
   {
@@ -193,6 +310,15 @@
       "product_name": "H&M 청바지",
       "category": "의류",
       "price": 29000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "배송완료 후 7일 이내로 환불 가능하나 사용 흔적으로 추가 수수료 발생 가능",
+      "refund_fee": 2900,
+      "refund_fee_calculation": "기본 수수료 10% (29,000원 × 10% = 2,900원) + 추가 수수료 발생 가능",
+      "total_refund_amount": "26,100원 이하",
+      "additional_cost": "왕복 배송비 고객 부담 + 사용 흔적에 따른 추가 수수료",
+      "notes": "상품 상태에 따라 추가 수수료 발생"
     }
   },
   {
@@ -207,6 +333,15 @@
       "product_name": "로지텍 무선마우스",
       "category": "전자제품",
       "price": 32000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "불량품은 환불 가능",
+      "refund_fee": 3200,
+      "refund_fee_calculation": "상품 가격의 10% (32,000원 × 10% = 3,200원)",
+      "total_refund_amount": 28800,
+      "additional_cost": "왕복 배송비 고객 부담",
+      "notes": "불량품도 정상 환불 수수료 적용, 증빙자료 필요할 수 있음"
     }
   },
   {
@@ -221,6 +356,15 @@
       "product_name": "삼성 갤럭시 케이스",
       "category": "전자제품",
       "price": 15000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "배송완료 후 7일 이내 부분 환불 가능",
+      "refund_fee": 2000,
+      "refund_fee_calculation": "최소 수수료 적용 (15,000원 × 10% = 1,500원이나 최소 2,000원 적용)",
+      "total_refund_amount": 13000,
+      "additional_cost": "왕복 배송비 고객 부담",
+      "notes": "다른 상품은 환불하지 않고 해당 상품만 환불"
     }
   },
   {
@@ -235,6 +379,15 @@
       "product_name": "다이슨 헤어드라이어",
       "category": "전자제품",
       "price": 450000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "배송 중 파손은 환불 가능",
+      "refund_fee": 45000,
+      "refund_fee_calculation": "상품 가격의 10% (450,000원 × 10% = 45,000원)",
+      "total_refund_amount": 405000,
+      "additional_cost": "왕복 배송비 고객 부담",
+      "notes": "배송 파손도 정상 환불 수수료 적용, 파손 증빙자료 필요"
     }
   },
   {
@@ -249,6 +402,15 @@
       "product_name": "설화수 토너",
       "category": "화장품",
       "price": 68000
+    },
+    "expected_result": {
+      "refund_possible": false,
+      "reason": "화장품은 개인위생용품으로 알레르기 반응은 불량품에 해당하지 않아 환불 불가",
+      "refund_fee": null,
+      "refund_fee_calculation": null,
+      "total_refund_amount": 0,
+      "additional_cost": null,
+      "notes": "개인 체질에 의한 알레르기는 제품 불량이 아님"
     }
   },
   {
@@ -263,6 +425,15 @@
       "product_name": "플라잉니트 러닝화",
       "category": "신발",
       "price": 129000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "배송완료 후 7일 이내 환불 가능 (교환은 별도 정책)",
+      "refund_fee": 12900,
+      "refund_fee_calculation": "상품 가격의 10% (129,000원 × 10% = 12,900원)",
+      "total_refund_amount": 116100,
+      "additional_cost": "왕복 배송비 고객 부담",
+      "notes": "환불 정책만 적용, 교환은 별도 문의 필요"
     }
   },
   {
@@ -277,6 +448,15 @@
       "product_name": "캐나다구스 패딩",
       "category": "의류",
       "price": 890000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "배송완료 당일로 7일 이내 환불 가능",
+      "refund_fee": 89000,
+      "refund_fee_calculation": "상품 가격의 10% (890,000원 × 10% = 89,000원)",
+      "total_refund_amount": 801000,
+      "additional_cost": "왕복 배송비 고객 부담",
+      "notes": "고가 상품으로 환불 수수료가 매우 높음"
     }
   },
   {
@@ -291,6 +471,15 @@
       "product_name": "LG 모니터",
       "category": "전자제품",
       "price": 320000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "상품준비중 상태에서는 무료 취소 가능",
+      "refund_fee": 0,
+      "refund_fee_calculation": "배송 전 취소는 수수료 없음",
+      "total_refund_amount": 320000,
+      "additional_cost": "없음",
+      "notes": "즉시 처리 가능"
     }
   },
   {
@@ -305,6 +494,15 @@
       "product_name": "샤넬 향수",
       "category": "화장품",
       "price": 120000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "결제완료 상태에서는 무료 취소 가능",
+      "refund_fee": 0,
+      "refund_fee_calculation": "배송 전 취소는 수수료 없음",
+      "total_refund_amount": 120000,
+      "additional_cost": "없음",
+      "notes": "아직 배송 전이므로 개인위생용품이라도 취소 가능"
     }
   },
   {
@@ -319,6 +517,15 @@
       "product_name": "티임버랜드 워크부츠",
       "category": "신발",
       "price": 179000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "주문접수 상태에서는 무료 취소 가능",
+      "refund_fee": 0,
+      "refund_fee_calculation": "배송 전 취소는 수수료 없음",
+      "total_refund_amount": 179000,
+      "additional_cost": "없음",
+      "notes": "아직 배송 전이므로 착용 여부와 관계없이 취소 가능"
     }
   },
   {
@@ -333,6 +540,15 @@
       "product_name": "챔피언 맨투맨",
       "category": "의류",
       "price": 42000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "결제완료 상태에서는 무료 취소 가능",
+      "refund_fee": 0,
+      "refund_fee_calculation": "배송 전 취소는 수수료 없음",
+      "total_refund_amount": 42000,
+      "additional_cost": "없음",
+      "notes": "아직 배송 전이므로 세탁 여부와 관계없이 취소 가능"
     }
   },
   {
@@ -347,6 +563,15 @@
       "product_name": "젠하이저 이어폰",
       "category": "전자제품",
       "price": 89000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "배송완료 후 7일 이내 환불 가능",
+      "refund_fee": 8900,
+      "refund_fee_calculation": "상품 가격의 10% (89,000원 × 10% = 8,900원)",
+      "total_refund_amount": 80100,
+      "additional_cost": "왕복 배송비 고객 부담",
+      "notes": "박스 개봉 정도는 사용 흔적으로 보지 않음"
     }
   },
   {
@@ -361,6 +586,15 @@
       "product_name": "키엘 크림",
       "category": "화장품",
       "price": 48000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "주문접수 상태에서는 무료 취소 가능",
+      "refund_fee": 0,
+      "refund_fee_calculation": "배송 전 취소는 수수료 없음",
+      "total_refund_amount": 48000,
+      "additional_cost": "없음",
+      "notes": "아직 배송 전이므로 개인위생용품이라도 취소 가능"
     }
   },
   {
@@ -375,6 +609,15 @@
       "product_name": "올버즈 울 러너",
       "category": "신발",
       "price": 98000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "배송완료 후 7일 이내 환불 가능",
+      "refund_fee": 9800,
+      "refund_fee_calculation": "상품 가격의 10% (98,000원 × 10% = 9,800원)",
+      "total_refund_amount": 88200,
+      "additional_cost": "왕복 배송비 고객 부담",
+      "notes": "실내 착용은 사용 흔적이 적어 정상 환불 처리"
     }
   },
   {
@@ -389,6 +632,15 @@
       "product_name": "노스페이스 바람막이",
       "category": "의류",
       "price": 120000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "배송완료 후 7일 이내 환불 가능",
+      "refund_fee": 12000,
+      "refund_fee_calculation": "상품 가격의 10% (120,000원 × 10% = 12,000원)",
+      "total_refund_amount": 108000,
+      "additional_cost": "왕복 배송비 고객 부담",
+      "notes": "택 제거는 일반적인 사용 준비로 간주"
     }
   },
   {
@@ -403,6 +655,15 @@
       "product_name": "마이크로소프트 마우스",
       "category": "전자제품",
       "price": 45000
+    },
+    "expected_result": {
+      "refund_possible": true,
+      "reason": "주문접수 상태에서는 무료 취소 가능",
+      "refund_fee": 0,
+      "refund_fee_calculation": "배송 전 취소는 수수료 없음",
+      "total_refund_amount": 45000,
+      "additional_cost": "없음",
+      "notes": "아직 배송 전이므로 사용 여부와 관계없이 취소 가능"
     }
   },
   {
@@ -417,6 +678,15 @@
       "product_name": "토니앤가이 샴푸",
       "category": "화장품",
       "price": 25000
+    },
+    "expected_result": {
+      "refund_possible": false,
+      "reason": "샴푸는 개인위생용품으로 사용 후 환불 불가",
+      "refund_fee": null,
+      "refund_fee_calculation": null,
+      "total_refund_amount": 0,
+      "additional_cost": null,
+      "notes": "개인위생용품은 사용 후 환불 불가 (불량품 제외)"
     }
   }
 ]
