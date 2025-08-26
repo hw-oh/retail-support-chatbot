@@ -58,15 +58,28 @@ class SimplifiedChatbot:
             agent = self.agents.get(intent, self.agents['general_chat'])
         
         # 3. 에이전트 실행
-        response = agent.handle(user_input, self.conversation_context)
+        agent_response = agent.handle(user_input, self.conversation_context)
         
-        # 4. 컨텍스트 업데이트
-        self.conversation_context.append({
-            'user': user_input,
-            'bot': response,
-            'intent': intent,
-            'entities': entities
-        })
+        # 4. 응답 처리 (refund agent는 구조화된 응답 반환)
+        if intent == 'refund_inquiry' and isinstance(agent_response, dict):
+            response = agent_response.get('user_response', str(agent_response))
+            # 컨텍스트에는 전체 구조화된 응답 저장
+            self.conversation_context.append({
+                'user': user_input,
+                'bot': response,
+                'agent_data': agent_response,  # 구조화된 데이터 저장
+                'intent': intent,
+                'entities': entities
+            })
+        else:
+            response = str(agent_response)
+            # 4. 컨텍스트 업데이트
+            self.conversation_context.append({
+                'user': user_input,
+                'bot': response,
+                'intent': intent,
+                'entities': entities
+            })
         
         return response
     

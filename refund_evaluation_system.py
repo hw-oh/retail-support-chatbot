@@ -3,12 +3,7 @@ import weave
 import asyncio
 from typing import Dict, List, Any
 from simple_chatbot import SimplifiedChatbot
-from scorers import (
-    refund_decision_accuracy,
-    reason_quality_score,
-    refund_fee_accuracy,
-    policy_compliance_score
-)
+# 스코어링 함수들은 get_scoring_functions()에서 동적으로 import
 
 class RefundChatbotModel(weave.Model):
     """환불 챗봇 평가를 위한 Weave Model 클래스 (단일 챗 사용)"""
@@ -29,10 +24,23 @@ class RefundChatbotModel(weave.Model):
             chatbot = SimplifiedChatbot()
             response = chatbot.chat(user_query)
             
-            return {
+            # 챗봇의 conversation_context에서 agent_data 추출
+            agent_data = None
+            if chatbot.conversation_context:
+                last_turn = chatbot.conversation_context[-1]
+                agent_data = last_turn.get('agent_data')
+            
+            result = {
                 "response": response,
                 "user_query": user_query
             }
+            
+            # agent_data가 있으면 포함
+            if agent_data:
+                result["agent_data"] = agent_data
+            
+            return result
+            
         except Exception as e:
             return {
                 "response": f"Error: {str(e)}",
@@ -62,12 +70,19 @@ def get_scoring_functions():
     """스코어링 함수들을 반환 (Weave에 자동 등록됨)"""
     print("📝 스코어링 함수들 준비 중...")
     
-    # 스코어링 함수들 (이미 @weave.op()로 등록됨)
+    # 새로운 간단한 스코어링 함수들 (이미 @weave.op()로 등록됨)
+    from scorers import (
+        exact_match_refund_decision,
+        llm_judge_reason_quality,
+        exact_match_refund_fee,
+        llm_judge_policy_compliance
+    )
+    
     scorers = [
-        refund_decision_accuracy,
-        reason_quality_score,
-        refund_fee_accuracy,
-        policy_compliance_score
+        exact_match_refund_decision,
+        llm_judge_reason_quality,
+        exact_match_refund_fee,
+        llm_judge_policy_compliance
     ]
     
     print("✅ 모든 스코어링 함수 준비 완료")
@@ -139,13 +154,14 @@ async def run_sample_evaluation(sample_size: int = 5):
         
         # 각 스코어러로 평가
         scores = {}
-        scorer_names = ['refund_decision_accuracy', 'reason_quality_score', 'refund_fee_accuracy', 'policy_compliance_score']
+        scorer_names = ['exact_match_refund_decision', 'llm_judge_reason_quality', 'exact_match_refund_fee', 'llm_judge_policy_compliance']
         
         for i, scorer_func in enumerate(scorer_functions):
             scorer_name = scorer_names[i]
             try:
                 score_result = scorer_func(example['expected_result'], prediction)
                 scores[scorer_name] = score_result
+                # print(f"DEBUG {scorer_name} 결과: {score_result}")
             except Exception as e:
                 print(f"⚠️ {scorer_name} 평가 실패: {e}")
                 scores[scorer_name] = {"error": str(e)}
@@ -153,23 +169,26 @@ async def run_sample_evaluation(sample_size: int = 5):
         # 결과 출력
         print(f"📊 평가 결과:")
         for scorer_name, score_data in scores.items():
-            if "error" not in score_data:
+            if isinstance(score_data, dict) and "error" not in score_data:
                 main_score = None
-                if "accuracy" in score_data:
-                    main_score = score_data["accuracy"]
-                elif "reason_score" in score_data:
-                    main_score = score_data["reason_score"]
-                elif "fee_accuracy" in score_data:
-                    main_score = score_data["fee_accuracy"]
-                elif "policy_compliance" in score_data:
-                    main_score = score_data["policy_compliance"]
+                # 새로운 스코어링 함수의 키에 맞춰 조정
+                if "refund_decision_accuracy" in score_data:
+                    main_score = score_data["refund_decision_accuracy"]
+                elif "reason_quality_score" in score_data:
+                    main_score = score_data["reason_quality_score"]
+                elif "refund_fee_accuracy" in score_data:
+                    main_score = score_data["refund_fee_accuracy"]
+                elif "policy_compliance_score" in score_data:
+                    main_score = score_data["policy_compliance_score"]
                 
                 if main_score is not None:
                     print(f"  - {scorer_name}: {main_score:.3f}")
                 else:
                     print(f"  - {scorer_name}: {score_data}")
+            elif isinstance(score_data, dict) and "error" in score_data:
+                print(f"  - {scorer_name}: ERROR ({score_data['error']})")
             else:
-                print(f"  - {scorer_name}: ERROR")
+                print(f"  - {scorer_name}: {score_data}")
         
         results.append({
             "example": example,
@@ -182,20 +201,20 @@ async def run_sample_evaluation(sample_size: int = 5):
     
     # 평균 점수 계산
     scorer_averages = {}
-    scorer_names = ['refund_decision_accuracy', 'reason_quality_score', 'refund_fee_accuracy', 'policy_compliance_score']
+    scorer_names = ['exact_match_refund_decision', 'llm_judge_reason_quality', 'exact_match_refund_fee', 'llm_judge_policy_compliance']
     for scorer_name in scorer_names:
         valid_scores = []
         for result in results:
             score_data = result["scores"].get(scorer_name, {})
-            if "error" not in score_data:
-                if "accuracy" in score_data:
-                    valid_scores.append(score_data["accuracy"])
-                elif "reason_score" in score_data:
-                    valid_scores.append(score_data["reason_score"])
-                elif "fee_accuracy" in score_data:
-                    valid_scores.append(score_data["fee_accuracy"])
-                elif "policy_compliance" in score_data:
-                    valid_scores.append(score_data["policy_compliance"])
+            if isinstance(score_data, dict) and "error" not in score_data:
+                if "refund_decision_accuracy" in score_data:
+                    valid_scores.append(score_data["refund_decision_accuracy"])
+                elif "reason_quality_score" in score_data:
+                    valid_scores.append(score_data["reason_quality_score"])
+                elif "refund_fee_accuracy" in score_data:
+                    valid_scores.append(score_data["refund_fee_accuracy"])
+                elif "policy_compliance_score" in score_data:
+                    valid_scores.append(score_data["policy_compliance_score"])
         
         if valid_scores:
             scorer_averages[scorer_name] = sum(valid_scores) / len(valid_scores)

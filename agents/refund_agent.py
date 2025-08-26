@@ -2,6 +2,8 @@
 Refund Management Agent
 """
 import weave
+import json
+import re
 from typing import List, Dict, Any
 from .base import LLMClient
 from prompts.weave_prompts import prompt_manager
@@ -18,7 +20,7 @@ class RefundAgent:
             self.refund_policy = f.read()
     
     @weave.op()
-    def handle(self, user_input: str, context: List[Dict[str, Any]]) -> str:
+    def handle(self, user_input: str, context: List[Dict[str, Any]]) -> Dict[str, Any]:
         """환불 문의 처리"""
         
         # 대화 컨텍스트 준비
@@ -42,13 +44,59 @@ class RefundAgent:
 
 ## 작업 지시
 위 대화 맥락을 고려하여 사용자의 환불 요청을 처리해주세요. 
-- 이전 대화에서 언급된 상품들이 있다면 그것을 기준으로 판단
-- 각 상품별로 구체적인 환불 가능 여부와 이유를 설명
-- 환불 정책을 정확히 적용하여 안내"""
+응답은 다음 형식의 JSON으로 제공해주세요:
+
+{{
+    "refund_possible": true/false,
+    "refund_fee": 숫자 (환불 수수료, 없으면 0),
+    "total_refund_amount": 숫자 (실제 환불 금액),
+    "reason": "환불 가능/불가능한 상세 이유",
+    "user_response": "사용자에게 보여줄 친절한 응답",
+    "policy_applied": ["적용된 정책 목록"]
+}}
+
+정확한 JSON 형식으로 응답해주세요."""
 
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
         ]
         
-        return self.llm.chat(messages)
+        response = self.llm.chat(messages)
+        
+        # JSON 파싱 시도
+        try:
+            # JSON 코드 블록 제거
+            if "```json" in response:
+                json_match = re.search(r'```json\s*(.*?)\s*```', response, re.DOTALL)
+                if json_match:
+                    response = json_match.group(1)
+            elif "```" in response:
+                json_match = re.search(r'```\s*(.*?)\s*```', response, re.DOTALL)
+                if json_match:
+                    response = json_match.group(1)
+            
+            parsed_response = json.loads(response.strip())
+            
+            # 필수 필드 확인 및 기본값 설정
+            result = {
+                "refund_possible": parsed_response.get("refund_possible", False),
+                "refund_fee": parsed_response.get("refund_fee", 0),
+                "total_refund_amount": parsed_response.get("total_refund_amount", 0),
+                "reason": parsed_response.get("reason", "환불 판단 정보 없음"),
+                "user_response": parsed_response.get("user_response", response),
+                "policy_applied": parsed_response.get("policy_applied", [])
+            }
+            
+            return result
+            
+        except (json.JSONDecodeError, AttributeError) as e:
+            # JSON 파싱 실패시 기본 응답 구조 반환
+            return {
+                "refund_possible": None,
+                "refund_fee": 0,
+                "total_refund_amount": 0,
+                "reason": "JSON 파싱 실패",
+                "user_response": response,
+                "policy_applied": []
+            }
