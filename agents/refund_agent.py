@@ -105,11 +105,25 @@ class RefundAgent:
                 "conversational_response": response
             }
     
+    def _safe_convert_to_number(self, value) -> float:
+        """값을 안전하게 숫자로 변환"""
+        if isinstance(value, (int, float)):
+            return float(value)
+        elif isinstance(value, str):
+            try:
+                # 쉼표 제거 후 숫자 변환
+                cleaned_value = value.replace(',', '').replace('원', '').strip()
+                return float(cleaned_value)
+            except (ValueError, AttributeError):
+                return 0.0
+        else:
+            return 0.0
+    
     def _generate_conversational_response(self, result: Dict[str, Any]) -> str:
         """구조화된 응답을 자연스러운 대화체로 변환"""
         refund_possible = result.get("refund_possible", False)
-        refund_fee = result.get("refund_fee", 0)
-        total_amount = result.get("total_refund_amount", 0)
+        refund_fee = self._safe_convert_to_number(result.get("refund_fee", 0))
+        total_amount = self._safe_convert_to_number(result.get("total_refund_amount", 0))
         reason = result.get("reason", "")
         
         if refund_possible:
@@ -117,11 +131,11 @@ class RefundAgent:
             response = "네, 해당 주문에 대한 환불이 가능합니다! 😊\n\n"
             
             if refund_fee > 0:
-                response += f"🔸 환불 수수료: {refund_fee:,}원\n"
-                response += f"🔸 실제 환불 금액: {total_amount:,}원\n\n"
+                response += f"🔸 환불 수수료: {int(refund_fee):,}원\n"
+                response += f"🔸 실제 환불 금액: {int(total_amount):,}원\n\n"
                 response += "환불 시 수수료가 차감되어 처리됩니다. "
             else:
-                response += f"🔸 환불 금액: {total_amount:,}원\n\n"
+                response += f"🔸 환불 금액: {int(total_amount):,}원\n\n"
                 response += "수수료 없이 전액 환불해드립니다! "
             
             response += "환불 처리를 원하시면 말씀해 주세요.\n\n"
