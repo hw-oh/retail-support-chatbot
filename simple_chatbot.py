@@ -45,8 +45,6 @@ class SimplifiedChatbot:
         intent = intent_result.get('intent', 'general_chat')
         entities = intent_result.get('entities', {})
         
-        print(f"[의도: {intent}, 엔티티: {entities}]")
-        
         # 2. 적절한 에이전트에 라우팅
         if intent == 'clarification':
             # 이전 컨텍스트 기반으로 적절한 에이전트 선택

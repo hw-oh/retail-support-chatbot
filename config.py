@@ -18,6 +18,7 @@ class Config:
     OPENAI_MINI_MODEL: str = os.getenv("OPENAI_MINI_MODEL", "gpt-4o-mini")  # Smaller model for tools
     POLICY_COMPLIANCE_MODEL: str = os.getenv("POLICY_COMPLIANCE_MODEL", "gpt-4o-mini")
     REASON_QUALITY_MODEL: str = os.getenv("REASON_QUALITY_MODEL", "gpt-4o-mini")
+    REFUND_DECISION_MODEL: str = os.getenv("REFUND_DECISION_MODEL", "gpt-4o-mini")
     TEMPERATURE: float = float(os.getenv("TEMPERATURE", "0.7"))
     MAX_TOKENS: int = int(os.getenv("MAX_TOKENS", "2000"))
     

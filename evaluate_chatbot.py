@@ -60,14 +60,17 @@ def reasoning_performance_evaluation(target: Dict, output: Dict) -> Dict[str, An
 
 @weave.op()
 def refund_accuracy_evaluation(target: Dict, output: Dict) -> Dict[str, Any]:
-    """환불 정확도 평가 - 정확도만 반환"""
+    """환불 정확도 평가 - LLM 기반 평가 (점수 + 이유)"""
     scorer = RefundDecisionScorer()
     result = scorer.score(target, output)
-    return {"accuracy": result.get("accuracy", 0.0)}
+    return {
+        "accuracy": result.get("accuracy", 0.0),
+        "reason": result.get("reason", "평가 결과 없음")
+    }
 
 def load_evaluation_dataset():
     """평가 데이터셋 로드"""
-    with open('data/evaluate_refund.json', 'r', encoding='utf-8') as f:
+    with open('data/evaluation_dataset_policy_conflicts.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     
     # 새로운 JSON 구조에서 test_cases 배열 추출
@@ -101,7 +104,7 @@ async def main():
     # 평가 설정 - 3가지 핵심 평가만 수행
     evaluation = weave.Evaluation(
         name="refund_chatbot_simplified_evaluation",
-        dataset=examples[:10],
+        dataset=examples,
         scorers=[
             policy_compliance_evaluation,      # 정책 준수
             reasoning_performance_evaluation,  # 추론 성능
@@ -113,7 +116,7 @@ async def main():
     print("📋 평가 항목:")
     print("   1. 정책 준수 (Policy Compliance) - LLM 기반 평가 (점수 + 이유)")
     print("   2. 추론 성능 (Reasoning Performance) - LLM 기반 평가 (점수 + 이유)")
-    print("   3. 환불 정확도 (Refund Accuracy) - 규칙 기반 평가 (점수만)")
+    print("   3. 환불 정확도 (Refund Accuracy) - LLM 기반 평가 (점수 + 이유)")
     
     # 평가 실행
     results = await evaluation.evaluate(model)
