@@ -5,9 +5,6 @@ from typing import Dict, Any
 class RefundDecisionScorer(weave.Model):
     """환불 여부 결정 정확도를 평가하는 스코어러"""
     
-    def __init__(self):
-        pass
-    
     @weave.op()
     def score(self, target: Dict, model_output: Dict) -> Dict[str, Any]:
         """
@@ -31,10 +28,7 @@ class RefundDecisionScorer(weave.Model):
         
         correct = bool(expected) == bool(predicted)
         return {
-            "accuracy": 1.0 if correct else 0.0,
-            "correct": correct,
-            "expected": expected,
-            "predicted": predicted
+            "accuracy": 1.0 if correct else 0.0
         }
     
     def _extract_refund_decision(self, response: str) -> bool:

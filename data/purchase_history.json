@@ -4,7 +4,7 @@
     "product_name": "마이크로소프트 마우스",
     "price": 45000,
     "category": "전자제품",
-    "purchase_date": "2025-08-19",
+    "purchase_date": "2025-09-05",
     "delivery_date": null,
     "delivery_status": "주문접수"
   },
@@ -13,8 +13,8 @@
     "product_name": "노스페이스 바람막이",
     "price": 120000,
     "category": "의류",
-    "purchase_date": "2025-08-17",
-    "delivery_date": "2025-08-20",
+    "purchase_date": "2025-09-04",
+    "delivery_date": "2025-09-07",
     "delivery_status": "배송완료"
   },
   {
@@ -22,8 +22,8 @@
     "product_name": "올버즈 울 러너",
     "price": 98000,
     "category": "신발",
-    "purchase_date": "2025-08-14",
-    "delivery_date": "2025-08-16",
+    "purchase_date": "2025-09-03",
+    "delivery_date": "2025-09-07",
     "delivery_status": "배송완료"
   },
   {
@@ -31,7 +31,7 @@
     "product_name": "키엘 크림",
     "price": 48000,
     "category": "화장품",
-    "purchase_date": "2025-08-12",
+    "purchase_date": "2025-09-02",
     "delivery_date": null,
     "delivery_status": "주문접수"
   },
@@ -40,8 +40,8 @@
     "product_name": "젠하이저 이어폰",
     "price": 89000,
     "category": "전자제품",
-    "purchase_date": "2025-08-09",
-    "delivery_date": "2025-08-11",
+    "purchase_date": "2025-09-01",
+    "delivery_date": "2025-09-04",
     "delivery_status": "배송완료"
   },
   {
@@ -49,7 +49,7 @@
     "product_name": "챔피언 맨투맨",
     "price": 42000,
     "category": "의류",
-    "purchase_date": "2025-08-07",
+    "purchase_date": "2025-08-31",
     "delivery_date": null,
     "delivery_status": "결제완료"
   },
@@ -58,7 +58,7 @@
     "product_name": "티임버랜드 워크부츠",
     "price": 179000,
     "category": "신발",
-    "purchase_date": "2025-08-05",
+    "purchase_date": "2025-08-30",
     "delivery_date": null,
     "delivery_status": "주문접수"
   },
@@ -67,7 +67,7 @@
     "product_name": "샤넬 향수",
     "price": 120000,
     "category": "화장품",
-    "purchase_date": "2025-08-04",
+    "purchase_date": "2025-08-29",
     "delivery_date": null,
     "delivery_status": "결제완료"
   },
@@ -76,7 +76,7 @@
     "product_name": "LG 모니터",
     "price": 320000,
     "category": "전자제품",
-    "purchase_date": "2025-08-02",
+    "purchase_date": "2025-08-28",
     "delivery_date": null,
     "delivery_status": "상품준비중"
   },
@@ -85,7 +85,7 @@
     "product_name": "캐나다구스 패딩",
     "price": 890000,
     "category": "의류",
-    "purchase_date": "2025-07-29",
+    "purchase_date": "2025-08-27",
     "delivery_date": null,
     "delivery_status": "배송중"
   },
@@ -94,8 +94,8 @@
     "product_name": "플라잉니트 러닝화",
     "price": 129000,
     "category": "신발",
-    "purchase_date": "2025-07-26",
-    "delivery_date": "2025-07-29",
+    "purchase_date": "2025-08-26",
+    "delivery_date": "2025-08-29",
     "delivery_status": "배송완료"
   },
   {
@@ -103,8 +103,8 @@
     "product_name": "설화수 토너",
     "price": 68000,
     "category": "화장품",
-    "purchase_date": "2025-07-22",
-    "delivery_date": "2025-07-24",
+    "purchase_date": "2025-08-25",
+    "delivery_date": "2025-08-29",
     "delivery_status": "배송완료"
   },
   {
@@ -112,8 +112,8 @@
     "product_name": "다이슨 헤어드라이어",
     "price": 450000,
     "category": "전자제품",
-    "purchase_date": "2025-07-18",
-    "delivery_date": "2025-07-22",
+    "purchase_date": "2025-08-24",
+    "delivery_date": "2025-08-26",
     "delivery_status": "배송완료"
   },
   {
@@ -121,8 +121,8 @@
     "product_name": "토니앤가이 샴푸",
     "price": 25000,
     "category": "화장품",
-    "purchase_date": "2025-07-17",
-    "delivery_date": "2025-07-21",
+    "purchase_date": "2025-08-23",
+    "delivery_date": "2025-08-26",
     "delivery_status": "배송완료"
   },
   {
@@ -130,8 +130,8 @@
     "product_name": "폴로 셔츠",
     "price": 65000,
     "category": "의류",
-    "purchase_date": "2025-07-14",
-    "delivery_date": "2025-07-17",
+    "purchase_date": "2025-08-22",
+    "delivery_date": "2025-08-26",
     "delivery_status": "배송완료"
   },
   {
@@ -139,8 +139,8 @@
     "product_name": "버켄스탁 샌들",
     "price": 89000,
     "category": "신발",
-    "purchase_date": "2025-07-11",
-    "delivery_date": "2025-07-13",
+    "purchase_date": "2025-08-21",
+    "delivery_date": "2025-08-23",
     "delivery_status": "배송완료"
   },
   {
@@ -148,8 +148,8 @@
     "product_name": "랑콤 마스카라",
     "price": 35000,
     "category": "화장품",
-    "purchase_date": "2025-07-09",
-    "delivery_date": "2025-07-12",
+    "purchase_date": "2025-08-20",
+    "delivery_date": "2025-08-23",
     "delivery_status": "배송완료"
   },
   {
@@ -157,8 +157,8 @@
     "product_name": "하만카돈 스피커",
     "price": 180000,
     "category": "전자제품",
-    "purchase_date": "2025-07-06",
-    "delivery_date": "2025-07-10",
+    "purchase_date": "2025-08-19",
+    "delivery_date": "2025-08-23",
     "delivery_status": "배송완료"
   },
   {
@@ -166,8 +166,8 @@
     "product_name": "리바이스 재킷",
     "price": 89000,
     "category": "의류",
-    "purchase_date": "2025-07-04",
-    "delivery_date": "2025-07-07",
+    "purchase_date": "2025-08-18",
+    "delivery_date": "2025-08-20",
     "delivery_status": "배송완료"
   },
   {
@@ -175,8 +175,8 @@
     "product_name": "크록스 샌들",
     "price": 45000,
     "category": "신발",
-    "purchase_date": "2025-06-30",
-    "delivery_date": "2025-07-02",
+    "purchase_date": "2025-08-17",
+    "delivery_date": "2025-08-20",
     "delivery_status": "배송완료"
   },
   {
@@ -184,8 +184,8 @@
     "product_name": "에스티로더 파운데이션",
     "price": 52000,
     "category": "화장품",
-    "purchase_date": "2025-06-28",
-    "delivery_date": "2025-07-02",
+    "purchase_date": "2025-08-16",
+    "delivery_date": "2025-08-20",
     "delivery_status": "배송완료"
   },
   {
@@ -193,8 +193,8 @@
     "product_name": "애플 아이패드 케이스",
     "price": 45000,
     "category": "전자제품",
-    "purchase_date": "2025-06-27",
-    "delivery_date": "2025-07-01",
+    "purchase_date": "2025-08-15",
+    "delivery_date": "2025-08-17",
     "delivery_status": "배송완료"
   },
   {
@@ -202,8 +202,8 @@
     "product_name": "칼하트 작업바지",
     "price": 89000,
     "category": "의류",
-    "purchase_date": "2025-06-25",
-    "delivery_date": "2025-06-29",
+    "purchase_date": "2025-08-14",
+    "delivery_date": "2025-08-17",
     "delivery_status": "배송완료"
   },
   {
@@ -211,8 +211,8 @@
     "product_name": "조던 농구화",
     "price": 159000,
     "category": "신발",
-    "purchase_date": "2025-06-23",
-    "delivery_date": "2025-06-26",
+    "purchase_date": "2025-08-13",
+    "delivery_date": "2025-08-17",
     "delivery_status": "배송완료"
   },
   {
@@ -220,8 +220,8 @@
     "product_name": "아모레퍼시픽 세럼",
     "price": 85000,
     "category": "화장품",
-    "purchase_date": "2025-06-19",
-    "delivery_date": "2025-06-23",
+    "purchase_date": "2025-08-12",
+    "delivery_date": "2025-08-14",
     "delivery_status": "배송완료"
   },
   {
@@ -229,8 +229,8 @@
     "product_name": "애플 맥북 어댑터",
     "price": 79000,
     "category": "전자제품",
-    "purchase_date": "2025-06-18",
-    "delivery_date": "2025-06-21",
+    "purchase_date": "2025-08-11",
+    "delivery_date": "2025-08-14",
     "delivery_status": "배송완료"
   },
   {
@@ -238,8 +238,8 @@
     "product_name": "스케쳐스 워킹화",
     "price": 69000,
     "category": "신발",
-    "purchase_date": "2025-06-16",
-    "delivery_date": "2025-06-19",
+    "purchase_date": "2025-08-10",
+    "delivery_date": "2025-08-14",
     "delivery_status": "배송완료"
   },
   {
@@ -247,8 +247,8 @@
     "product_name": "펜디 수영복",
     "price": 89000,
     "category": "의류",
-    "purchase_date": "2025-06-14",
-    "delivery_date": "2025-06-17",
+    "purchase_date": "2025-08-09",
+    "delivery_date": "2025-08-11",
     "delivery_status": "배송완료"
   },
   {
@@ -256,8 +256,8 @@
     "product_name": "미샤 쿠션",
     "price": 18000,
     "category": "화장품",
-    "purchase_date": "2025-06-12",
-    "delivery_date": "2025-06-14",
+    "purchase_date": "2025-08-08",
+    "delivery_date": "2025-08-11",
     "delivery_status": "배송완료"
   },
   {
@@ -265,8 +265,8 @@
     "product_name": "삼성 갤럭시 워치",
     "price": 280000,
     "category": "전자제품",
-    "purchase_date": "2025-06-09",
-    "delivery_date": "2025-06-11",
+    "purchase_date": "2025-08-07",
+    "delivery_date": "2025-08-11",
     "delivery_status": "배송완료"
   },
   {
@@ -274,8 +274,8 @@
     "product_name": "GAP 후드집업",
     "price": 55000,
     "category": "의류",
-    "purchase_date": "2025-06-05",
-    "delivery_date": "2025-06-07",
+    "purchase_date": "2025-08-06",
+    "delivery_date": "2025-08-08",
     "delivery_status": "배송완료"
   },
   {
@@ -283,8 +283,8 @@
     "product_name": "어그 무카신",
     "price": 120000,
     "category": "신발",
-    "purchase_date": "2025-06-04",
-    "delivery_date": "2025-06-06",
+    "purchase_date": "2025-08-05",
+    "delivery_date": "2025-08-08",
     "delivery_status": "배송완료"
   },
   {
@@ -292,8 +292,8 @@
     "product_name": "클리니크 BB크림",
     "price": 38000,
     "category": "화장품",
-    "purchase_date": "2025-06-03",
-    "delivery_date": "2025-06-07",
+    "purchase_date": "2025-08-04",
+    "delivery_date": "2025-08-08",
     "delivery_status": "배송완료"
   },
   {
@@ -301,8 +301,8 @@
     "product_name": "소니 헤드폰",
     "price": 150000,
     "category": "전자제품",
-    "purchase_date": "2025-05-31",
-    "delivery_date": "2025-06-02",
+    "purchase_date": "2025-08-03",
+    "delivery_date": "2025-08-05",
     "delivery_status": "배송완료"
   },
   {
@@ -310,8 +310,8 @@
     "product_name": "무지 스웨터",
     "price": 39000,
     "category": "의류",
-    "purchase_date": "2025-05-28",
-    "delivery_date": "2025-05-31",
+    "purchase_date": "2025-08-02",
+    "delivery_date": "2025-08-05",
     "delivery_status": "배송완료"
   },
   {
@@ -319,8 +319,8 @@
     "product_name": "닥터마틴 부츠",
     "price": 180000,
     "category": "신발",
-    "purchase_date": "2025-05-24",
-    "delivery_date": "2025-05-26",
+    "purchase_date": "2025-08-01",
+    "delivery_date": "2025-08-05",
     "delivery_status": "배송완료"
   },
   {
@@ -328,7 +328,7 @@
     "product_name": "이니스프리 클렌징폼",
     "price": 12000,
     "category": "화장품",
-    "purchase_date": "2025-05-21",
+    "purchase_date": "2025-07-31",
     "delivery_date": null,
     "delivery_status": "주문접수"
   },
@@ -337,7 +337,7 @@
     "product_name": "아디다스 후드티",
     "price": 45000,
     "category": "의류",
-    "purchase_date": "2025-05-19",
+    "purchase_date": "2025-07-30",
     "delivery_date": null,
     "delivery_status": "결제완료"
   },
@@ -346,7 +346,7 @@
     "product_name": "컨버스 올스타 스니커즈",
     "price": 67000,
     "category": "신발",
-    "purchase_date": "2025-05-18",
+    "purchase_date": "2025-07-29",
     "delivery_date": null,
     "delivery_status": "상품준비중"
   },
@@ -355,7 +355,7 @@
     "product_name": "샤오미 보조배터리",
     "price": 28000,
     "category": "전자제품",
-    "purchase_date": "2025-05-16",
+    "purchase_date": "2025-07-28",
     "delivery_date": null,
     "delivery_status": "배송중"
   },
@@ -364,8 +364,8 @@
     "product_name": "더바디샵 핸드크림",
     "price": 15000,
     "category": "화장품",
-    "purchase_date": "2025-05-14",
-    "delivery_date": "2025-05-18",
+    "purchase_date": "2025-07-27",
+    "delivery_date": "2025-07-30",
     "delivery_status": "배송완료"
   },
   {
@@ -373,8 +373,8 @@
     "product_name": "H&M 청바지",
     "price": 29000,
     "category": "의류",
-    "purchase_date": "2025-05-11",
-    "delivery_date": "2025-05-14",
+    "purchase_date": "2025-07-26",
+    "delivery_date": "2025-07-30",
     "delivery_status": "배송완료"
   },
   {
@@ -382,8 +382,8 @@
     "product_name": "뉴발란스 러닝화",
     "price": 98000,
     "category": "신발",
-    "purchase_date": "2025-05-08",
-    "delivery_date": "2025-05-11",
+    "purchase_date": "2025-07-25",
+    "delivery_date": "2025-07-27",
     "delivery_status": "배송완료"
   },
   {
@@ -391,8 +391,8 @@
     "product_name": "로지텍 무선마우스",
     "price": 32000,
     "category": "전자제품",
-    "purchase_date": "2025-05-05",
-    "delivery_date": "2025-05-08",
+    "purchase_date": "2025-07-24",
+    "delivery_date": "2025-07-27",
     "delivery_status": "배송완료"
   },
   {
@@ -400,8 +400,8 @@
     "product_name": "유니클로 기본 티셔츠",
     "price": 12000,
     "category": "의류",
-    "purchase_date": "2025-05-01",
-    "delivery_date": "2025-05-05",
+    "purchase_date": "2025-07-23",
+    "delivery_date": "2025-07-27",
     "delivery_status": "배송완료"
   },
   {
@@ -409,8 +409,8 @@
     "product_name": "입생로랑 립스틱",
     "price": 42000,
     "category": "화장품",
-    "purchase_date": "2025-04-28",
-    "delivery_date": "2025-05-02",
+    "purchase_date": "2025-07-22",
+    "delivery_date": "2025-07-24",
     "delivery_status": "배송완료"
   },
   {
@@ -418,8 +418,8 @@
     "product_name": "애플 에어팟 프로",
     "price": 329000,
     "category": "전자제품",
-    "purchase_date": "2025-04-26",
-    "delivery_date": "2025-04-30",
+    "purchase_date": "2025-07-21",
+    "delivery_date": "2025-07-24",
     "delivery_status": "배송완료"
   },
   {
@@ -427,8 +427,8 @@
     "product_name": "삼성 갤럭시 케이스",
     "price": 15000,
     "category": "전자제품",
-    "purchase_date": "2025-04-24",
-    "delivery_date": "2025-04-28",
+    "purchase_date": "2025-07-20",
+    "delivery_date": "2025-07-24",
     "delivery_status": "배송완료"
   },
   {
@@ -436,8 +436,8 @@
     "product_name": "네이처리퍼블릭 알로에젤",
     "price": 8000,
     "category": "화장품",
-    "purchase_date": "2025-04-20",
-    "delivery_date": "2025-04-24",
+    "purchase_date": "2025-07-19",
+    "delivery_date": "2025-07-21",
     "delivery_status": "배송완료"
   },
   {
@@ -445,8 +445,8 @@
     "product_name": "나이키 에어맥스 운동화",
     "price": 89000,
     "category": "신발",
-    "purchase_date": "2025-04-19",
-    "delivery_date": "2025-04-22",
+    "purchase_date": "2025-07-18",
+    "delivery_date": "2025-07-21",
     "delivery_status": "배송완료"
   }
 ]

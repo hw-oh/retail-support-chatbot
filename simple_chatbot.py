@@ -62,7 +62,9 @@ class SimplifiedChatbot:
         
         # 4. 응답 처리 (refund agent는 구조화된 응답 반환)
         if intent == 'refund_inquiry' and isinstance(agent_response, dict):
-            response = agent_response.get('user_response', str(agent_response))
+            # 자연스러운 대화체 응답 우선 사용, 없으면 기존 user_response 사용
+            response = agent_response.get('conversational_response', 
+                                        agent_response.get('user_response', str(agent_response)))
             # 컨텍스트에는 전체 구조화된 응답 저장
             self.conversation_context.append({
                 'user': user_input,

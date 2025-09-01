@@ -1,67 +1,25 @@
 import weave
+import json
 from typing import Dict, Any
+from openai import OpenAI
+from config import config
 
 class PolicyComplianceScorer(weave.Model):
-    """정책 준수도를 평가하는 스코어러"""
+    """LLM 기반 정책 준수도 평가 스코어러"""
     
-    # 정책 준수 체크리스트 (클래스 레벨에서 정의)
-    compliance_rules: dict = {
-            "time_policy": {
-                "keywords": ["7일", "기간", "시간"],
-                "description": "7일 환불 기간 정책 언급"
-            },
-            "fee_policy": {
-                "keywords": ["수수료", "10%", "2,000원", "최소"],
-                "description": "환불 수수료 정책 언급"
-            },
-            "shipping_cost": {
-                "keywords": ["배송비", "고객 부담", "왕복"],
-                "description": "배송비 고객 부담 정책 언급"
-            },
-            "hygiene_products": {
-                "keywords": ["개인위생용품", "화장품", "향수"],
-                "description": "개인위생용품 환불 제한 정책 언급"
-            },
-            "defective_exception": {
-                "keywords": ["불량품", "파손", "변질", "결함"],
-                "description": "불량품 예외 조건 언급"
-            },
-            "processing_time": {
-                "keywords": ["3-5일", "영업일", "처리 기간"],
-                "description": "환불 처리 기간 언급"
-            }
-        }
-    
-    # 정책 위반 체크리스트 (클래스 레벨에서 정의)
-    violation_rules: dict = {
-            "wrong_timeframe": {
-                "keywords": ["14일", "30일", "한달", "2주"],
-                "penalty": 0.3,
-                "description": "잘못된 환불 기간 제시"
-            },
-            "wrong_fee_info": {
-                "keywords": ["수수료 없음", "무료 환불"],
-                "penalty": 0.2,
-                "description": "잘못된 수수료 정보 (수수료 있는 경우)"
-            },
-            "wrong_shipping_info": {
-                "keywords": ["배송비 무료", "배송비 지원"],
-                "penalty": 0.1,
-                "description": "잘못된 배송비 정보"
-            }
-        }
+    model_name: str = config.POLICY_COMPLIANCE_MODEL
     
     @weave.op()
     def score(self, target: Dict, model_output: Dict) -> Dict[str, Any]:
         """
-        정책 준수도 평가
+        LLM을 사용한 정책 준수도 평가
         
         Args:
             target: 기대 결과
             model_output: 모델 출력
         
         Returns:
-            평가 결과 딕셔너리
+            평가 결과 딕셔너리 (정확도와 이유 포함)
         """
         response = model_output.get("response", "")
         expected_result = target
@@ -69,84 +27,71 @@ class PolicyComplianceScorer(weave.Model):
         if not response.strip():
             return {
                 "policy_compliance": 0.0,
-                "compliance_checks": {},
-                "violations": {},
-                "error": "Empty response"
+                "reason": "응답이 비어있습니다."
             }
         
-        response_lower = response.lower()
+        # LLM을 사용한 정책 준수도 평가
+        evaluation_prompt = self._create_evaluation_prompt(response, expected_result)
         
-        # 준수 사항 체크
-        compliance_checks = {}
-        compliance_score = 0.0
-        
-        for rule_name, rule_info in self.compliance_rules.items():
-            found_keywords = [kw for kw in rule_info["keywords"] if kw in response_lower]
-            is_compliant = len(found_keywords) > 0
+        try:
+            client = OpenAI(api_key=config.OPENAI_API_KEY)
+            llm_response = client.chat.completions.create(
+                model=self.model_name,
+                messages=[
+                    {"role": "system", "content": "당신은 환불 정책 준수도를 평가하는 전문가입니다. 주어진 챗봇 응답이 환불 정책을 얼마나 잘 준수하는지 평가하세요."},
+                    {"role": "user", "content": evaluation_prompt}
+                ],
+                temperature=0.1,
+                response_format={"type": "json_object"}
+            )
             
-            # 특별한 경우 처리
-            if rule_name == "defective_exception":
-                # 불량품 관련 시나리오가 아닌 경우 체크하지 않음
-                if "불량품" not in str(expected_result) and "파손" not in str(expected_result):
-                    is_compliant = True  # 해당 없음으로 처리
+            result = json.loads(llm_response.choices[0].message.content)
+            score = float(result.get("score", 0.0))
+            reason = result.get("reason", "평가 결과를 가져올 수 없습니다.")
             
-            compliance_checks[rule_name] = {
-                "compliant": is_compliant,
-                "found_keywords": found_keywords,
-                "description": rule_info["description"]
+            # 점수가 0-1 범위를 벗어나면 조정
+            score = max(0.0, min(1.0, score))
+            
+            return {
+                "policy_compliance": score,
+                "reason": reason
             }
             
-            if is_compliant:
-                compliance_score += 1.0
-        
-        # 정규화
-        max_compliance_score = len(self.compliance_rules)
-        normalized_compliance = compliance_score / max_compliance_score
-        
-        # 위반 사항 체크
-        violations = {}
-        total_penalty = 0.0
-        
-        for violation_name, violation_info in self.violation_rules.items():
-            found_violations = [kw for kw in violation_info["keywords"] if kw in response_lower]
-            has_violation = len(found_violations) > 0
-            
-            # 컨텍스트별 위반 체크
-            if violation_name == "wrong_fee_info":
-                expected_fee = expected_result.get("refund_fee", 0)
-                if expected_fee > 0 and has_violation:
-                    # 수수료가 있어야 하는데 무료라고 잘못 안내
-                    total_penalty += violation_info["penalty"]
-                else:
-                    has_violation = False
-            elif has_violation:
-                total_penalty += violation_info["penalty"]
-            
-            violations[violation_name] = {
-                "violated": has_violation,
-                "found_violations": found_violations,
-                "penalty": violation_info["penalty"] if has_violation else 0.0,
-                "description": violation_info["description"]
+        except Exception as e:
+            return {
+                "policy_compliance": 0.0,
+                "reason": f"LLM 평가 중 오류 발생: {str(e)}"
             }
+    
+    def _create_evaluation_prompt(self, response: str, expected_result: Dict) -> str:
+        """정책 준수도 평가를 위한 프롬프트 생성"""
         
-        # 최종 점수 계산
-        final_score = max(0.0, normalized_compliance - total_penalty)
+        # 환불 정책 파일 읽기
+        try:
+            with open('data/refund_policy.txt', 'r', encoding='utf-8') as f:
+                refund_policy = f.read()
+        except FileNotFoundError:
+            refund_policy = "환불 정책 파일을 찾을 수 없습니다."
         
-        # 추가 점수: 명확하고 구체적인 안내
-        bonus = 0.0
-        if "안내" in response_lower or "도움" in response_lower:
-            bonus += 0.05
-        if any(marker in response for marker in ["1.", "2.", "3.", "-", "•"]):
-            bonus += 0.05
-        
-        final_score = min(1.0, final_score + bonus)
-        
-        return {
-            "policy_compliance": final_score,
-            "compliance_score": normalized_compliance,
-            "compliance_checks": compliance_checks,
-            "violations": violations,
-            "total_penalty": total_penalty,
-            "bonus_score": bonus,
-            "detailed_guidance": len(response) > 200
-        }
+        prompt = f"""
+다음 환불 챗봇 응답의 정책 준수도를 평가해주세요.
+
+**환불 정책 기준:**
+{refund_policy}
+
+**챗봇 응답:**
+{response}
+
+**기대 결과 정보:**
+{json.dumps(expected_result, ensure_ascii=False, indent=2)}
+
+**평가 요청:**
+위 응답이 환불 정책을 얼마나 잘 준수하는지 0.0에서 1.0 사이의 점수로 평가하고, 구체적인 이유를 제시해주세요.
+
+**응답 형식 (JSON):**
+{{
+    "score": 0.85,
+    "reason": "7일 환불 기간과 10% 수수료 정책을 명확히 언급했으나, 배송비 고객 부담에 대한 언급이 부족함. 전반적으로 정책을 잘 준수하는 응답임."
+}}
+"""
+        return prompt

@@ -88,6 +88,9 @@ class RefundAgent:
                 "policy_applied": parsed_response.get("policy_applied", [])
             }
             
+            # 자연스러운 대화체 응답 생성
+            result["conversational_response"] = self._generate_conversational_response(result)
+            
             return result
             
         except (json.JSONDecodeError, AttributeError) as e:
@@ -98,5 +101,36 @@ class RefundAgent:
                 "total_refund_amount": 0,
                 "reason": "JSON 파싱 실패",
                 "user_response": response,
-                "policy_applied": []
+                "policy_applied": [],
+                "conversational_response": response
             }
+    
+    def _generate_conversational_response(self, result: Dict[str, Any]) -> str:
+        """구조화된 응답을 자연스러운 대화체로 변환"""
+        refund_possible = result.get("refund_possible", False)
+        refund_fee = result.get("refund_fee", 0)
+        total_amount = result.get("total_refund_amount", 0)
+        reason = result.get("reason", "")
+        
+        if refund_possible:
+            # 환불 가능한 경우
+            response = "네, 해당 주문에 대한 환불이 가능합니다! 😊\n\n"
+            
+            if refund_fee > 0:
+                response += f"🔸 환불 수수료: {refund_fee:,}원\n"
+                response += f"🔸 실제 환불 금액: {total_amount:,}원\n\n"
+                response += "환불 시 수수료가 차감되어 처리됩니다. "
+            else:
+                response += f"🔸 환불 금액: {total_amount:,}원\n\n"
+                response += "수수료 없이 전액 환불해드립니다! "
+            
+            response += "환불 처리를 원하시면 말씀해 주세요.\n\n"
+            response += f"📝 환불 사유: {reason}"
+            
+        else:
+            # 환불 불가능한 경우
+            response = "죄송합니다. 해당 주문은 환불이 어려운 상황입니다. 😔\n\n"
+            response += f"📝 사유: {reason}\n\n"
+            response += "다른 도움이 필요하시면 언제든 말씀해 주세요!"
+        
+        return response

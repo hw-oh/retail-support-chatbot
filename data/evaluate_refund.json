@@ -1,572 +1,2007 @@
-[
-  {
-    "test_id": "REF_001",
-    "scenario": "배송완료 후 7일 이내 정상 환불 요청",
-    "user_query": "3일 전에 받은 나이키 운동화 환불하고 싶어요. 사이즈가 안 맞아서요.",
-    "order_info": {
-      "order_id": "ORD20250419050",
-      "purchase_date": "2025-04-19",
-      "delivery_date": "2025-04-22",
-      "delivery_status": "배송완료",
-      "product_name": "나이키 에어맥스 운동화",
-      "category": "신발",
-      "price": 89000
-    },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "배송완료 후 7일 이내 정상 환불 가능",
-      "refund_fee": 8900
+{
+  "dataset_info": {
+    "name": "Retail Support Chatbot Evaluation Dataset",
+    "description": "Weave 평가를 위한 카테고라이징된 실패 케이스 데이터셋",
+    "created_date": "2025-09-06",
+    "total_cases": 90,
+    "categories": {
+      "boundary_case_misjudgment": {
+        "count": 30,
+        "expected_failure_rate": "25%",
+        "description": "경계선 케이스 오판 (정확히 7일째, 개인위생용품 배송 전 취소)"
+      },
+      "wrong_information_provided": {
+        "count": 30,
+        "expected_failure_rate": "50%",
+        "description": "잘못된 정보 제공 (환불기간 14일, 무조건 수수료, 존재하지 않는 정책)"
+      },
+      "policy_violation": {
+        "count": 30,
+        "expected_failure_rate": "35%",
+        "description": "정책 위반 (개인위생용품 환불 허용, 7일 초과 환불, 임의 정책)"
+      }
     }
   },
-  {
-    "test_id": "REF_002",
-    "scenario": "개인위생용품 환불 요청 (정상 상품)",
-    "user_query": "어제 받은 네이처리퍼블릭 알로에젤 환불 가능한가요? 향이 안 맞아요.",
-    "order_info": {
-      "order_id": "ORD20250420049",
-      "purchase_date": "2025-04-20",
-      "delivery_date": "2025-04-24",
-      "delivery_status": "배송완료",
-      "product_name": "네이처리퍼블릭 알로에젤",
-      "category": "화장품",
-      "price": 8000
+  "test_cases": [
+    {
+      "test_id": "BOUNDARY_001",
+      "category": "boundary_case_misjudgment",
+      "scenario": "정확히 7일째 되는 날 환불 요청",
+      "user_query": "정확히 7일 전에 받은 나이키 에어포스 환불하고 싶어요. 오늘이 마지막 날인가요?",
+      "order_info": {
+        "order_id": "ORD20250827100",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "나이키 에어포스",
+        "category": "신발",
+        "price": 120000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 정확히 7일째로 환불 가능 (7일 이내 기준)",
+        "refund_fee": 12000
+      },
+      "failure_category": "boundary_edge_case",
+      "expected_failure_reason": "정확히 7일째 케이스에서 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": false,
-      "reason": "화장품은 개인위생용품으로 환불 불가",
-      "refund_fee": null
-    }
-  },
-  {
-    "test_id": "REF_003",
-    "scenario": "배송 중 취소 요청",
-    "user_query": "주문한 샤오미 보조배터리 취소하고 싶습니다. 배송 중이라고 나오는데 가능한가요?",
-    "order_info": {
-      "order_id": "ORD20250516040",
-      "purchase_date": "2025-05-16",
-      "delivery_date": null,
-      "delivery_status": "배송중",
-      "product_name": "샤오미 보조배터리",
-      "category": "전자제품",
-      "price": 28000
+    {
+      "test_id": "BOUNDARY_002",
+      "category": "boundary_case_misjudgment",
+      "scenario": "정확히 7일째 되는 날 환불 요청",
+      "user_query": "정확히 7일 전에 받은 아디다스 러닝화 환불하고 싶어요. 오늘이 마지막 날인가요?",
+      "order_info": {
+        "order_id": "ORD20250827101",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "아디다스 러닝화",
+        "category": "신발",
+        "price": 98000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 정확히 7일째로 환불 가능 (7일 이내 기준)",
+        "refund_fee": 9800
+      },
+      "failure_category": "boundary_edge_case",
+      "expected_failure_reason": "정확히 7일째 케이스에서 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "배송중 상태에서는 취소 가능하나 환불 수수료 적용",
-      "refund_fee": 2800
-    }
-  },
-  {
-    "test_id": "REF_004",
-    "scenario": "배송 전 무료 취소 요청",
-    "user_query": "어제 주문한 컨버스 스니커즈 취소하고 싶어요. 아직 배송 안 됐죠?",
-    "order_info": {
-      "order_id": "ORD20250518039",
-      "purchase_date": "2025-05-18",
-      "delivery_date": null,
-      "delivery_status": "상품준비중",
-      "product_name": "컨버스 올스타 스니커즈",
-      "category": "신발",
-      "price": 67000
+    {
+      "test_id": "BOUNDARY_003",
+      "category": "boundary_case_misjudgment",
+      "scenario": "정확히 7일째 되는 날 환불 요청",
+      "user_query": "정확히 7일 전에 받은 뉴발란스 스니커즈 환불하고 싶어요. 오늘이 마지막 날인가요?",
+      "order_info": {
+        "order_id": "ORD20250827102",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "뉴발란스 스니커즈",
+        "category": "신발",
+        "price": 89000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 정확히 7일째로 환불 가능 (7일 이내 기준)",
+        "refund_fee": 8900
+      },
+      "failure_category": "boundary_edge_case",
+      "expected_failure_reason": "정확히 7일째 케이스에서 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "상품준비중 상태에서는 무료 취소 가능",
-      "refund_fee": 0
-    }
-  },
-  {
-    "test_id": "REF_005",
-    "scenario": "7일 초과 환불 요청",
-    "user_query": "5월에 산 닥터마틴 부츠 환불 가능한가요? 신어보니 발이 아파서요.",
-    "order_info": {
-      "order_id": "ORD20250524036",
-      "purchase_date": "2025-05-24",
-      "delivery_date": "2025-05-26",
-      "delivery_status": "배송완료",
-      "product_name": "닥터마틴 부츠",
-      "category": "신발",
-      "price": 180000
+    {
+      "test_id": "BOUNDARY_004",
+      "category": "boundary_case_misjudgment",
+      "scenario": "정확히 7일째 되는 날 환불 요청",
+      "user_query": "정확히 7일 전에 받은 컨버스 올스타 환불하고 싶어요. 오늘이 마지막 날인가요?",
+      "order_info": {
+        "order_id": "ORD20250827103",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "컨버스 올스타",
+        "category": "신발",
+        "price": 67000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 정확히 7일째로 환불 가능 (7일 이내 기준)",
+        "refund_fee": 6700
+      },
+      "failure_category": "boundary_edge_case",
+      "expected_failure_reason": "정확히 7일째 케이스에서 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": false,
-      "reason": "배송완료 후 7일 초과로 환불 불가",
-      "refund_fee": null
-    }
-  },
-  {
-    "test_id": "REF_006",
-    "scenario": "불량품 환불 요청 (화장품)",
-    "user_query": "받은 입생로랑 립스틱이 부러져 있어요. 환불 가능한가요?",
-    "order_info": {
-      "order_id": "ORD20250428046",
-      "purchase_date": "2025-04-28",
-      "delivery_date": "2025-05-02",
-      "delivery_status": "배송완료",
-      "product_name": "입생로랑 립스틱",
-      "category": "화장품",
-      "price": 42000
+    {
+      "test_id": "BOUNDARY_005",
+      "category": "boundary_case_misjudgment",
+      "scenario": "정확히 7일째 되는 날 환불 요청",
+      "user_query": "정확히 7일 전에 받은 반스 슬립온 환불하고 싶어요. 오늘이 마지막 날인가요?",
+      "order_info": {
+        "order_id": "ORD20250827104",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "반스 슬립온",
+        "category": "신발",
+        "price": 75000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 정확히 7일째로 환불 가능 (7일 이내 기준)",
+        "refund_fee": 7500
+      },
+      "failure_category": "boundary_edge_case",
+      "expected_failure_reason": "정확히 7일째 케이스에서 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "개인위생용품이라도 불량품은 환불 가능",
-      "refund_fee": 4200
-    }
-  },
-  {
-    "test_id": "REF_007",
-    "scenario": "존재하지 않는 주문번호",
-    "user_query": "주문번호 ORD99999999로 주문한 상품 환불하고 싶어요.",
-    "order_info": {
-      "order_id": "ORD99999999",
-      "purchase_date": "2025-07-26",
-      "delivery_date": null,
-      "delivery_status": null,
-      "product_name": null,
-      "category": null,
-      "price": null
+    {
+      "test_id": "BOUNDARY_006",
+      "category": "boundary_case_misjudgment",
+      "scenario": "정확히 7일째 되는 날 환불 요청",
+      "user_query": "정확히 7일 전에 받은 유니클로 티셔츠 환불하고 싶어요. 오늘이 마지막 날인가요?",
+      "order_info": {
+        "order_id": "ORD20250827105",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "유니클로 티셔츠",
+        "category": "의류",
+        "price": 15000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 정확히 7일째로 환불 가능 (7일 이내 기준)",
+        "refund_fee": 2000
+      },
+      "failure_category": "boundary_edge_case",
+      "expected_failure_reason": "정확히 7일째 케이스에서 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": false,
-      "reason": "주문번호가 존재하지 않아 환불 불가",
-      "refund_fee": null
-    }
-  },
-  {
-    "test_id": "REF_008",
-    "scenario": "최소 환불 수수료 적용 대상 (저가 상품)",
-    "user_query": "유니클로 티셔츠 환불하고 싶어요. 색상이 마음에 안 들어서요.",
-    "order_info": {
-      "order_id": "ORD20250501045",
-      "purchase_date": "2025-05-01",
-      "delivery_date": "2025-05-05",
-      "delivery_status": "배송완료",
-      "product_name": "유니클로 기본 티셔츠",
-      "category": "의류",
-      "price": 12000
+    {
+      "test_id": "BOUNDARY_007",
+      "category": "boundary_case_misjudgment",
+      "scenario": "정확히 7일째 되는 날 환불 요청",
+      "user_query": "정확히 7일 전에 받은 H&M 청바지 환불하고 싶어요. 오늘이 마지막 날인가요?",
+      "order_info": {
+        "order_id": "ORD20250827106",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "H&M 청바지",
+        "category": "의류",
+        "price": 45000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 정확히 7일째로 환불 가능 (7일 이내 기준)",
+        "refund_fee": 4500
+      },
+      "failure_category": "boundary_edge_case",
+      "expected_failure_reason": "정확히 7일째 케이스에서 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "배송완료 후 7일 이내 정상 환불 가능",
-      "refund_fee": 2000
-    }
-  },
-  {
-    "test_id": "REF_009",
-    "scenario": "고가 상품 환불 요청",
-    "user_query": "애플 에어팟 프로 환불하고 싶습니다. 귀에 안 맞아요.",
-    "order_info": {
-      "order_id": "ORD20250426047",
-      "purchase_date": "2025-04-26",
-      "delivery_date": "2025-04-30",
-      "delivery_status": "배송완료",
-      "product_name": "애플 에어팟 프로",
-      "category": "전자제품",
-      "price": 329000
+    {
+      "test_id": "BOUNDARY_008",
+      "category": "boundary_case_misjudgment",
+      "scenario": "정확히 7일째 되는 날 환불 요청",
+      "user_query": "정확히 7일 전에 받은 자라 재킷 환불하고 싶어요. 오늘이 마지막 날인가요?",
+      "order_info": {
+        "order_id": "ORD20250827107",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "자라 재킷",
+        "category": "의류",
+        "price": 89000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 정확히 7일째로 환불 가능 (7일 이내 기준)",
+        "refund_fee": 8900
+      },
+      "failure_category": "boundary_edge_case",
+      "expected_failure_reason": "정확히 7일째 케이스에서 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "배송완료 후 7일 이내 정상 환불 가능",
-      "refund_fee": 32900
-    }
-  },
-  {
-    "test_id": "REF_010",
-    "scenario": "배송완료 후 7일 경계선 (7일째)",
-    "user_query": "정확히 7일 전에 받은 뉴발란스 러닝화 환불 가능한가요?",
-    "order_info": {
-      "order_id": "ORD20250508043",
-      "purchase_date": "2025-05-08",
-      "delivery_date": "2025-05-11",
-      "delivery_status": "배송완료",
-      "product_name": "뉴발란스 러닝화",
-      "category": "신발",
-      "price": 98000
+    {
+      "test_id": "BOUNDARY_009",
+      "category": "boundary_case_misjudgment",
+      "scenario": "정확히 7일째 되는 날 환불 요청",
+      "user_query": "정확히 7일 전에 받은 무지 맨투맨 환불하고 싶어요. 오늘이 마지막 날인가요?",
+      "order_info": {
+        "order_id": "ORD20250827108",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "무지 맨투맨",
+        "category": "의류",
+        "price": 39000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 정확히 7일째로 환불 가능 (7일 이내 기준)",
+        "refund_fee": 3900
+      },
+      "failure_category": "boundary_edge_case",
+      "expected_failure_reason": "정확히 7일째 케이스에서 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "배송완료 후 정확히 7일째로 환불 가능",
-      "refund_fee": 9800
-    }
-  },
-  {
-    "test_id": "REF_011",
-    "scenario": "개인위생용품 불량품 환불",
-    "user_query": "더바디샵 핸드크림이 변질된 것 같아요. 냄새가 이상해요. 환불 가능한가요?",
-    "order_info": {
-      "order_id": "ORD20250514041",
-      "purchase_date": "2025-05-14",
-      "delivery_date": "2025-05-18",
-      "delivery_status": "배송완료",
-      "product_name": "더바디샵 핸드크림",
-      "category": "화장품",
-      "price": 15000
+    {
+      "test_id": "BOUNDARY_010",
+      "category": "boundary_case_misjudgment",
+      "scenario": "정확히 7일째 되는 날 환불 요청",
+      "user_query": "정확히 7일 전에 받은 리바이스 데님 환불하고 싶어요. 오늘이 마지막 날인가요?",
+      "order_info": {
+        "order_id": "ORD20250827109",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "리바이스 데님",
+        "category": "의류",
+        "price": 120000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 정확히 7일째로 환불 가능 (7일 이내 기준)",
+        "refund_fee": 12000
+      },
+      "failure_category": "boundary_edge_case",
+      "expected_failure_reason": "정확히 7일째 케이스에서 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "개인위생용품이라도 불량품(변질)은 환불 가능",
-      "refund_fee": 2000
-    }
-  },
-  {
-    "test_id": "REF_012",
-    "scenario": "결제완료 상태 취소 요청",
-    "user_query": "아디다스 후드티 주문 취소하고 싶어요. 아직 배송 안 됐죠?",
-    "order_info": {
-      "order_id": "ORD20250519038",
-      "purchase_date": "2025-05-19",
-      "delivery_date": null,
-      "delivery_status": "결제완료",
-      "product_name": "아디다스 후드티",
-      "category": "의류",
-      "price": 45000
+    {
+      "test_id": "BOUNDARY_011",
+      "category": "boundary_case_misjudgment",
+      "scenario": "정확히 7일째 되는 날 환불 요청",
+      "user_query": "정확히 7일 전에 받은 애플 에어팟 환불하고 싶어요. 오늘이 마지막 날인가요?",
+      "order_info": {
+        "order_id": "ORD20250827110",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "애플 에어팟",
+        "category": "전자제품",
+        "price": 200000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 정확히 7일째로 환불 가능 (7일 이내 기준)",
+        "refund_fee": 20000
+      },
+      "failure_category": "boundary_edge_case",
+      "expected_failure_reason": "정확히 7일째 케이스에서 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "결제완료 상태에서는 무료 취소 가능",
-      "refund_fee": 0
-    }
-  },
-  {
-    "test_id": "REF_013",
-    "scenario": "주문접수 상태 취소 요청",
-    "user_query": "방금 주문한 이니스프리 클렌징폼 취소 가능한가요?",
-    "order_info": {
-      "order_id": "ORD20250521037",
-      "purchase_date": "2025-05-21",
-      "delivery_date": null,
-      "delivery_status": "주문접수",
-      "product_name": "이니스프리 클렌징폼",
-      "category": "화장품",
-      "price": 12000
+    {
+      "test_id": "BOUNDARY_012",
+      "category": "boundary_case_misjudgment",
+      "scenario": "정확히 7일째 되는 날 환불 요청",
+      "user_query": "정확히 7일 전에 받은 삼성 갤럭시버즈 환불하고 싶어요. 오늘이 마지막 날인가요?",
+      "order_info": {
+        "order_id": "ORD20250827111",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "삼성 갤럭시버즈",
+        "category": "전자제품",
+        "price": 150000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 정확히 7일째로 환불 가능 (7일 이내 기준)",
+        "refund_fee": 15000
+      },
+      "failure_category": "boundary_edge_case",
+      "expected_failure_reason": "정확히 7일째 케이스에서 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "주문접수 상태에서는 무료 취소 가능",
-      "refund_fee": 0
-    }
-  },
-  {
-    "test_id": "REF_014",
-    "scenario": "사용 흔적 있는 의류 환불",
-    "user_query": "H&M 청바지 환불하고 싶어요. 한 번 입어봤는데 맞지 않네요.",
-    "order_info": {
-      "order_id": "ORD20250511042",
-      "purchase_date": "2025-05-11",
-      "delivery_date": "2025-05-14",
-      "delivery_status": "배송완료",
-      "product_name": "H&M 청바지",
-      "category": "의류",
-      "price": 29000
+    {
+      "test_id": "BOUNDARY_013",
+      "category": "boundary_case_misjudgment",
+      "scenario": "정확히 7일째 되는 날 환불 요청",
+      "user_query": "정확히 7일 전에 받은 로지텍 마우스 환불하고 싶어요. 오늘이 마지막 날인가요?",
+      "order_info": {
+        "order_id": "ORD20250827112",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "로지텍 마우스",
+        "category": "전자제품",
+        "price": 45000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 정확히 7일째로 환불 가능 (7일 이내 기준)",
+        "refund_fee": 4500
+      },
+      "failure_category": "boundary_edge_case",
+      "expected_failure_reason": "정확히 7일째 케이스에서 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "배송완료 후 7일 이내로 환불 가능하나 사용 흔적으로 추가 수수료 발생 가능",
-      "refund_fee": 2900
-    }
-  },
-  {
-    "test_id": "REF_015",
-    "scenario": "전자제품 불량품 환불",
-    "user_query": "로지텍 마우스가 작동하지 않아요. 불량품인 것 같습니다. 환불 해주세요.",
-    "order_info": {
-      "order_id": "ORD20250505044",
-      "purchase_date": "2025-05-05",
-      "delivery_date": "2025-05-08",
-      "delivery_status": "배송완료",
-      "product_name": "로지텍 무선마우스",
-      "category": "전자제품",
-      "price": 32000
+    {
+      "test_id": "BOUNDARY_014",
+      "category": "boundary_case_misjudgment",
+      "scenario": "정확히 7일째 되는 날 환불 요청",
+      "user_query": "정확히 7일 전에 받은 소니 헤드폰 환불하고 싶어요. 오늘이 마지막 날인가요?",
+      "order_info": {
+        "order_id": "ORD20250827113",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "소니 헤드폰",
+        "category": "전자제품",
+        "price": 180000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 정확히 7일째로 환불 가능 (7일 이내 기준)",
+        "refund_fee": 18000
+      },
+      "failure_category": "boundary_edge_case",
+      "expected_failure_reason": "정확히 7일째 케이스에서 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "불량품은 환불 가능",
-      "refund_fee": 3200
-    }
-  },
-  {
-    "test_id": "REF_016",
-    "scenario": "여러 상품 중 일부만 환불",
-    "user_query": "여러 개 주문했는데 삼성 갤럭시 케이스만 환불하고 싶어요.",
-    "order_info": {
-      "order_id": "ORD20250424048",
-      "purchase_date": "2025-04-24",
-      "delivery_date": "2025-04-28",
-      "delivery_status": "배송완료",
-      "product_name": "삼성 갤럭시 케이스",
-      "category": "전자제품",
-      "price": 15000
+    {
+      "test_id": "BOUNDARY_015",
+      "category": "boundary_case_misjudgment",
+      "scenario": "정확히 7일째 되는 날 환불 요청",
+      "user_query": "정확히 7일 전에 받은 LG 모니터 환불하고 싶어요. 오늘이 마지막 날인가요?",
+      "order_info": {
+        "order_id": "ORD20250827114",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "LG 모니터",
+        "category": "전자제품",
+        "price": 350000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 정확히 7일째로 환불 가능 (7일 이내 기준)",
+        "refund_fee": 35000
+      },
+      "failure_category": "boundary_edge_case",
+      "expected_failure_reason": "정확히 7일째 케이스에서 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "배송완료 후 7일 이내 부분 환불 가능",
-      "refund_fee": 2000
-    }
-  },
-  {
-    "test_id": "REF_017",
-    "scenario": "배송 파손 신고",
-    "user_query": "다이슨 헤어드라이어가 배송 중에 파손되어 도착했어요. 환불 가능한가요?",
-    "order_info": {
-      "order_id": "ORD20250718013",
-      "purchase_date": "2025-07-18",
-      "delivery_date": "2025-07-22",
-      "delivery_status": "배송완료",
-      "product_name": "다이슨 헤어드라이어",
-      "category": "전자제품",
-      "price": 450000
+    {
+      "test_id": "BOUNDARY_016",
+      "category": "boundary_case_misjudgment",
+      "scenario": "개인위생용품이지만 배송되지 않은 상품 환불 가능",
+      "user_query": "아직 배송 안 된 에스티로더 파운데이션 취소하고 싶어요. 개인위생용품도 배송 전에는 취소 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250905200",
+        "purchase_date": "2025-09-05",
+        "delivery_date": null,
+        "delivery_status": "주문접수",
+        "product_name": "에스티로더 파운데이션",
+        "category": "화장품",
+        "price": 55000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "주문접수 상태에서는 개인위생용품도 무료 취소 가능",
+        "refund_fee": 0
+      },
+      "failure_category": "hygiene_product_pre_delivery",
+      "expected_failure_reason": "개인위생용품은 무조건 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "배송 중 파손은 환불 가능",
-      "refund_fee": 45000
-    }
-  },
-  {
-    "test_id": "REF_018",
-    "scenario": "화장품 알레르기 반응",
-    "user_query": "설화수 토너 사용 후 알레르기가 생겼어요. 환불 가능한가요?",
-    "order_info": {
-      "order_id": "ORD20250722012",
-      "purchase_date": "2025-07-22",
-      "delivery_date": "2025-07-24",
-      "delivery_status": "배송완료",
-      "product_name": "설화수 토너",
-      "category": "화장품",
-      "price": 68000
+    {
+      "test_id": "BOUNDARY_017",
+      "category": "boundary_case_misjudgment",
+      "scenario": "개인위생용품이지만 배송되지 않은 상품 환불 가능",
+      "user_query": "아직 배송 안 된 랑콤 마스카라 취소하고 싶어요. 개인위생용품도 배송 전에는 취소 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250904201",
+        "purchase_date": "2025-09-04",
+        "delivery_date": null,
+        "delivery_status": "결제완료",
+        "product_name": "랑콤 마스카라",
+        "category": "화장품",
+        "price": 38000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "결제완료 상태에서는 개인위생용품도 무료 취소 가능",
+        "refund_fee": 0
+      },
+      "failure_category": "hygiene_product_pre_delivery",
+      "expected_failure_reason": "개인위생용품은 무조건 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": false,
-      "reason": "화장품은 개인위생용품으로 알레르기 반응은 불량품에 해당하지 않아 환불 불가",
-      "refund_fee": null
-    }
-  },
-  {
-    "test_id": "REF_019",
-    "scenario": "신발 사이즈 교환 vs 환불",
-    "user_query": "플라잉니트 러닝화 사이즈가 작아요. 큰 사이즈로 교환하거나 환불 가능한가요?",
-    "order_info": {
-      "order_id": "ORD20250726011",
-      "purchase_date": "2025-07-26",
-      "delivery_date": "2025-07-29",
-      "delivery_status": "배송완료",
-      "product_name": "플라잉니트 러닝화",
-      "category": "신발",
-      "price": 129000
+    {
+      "test_id": "BOUNDARY_018",
+      "category": "boundary_case_misjudgment",
+      "scenario": "개인위생용품이지만 배송되지 않은 상품 환불 가능",
+      "user_query": "아직 배송 안 된 샤넬 립스틱 취소하고 싶어요. 개인위생용품도 배송 전에는 취소 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250903202",
+        "purchase_date": "2025-09-03",
+        "delivery_date": null,
+        "delivery_status": "상품준비중",
+        "product_name": "샤넬 립스틱",
+        "category": "화장품",
+        "price": 48000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "상품준비중 상태에서는 개인위생용품도 무료 취소 가능",
+        "refund_fee": 0
+      },
+      "failure_category": "hygiene_product_pre_delivery",
+      "expected_failure_reason": "개인위생용품은 무조건 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "배송완료 후 7일 이내 환불 가능 (교환은 별도 정책)",
-      "refund_fee": 12900
-    }
-  },
-  {
-    "test_id": "REF_020",
-    "scenario": "고가 의류 환불 (배송 완료 당일)",
-    "user_query": "오늘 받은 캐나다구스 패딩 환불하고 싶어요. 생각보다 너무 두꺼워서요.",
-    "order_info": {
-      "order_id": "ORD20250729010",
-      "purchase_date": "2025-07-29",
-      "delivery_date": null,
-      "delivery_status": "배송완료",
-      "product_name": "캐나다구스 패딩",
-      "category": "의류",
-      "price": 890000
+    {
+      "test_id": "BOUNDARY_019",
+      "category": "boundary_case_misjudgment",
+      "scenario": "개인위생용품이지만 배송되지 않은 상품 환불 가능",
+      "user_query": "아직 배송 안 된 디올 아이섀도 취소하고 싶어요. 개인위생용품도 배송 전에는 취소 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250902203",
+        "purchase_date": "2025-09-02",
+        "delivery_date": null,
+        "delivery_status": "주문접수",
+        "product_name": "디올 아이섀도",
+        "category": "화장품",
+        "price": 62000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "주문접수 상태에서는 개인위생용품도 무료 취소 가능",
+        "refund_fee": 0
+      },
+      "failure_category": "hygiene_product_pre_delivery",
+      "expected_failure_reason": "개인위생용품은 무조건 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "배송완료 당일로 7일 이내 환불 가능",
-      "refund_fee": 89000
-    }
-  },
-  {
-    "test_id": "REF_021",
-    "scenario": "상품준비중 취소 요청",
-    "user_query": "LG 모니터 주문 취소하고 싶습니다. 다른 모델로 바꾸려고요.",
-    "order_info": {
-      "order_id": "ORD20250802009",
-      "purchase_date": "2025-08-02",
-      "delivery_date": null,
-      "delivery_status": "상품준비중",
-      "product_name": "LG 모니터",
-      "category": "전자제품",
-      "price": 320000
+    {
+      "test_id": "BOUNDARY_020",
+      "category": "boundary_case_misjudgment",
+      "scenario": "개인위생용품이지만 배송되지 않은 상품 환불 가능",
+      "user_query": "아직 배송 안 된 키엘 크림 취소하고 싶어요. 개인위생용품도 배송 전에는 취소 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250901204",
+        "purchase_date": "2025-09-01",
+        "delivery_date": null,
+        "delivery_status": "결제완료",
+        "product_name": "키엘 크림",
+        "category": "화장품",
+        "price": 45000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "결제완료 상태에서는 개인위생용품도 무료 취소 가능",
+        "refund_fee": 0
+      },
+      "failure_category": "hygiene_product_pre_delivery",
+      "expected_failure_reason": "개인위생용품은 무조건 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "상품준비중 상태에서는 무료 취소 가능",
-      "refund_fee": 0
-    }
-  },
-  {
-    "test_id": "REF_022",
-    "scenario": "향수 개봉 후 환불 요청",
-    "user_query": "샤넬 향수를 받았는데 향이 예상과 달라요. 이미 뚜껑을 열어봤는데 환불 가능한가요?",
-    "order_info": {
-      "order_id": "ORD20250804008",
-      "purchase_date": "2025-08-04",
-      "delivery_date": null,
-      "delivery_status": "결제완료",
-      "product_name": "샤넬 향수",
-      "category": "화장품",
-      "price": 120000
+    {
+      "test_id": "BOUNDARY_021",
+      "category": "boundary_case_misjudgment",
+      "scenario": "개인위생용품이지만 배송되지 않은 상품 환불 가능",
+      "user_query": "아직 배송 안 된 설화수 토너 취소하고 싶어요. 개인위생용품도 배송 전에는 취소 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250831205",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "상품준비중",
+        "product_name": "설화수 토너",
+        "category": "화장품",
+        "price": 68000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "상품준비중 상태에서는 개인위생용품도 무료 취소 가능",
+        "refund_fee": 0
+      },
+      "failure_category": "hygiene_product_pre_delivery",
+      "expected_failure_reason": "개인위생용품은 무조건 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "결제완료 상태에서는 무료 취소 가능",
-      "refund_fee": 0
-    }
-  },
-  {
-    "test_id": "REF_023",
-    "scenario": "신발 착용 후 환불 (실외 착용)",
-    "user_query": "티임버랜드 부츠를 신고 나갔다 왔는데 발이 너무 아파요. 환불 가능한가요?",
-    "order_info": {
-      "order_id": "ORD20250805007",
-      "purchase_date": "2025-08-05",
-      "delivery_date": null,
-      "delivery_status": "주문접수",
-      "product_name": "티임버랜드 워크부츠",
-      "category": "신발",
-      "price": 179000
+    {
+      "test_id": "BOUNDARY_022",
+      "category": "boundary_case_misjudgment",
+      "scenario": "개인위생용품이지만 배송되지 않은 상품 환불 가능",
+      "user_query": "아직 배송 안 된 이니스프리 클렌징폼 취소하고 싶어요. 개인위생용품도 배송 전에는 취소 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250830206",
+        "purchase_date": "2025-08-30",
+        "delivery_date": null,
+        "delivery_status": "주문접수",
+        "product_name": "이니스프리 클렌징폼",
+        "category": "화장품",
+        "price": 12000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "주문접수 상태에서는 개인위생용품도 무료 취소 가능",
+        "refund_fee": 0
+      },
+      "failure_category": "hygiene_product_pre_delivery",
+      "expected_failure_reason": "개인위생용품은 무조건 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "주문접수 상태에서는 무료 취소 가능",
-      "refund_fee": 0
-    }
-  },
-  {
-    "test_id": "REF_024",
-    "scenario": "의류 세탁 후 환불 시도",
-    "user_query": "챔피언 맨투맨을 세탁했는데 색이 바랬어요. 환불 가능한가요?",
-    "order_info": {
-      "order_id": "ORD20250807006",
-      "purchase_date": "2025-08-07",
-      "delivery_date": null,
-      "delivery_status": "결제완료",
-      "product_name": "챔피언 맨투맨",
-      "category": "의류",
-      "price": 42000
+    {
+      "test_id": "BOUNDARY_023",
+      "category": "boundary_case_misjudgment",
+      "scenario": "개인위생용품이지만 배송되지 않은 상품 환불 가능",
+      "user_query": "아직 배송 안 된 네이처리퍼블릭 알로에젤 취소하고 싶어요. 개인위생용품도 배송 전에는 취소 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250829207",
+        "purchase_date": "2025-08-29",
+        "delivery_date": null,
+        "delivery_status": "결제완료",
+        "product_name": "네이처리퍼블릭 알로에젤",
+        "category": "화장품",
+        "price": 8000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "결제완료 상태에서는 개인위생용품도 무료 취소 가능",
+        "refund_fee": 0
+      },
+      "failure_category": "hygiene_product_pre_delivery",
+      "expected_failure_reason": "개인위생용품은 무조건 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "결제완료 상태에서는 무료 취소 가능",
-      "refund_fee": 0
-    }
-  },
-  {
-    "test_id": "REF_025",
-    "scenario": "전자제품 박스 개봉 후 환불",
-    "user_query": "젠하이저 이어폰 박스를 열어서 확인해봤는데 생각과 달라요. 환불 가능한가요?",
-    "order_info": {
-      "order_id": "ORD20250809005",
-      "purchase_date": "2025-08-09",
-      "delivery_date": "2025-08-11",
-      "delivery_status": "배송완료",
-      "product_name": "젠하이저 이어폰",
-      "category": "전자제품",
-      "price": 89000
+    {
+      "test_id": "BOUNDARY_024",
+      "category": "boundary_case_misjudgment",
+      "scenario": "개인위생용품이지만 배송되지 않은 상품 환불 가능",
+      "user_query": "아직 배송 안 된 더바디샵 핸드크림 취소하고 싶어요. 개인위생용품도 배송 전에는 취소 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250828208",
+        "purchase_date": "2025-08-28",
+        "delivery_date": null,
+        "delivery_status": "상품준비중",
+        "product_name": "더바디샵 핸드크림",
+        "category": "화장품",
+        "price": 15000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "상품준비중 상태에서는 개인위생용품도 무료 취소 가능",
+        "refund_fee": 0
+      },
+      "failure_category": "hygiene_product_pre_delivery",
+      "expected_failure_reason": "개인위생용품은 무조건 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "배송완료 후 7일 이내 환불 가능",
-      "refund_fee": 8900
-    }
-  },
-  {
-    "test_id": "REF_026",
-    "scenario": "화장품 패치테스트 후 환불",
-    "user_query": "키엘 크림으로 패치테스트 해봤는데 트러블이 생겼어요. 환불 해주세요.",
-    "order_info": {
-      "order_id": "ORD20250812004",
-      "purchase_date": "2025-08-12",
-      "delivery_date": null,
-      "delivery_status": "주문접수",
-      "product_name": "키엘 크림",
-      "category": "화장품",
-      "price": 48000
+    {
+      "test_id": "BOUNDARY_025",
+      "category": "boundary_case_misjudgment",
+      "scenario": "개인위생용품이지만 배송되지 않은 상품 환불 가능",
+      "user_query": "아직 배송 안 된 아모레퍼시픽 세럼 취소하고 싶어요. 개인위생용품도 배송 전에는 취소 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250827209",
+        "purchase_date": "2025-08-27",
+        "delivery_date": null,
+        "delivery_status": "주문접수",
+        "product_name": "아모레퍼시픽 세럼",
+        "category": "화장품",
+        "price": 85000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "주문접수 상태에서는 개인위생용품도 무료 취소 가능",
+        "refund_fee": 0
+      },
+      "failure_category": "hygiene_product_pre_delivery",
+      "expected_failure_reason": "개인위생용품은 무조건 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "주문접수 상태에서는 무료 취소 가능",
-      "refund_fee": 0
-    }
-  },
-  {
-    "test_id": "REF_027",
-    "scenario": "신발 실내 착용 후 환불",
-    "user_query": "올버즈 울 러너를 집에서만 신어봤는데 편하지 않네요. 환불 가능한가요?",
-    "order_info": {
-      "order_id": "ORD20250814003",
-      "purchase_date": "2025-08-14",
-      "delivery_date": "2025-08-16",
-      "delivery_status": "배송완료",
-      "product_name": "올버즈 울 러너",
-      "category": "신발",
-      "price": 98000
+    {
+      "test_id": "BOUNDARY_026",
+      "category": "boundary_case_misjudgment",
+      "scenario": "개인위생용품이지만 배송되지 않은 상품 환불 가능",
+      "user_query": "아직 배송 안 된 입생로랑 립글로스 취소하고 싶어요. 개인위생용품도 배송 전에는 취소 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250826210",
+        "purchase_date": "2025-08-26",
+        "delivery_date": null,
+        "delivery_status": "결제완료",
+        "product_name": "입생로랑 립글로스",
+        "category": "화장품",
+        "price": 42000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "결제완료 상태에서는 개인위생용품도 무료 취소 가능",
+        "refund_fee": 0
+      },
+      "failure_category": "hygiene_product_pre_delivery",
+      "expected_failure_reason": "개인위생용품은 무조건 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "배송완료 후 7일 이내 환불 가능",
-      "refund_fee": 9800
-    }
-  },
-  {
-    "test_id": "REF_028",
-    "scenario": "의류 택 제거 후 환불 시도",
-    "user_query": "노스페이스 바람막이 택을 제거했는데 색상이 마음에 안 들어요. 환불 가능한가요?",
-    "order_info": {
-      "order_id": "ORD20250817002",
-      "purchase_date": "2025-08-17",
-      "delivery_date": "2025-08-20",
-      "delivery_status": "배송완료",
-      "product_name": "노스페이스 바람막이",
-      "category": "의류",
-      "price": 120000
+    {
+      "test_id": "BOUNDARY_027",
+      "category": "boundary_case_misjudgment",
+      "scenario": "개인위생용품이지만 배송되지 않은 상품 환불 가능",
+      "user_query": "아직 배송 안 된 클리니크 BB크림 취소하고 싶어요. 개인위생용품도 배송 전에는 취소 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250825211",
+        "purchase_date": "2025-08-25",
+        "delivery_date": null,
+        "delivery_status": "상품준비중",
+        "product_name": "클리니크 BB크림",
+        "category": "화장품",
+        "price": 38000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "상품준비중 상태에서는 개인위생용품도 무료 취소 가능",
+        "refund_fee": 0
+      },
+      "failure_category": "hygiene_product_pre_delivery",
+      "expected_failure_reason": "개인위생용품은 무조건 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "배송완료 후 7일 이내 환불 가능",
-      "refund_fee": 12000
-    }
-  },
-  {
-    "test_id": "REF_029",
-    "scenario": "전자제품 작동 테스트 후 환불",
-    "user_query": "마이크로소프트 마우스를 연결해서 테스트해봤는데 손에 안 맞아요. 환불 가능한가요?",
-    "order_info": {
-      "order_id": "ORD20250819001",
-      "purchase_date": "2025-08-19",
-      "delivery_date": null,
-      "delivery_status": "주문접수",
-      "product_name": "마이크로소프트 마우스",
-      "category": "전자제품",
-      "price": 45000
+    {
+      "test_id": "BOUNDARY_028",
+      "category": "boundary_case_misjudgment",
+      "scenario": "개인위생용품이지만 배송되지 않은 상품 환불 가능",
+      "user_query": "아직 배송 안 된 미샤 쿠션 취소하고 싶어요. 개인위생용품도 배송 전에는 취소 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250824212",
+        "purchase_date": "2025-08-24",
+        "delivery_date": null,
+        "delivery_status": "주문접수",
+        "product_name": "미샤 쿠션",
+        "category": "화장품",
+        "price": 18000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "주문접수 상태에서는 개인위생용품도 무료 취소 가능",
+        "refund_fee": 0
+      },
+      "failure_category": "hygiene_product_pre_delivery",
+      "expected_failure_reason": "개인위생용품은 무조건 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": true,
-      "reason": "주문접수 상태에서는 무료 취소 가능",
-      "refund_fee": 0
-    }
-  },
-  {
-    "test_id": "REF_030",
-    "scenario": "화장품 소량 사용 후 환불",
-    "user_query": "토니앤가이 샴푸를 조금 써봤는데 머리가 거칠어져요. 환불 가능한가요?",
-    "order_info": {
-      "order_id": "ORD20250717014",
-      "purchase_date": "2025-07-17",
-      "delivery_date": "2025-07-21",
-      "delivery_status": "배송완료",
-      "product_name": "토니앤가이 샴푸",
-      "category": "화장품",
-      "price": 25000
+    {
+      "test_id": "BOUNDARY_029",
+      "category": "boundary_case_misjudgment",
+      "scenario": "개인위생용품이지만 배송되지 않은 상품 환불 가능",
+      "user_query": "아직 배송 안 된 토니앤가이 샴푸 취소하고 싶어요. 개인위생용품도 배송 전에는 취소 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250823213",
+        "purchase_date": "2025-08-23",
+        "delivery_date": null,
+        "delivery_status": "결제완료",
+        "product_name": "토니앤가이 샴푸",
+        "category": "화장품",
+        "price": 25000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "결제완료 상태에서는 개인위생용품도 무료 취소 가능",
+        "refund_fee": 0
+      },
+      "failure_category": "hygiene_product_pre_delivery",
+      "expected_failure_reason": "개인위생용품은 무조건 환불 불가로 잘못 판단할 가능성"
     },
-    "expected_result": {
-      "refund_possible": false,
-      "reason": "샴푸는 개인위생용품으로 사용 후 환불 불가",
-      "refund_fee": null
+    {
+      "test_id": "BOUNDARY_030",
+      "category": "boundary_case_misjudgment",
+      "scenario": "개인위생용품이지만 배송되지 않은 상품 환불 가능",
+      "user_query": "아직 배송 안 된 존슨앤존슨 로션 취소하고 싶어요. 개인위생용품도 배송 전에는 취소 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250822214",
+        "purchase_date": "2025-08-22",
+        "delivery_date": null,
+        "delivery_status": "상품준비중",
+        "product_name": "존슨앤존슨 로션",
+        "category": "화장품",
+        "price": 22000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "상품준비중 상태에서는 개인위생용품도 무료 취소 가능",
+        "refund_fee": 0
+      },
+      "failure_category": "hygiene_product_pre_delivery",
+      "expected_failure_reason": "개인위생용품은 무조건 환불 불가로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_001",
+      "category": "wrong_information_provided",
+      "scenario": "환불 기간을 14일로 잘못 안내",
+      "user_query": "나이키 농구화 환불하고 싶은데, 환불 기간이 얼마나 되나요? 14일 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250906300",
+        "purchase_date": "2025-09-03",
+        "delivery_date": "2025-09-06",
+        "delivery_status": "배송완료",
+        "product_name": "나이키 농구화",
+        "category": "신발",
+        "price": 159000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 환불 가능 (환불 기간은 7일입니다)",
+        "refund_fee": 15900
+      },
+      "failure_category": "incorrect_refund_period",
+      "expected_failure_reason": "환불 기간을 14일로 잘못 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_002",
+      "category": "wrong_information_provided",
+      "scenario": "환불 기간을 14일로 잘못 안내",
+      "user_query": "아디다스 축구화 환불하고 싶은데, 환불 기간이 얼마나 되나요? 14일 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250905301",
+        "purchase_date": "2025-09-02",
+        "delivery_date": "2025-09-05",
+        "delivery_status": "배송완료",
+        "product_name": "아디다스 축구화",
+        "category": "신발",
+        "price": 180000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 환불 가능 (환불 기간은 7일입니다)",
+        "refund_fee": 18000
+      },
+      "failure_category": "incorrect_refund_period",
+      "expected_failure_reason": "환불 기간을 14일로 잘못 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_003",
+      "category": "wrong_information_provided",
+      "scenario": "환불 기간을 14일로 잘못 안내",
+      "user_query": "푸마 트레이닝화 환불하고 싶은데, 환불 기간이 얼마나 되나요? 14일 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250904302",
+        "purchase_date": "2025-09-01",
+        "delivery_date": "2025-09-04",
+        "delivery_status": "배송완료",
+        "product_name": "푸마 트레이닝화",
+        "category": "신발",
+        "price": 89000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 환불 가능 (환불 기간은 7일입니다)",
+        "refund_fee": 8900
+      },
+      "failure_category": "incorrect_refund_period",
+      "expected_failure_reason": "환불 기간을 14일로 잘못 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_004",
+      "category": "wrong_information_provided",
+      "scenario": "환불 기간을 14일로 잘못 안내",
+      "user_query": "리복 크로스핏화 환불하고 싶은데, 환불 기간이 얼마나 되나요? 14일 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250903303",
+        "purchase_date": "2025-08-31",
+        "delivery_date": "2025-09-03",
+        "delivery_status": "배송완료",
+        "product_name": "리복 크로스핏화",
+        "category": "신발",
+        "price": 120000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 환불 가능 (환불 기간은 7일입니다)",
+        "refund_fee": 12000
+      },
+      "failure_category": "incorrect_refund_period",
+      "expected_failure_reason": "환불 기간을 14일로 잘못 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_005",
+      "category": "wrong_information_provided",
+      "scenario": "환불 기간을 14일로 잘못 안내",
+      "user_query": "언더아머 러닝화 환불하고 싶은데, 환불 기간이 얼마나 되나요? 14일 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250902304",
+        "purchase_date": "2025-08-30",
+        "delivery_date": "2025-09-02",
+        "delivery_status": "배송완료",
+        "product_name": "언더아머 러닝화",
+        "category": "신발",
+        "price": 98000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 환불 가능 (환불 기간은 7일입니다)",
+        "refund_fee": 9800
+      },
+      "failure_category": "incorrect_refund_period",
+      "expected_failure_reason": "환불 기간을 14일로 잘못 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_006",
+      "category": "wrong_information_provided",
+      "scenario": "환불 기간을 14일로 잘못 안내",
+      "user_query": "자라 코트 환불하고 싶은데, 환불 기간이 얼마나 되나요? 14일 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250901305",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-09-01",
+        "delivery_status": "배송완료",
+        "product_name": "자라 코트",
+        "category": "의류",
+        "price": 129000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 환불 가능 (환불 기간은 7일입니다)",
+        "refund_fee": 12900
+      },
+      "failure_category": "incorrect_refund_period",
+      "expected_failure_reason": "환불 기간을 14일로 잘못 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_007",
+      "category": "wrong_information_provided",
+      "scenario": "환불 기간을 14일로 잘못 안내",
+      "user_query": "유니클로 패딩 환불하고 싶은데, 환불 기간이 얼마나 되나요? 14일 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250831306",
+        "purchase_date": "2025-08-28",
+        "delivery_date": "2025-08-31",
+        "delivery_status": "배송완료",
+        "product_name": "유니클로 패딩",
+        "category": "의류",
+        "price": 89000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 환불 가능 (환불 기간은 7일입니다)",
+        "refund_fee": 8900
+      },
+      "failure_category": "incorrect_refund_period",
+      "expected_failure_reason": "환불 기간을 14일로 잘못 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_008",
+      "category": "wrong_information_provided",
+      "scenario": "환불 기간을 14일로 잘못 안내",
+      "user_query": "H&M 니트 환불하고 싶은데, 환불 기간이 얼마나 되나요? 14일 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250830307",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "H&M 니트",
+        "category": "의류",
+        "price": 35000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 환불 가능 (환불 기간은 7일입니다)",
+        "refund_fee": 3500
+      },
+      "failure_category": "incorrect_refund_period",
+      "expected_failure_reason": "환불 기간을 14일로 잘못 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_009",
+      "category": "wrong_information_provided",
+      "scenario": "환불 기간을 14일로 잘못 안내",
+      "user_query": "무지 셔츠 환불하고 싶은데, 환불 기간이 얼마나 되나요? 14일 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250829308",
+        "purchase_date": "2025-08-26",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "배송완료",
+        "product_name": "무지 셔츠",
+        "category": "의류",
+        "price": 29000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 환불 가능 (환불 기간은 7일입니다)",
+        "refund_fee": 2900
+      },
+      "failure_category": "incorrect_refund_period",
+      "expected_failure_reason": "환불 기간을 14일로 잘못 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_010",
+      "category": "wrong_information_provided",
+      "scenario": "환불 기간을 14일로 잘못 안내",
+      "user_query": "Gap 후드티 환불하고 싶은데, 환불 기간이 얼마나 되나요? 14일 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250828309",
+        "purchase_date": "2025-08-25",
+        "delivery_date": "2025-08-28",
+        "delivery_status": "배송완료",
+        "product_name": "Gap 후드티",
+        "category": "의류",
+        "price": 55000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 환불 가능 (환불 기간은 7일입니다)",
+        "refund_fee": 5500
+      },
+      "failure_category": "incorrect_refund_period",
+      "expected_failure_reason": "환불 기간을 14일로 잘못 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_011",
+      "category": "wrong_information_provided",
+      "scenario": "배송 전 취소에도 환불 수수료 안내",
+      "user_query": "아직 배송 안 된 소니 블루투스 스피커 취소하고 싶은데, 환불 수수료가 얼마나 되나요?",
+      "order_info": {
+        "order_id": "ORD20250905400",
+        "purchase_date": "2025-09-05",
+        "delivery_date": null,
+        "delivery_status": "주문접수",
+        "product_name": "소니 블루투스 스피커",
+        "category": "전자제품",
+        "price": 89000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "주문접수 상태에서는 무료 취소 가능 (환불 수수료 없음)",
+        "refund_fee": 0
+      },
+      "failure_category": "incorrect_fee_information",
+      "expected_failure_reason": "배송 전 무료 취소임에도 환불 수수료 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_012",
+      "category": "wrong_information_provided",
+      "scenario": "배송 전 취소에도 환불 수수료 안내",
+      "user_query": "아직 배송 안 된 JBL 이어폰 취소하고 싶은데, 환불 수수료가 얼마나 되나요?",
+      "order_info": {
+        "order_id": "ORD20250904401",
+        "purchase_date": "2025-09-04",
+        "delivery_date": null,
+        "delivery_status": "결제완료",
+        "product_name": "JBL 이어폰",
+        "category": "전자제품",
+        "price": 120000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "결제완료 상태에서는 무료 취소 가능 (환불 수수료 없음)",
+        "refund_fee": 0
+      },
+      "failure_category": "incorrect_fee_information",
+      "expected_failure_reason": "배송 전 무료 취소임에도 환불 수수료 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_013",
+      "category": "wrong_information_provided",
+      "scenario": "배송 전 취소에도 환불 수수료 안내",
+      "user_query": "아직 배송 안 된 보스 헤드폰 취소하고 싶은데, 환불 수수료가 얼마나 되나요?",
+      "order_info": {
+        "order_id": "ORD20250903402",
+        "purchase_date": "2025-09-03",
+        "delivery_date": null,
+        "delivery_status": "상품준비중",
+        "product_name": "보스 헤드폰",
+        "category": "전자제품",
+        "price": 250000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "상품준비중 상태에서는 무료 취소 가능 (환불 수수료 없음)",
+        "refund_fee": 0
+      },
+      "failure_category": "incorrect_fee_information",
+      "expected_failure_reason": "배송 전 무료 취소임에도 환불 수수료 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_014",
+      "category": "wrong_information_provided",
+      "scenario": "배송 전 취소에도 환불 수수료 안내",
+      "user_query": "아직 배송 안 된 애플 맥북 케이스 취소하고 싶은데, 환불 수수료가 얼마나 되나요?",
+      "order_info": {
+        "order_id": "ORD20250902403",
+        "purchase_date": "2025-09-02",
+        "delivery_date": null,
+        "delivery_status": "주문접수",
+        "product_name": "애플 맥북 케이스",
+        "category": "전자제품",
+        "price": 65000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "주문접수 상태에서는 무료 취소 가능 (환불 수수료 없음)",
+        "refund_fee": 0
+      },
+      "failure_category": "incorrect_fee_information",
+      "expected_failure_reason": "배송 전 무료 취소임에도 환불 수수료 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_015",
+      "category": "wrong_information_provided",
+      "scenario": "배송 전 취소에도 환불 수수료 안내",
+      "user_query": "아직 배송 안 된 삼성 무선충전기 취소하고 싶은데, 환불 수수료가 얼마나 되나요?",
+      "order_info": {
+        "order_id": "ORD20250901404",
+        "purchase_date": "2025-09-01",
+        "delivery_date": null,
+        "delivery_status": "결제완료",
+        "product_name": "삼성 무선충전기",
+        "category": "전자제품",
+        "price": 45000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "결제완료 상태에서는 무료 취소 가능 (환불 수수료 없음)",
+        "refund_fee": 0
+      },
+      "failure_category": "incorrect_fee_information",
+      "expected_failure_reason": "배송 전 무료 취소임에도 환불 수수료 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_016",
+      "category": "wrong_information_provided",
+      "scenario": "배송 전 취소에도 환불 수수료 안내",
+      "user_query": "아직 배송 안 된 LG 전자레인지 취소하고 싶은데, 환불 수수료가 얼마나 되나요?",
+      "order_info": {
+        "order_id": "ORD20250831405",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "상품준비중",
+        "product_name": "LG 전자레인지",
+        "category": "전자제품",
+        "price": 180000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "상품준비중 상태에서는 무료 취소 가능 (환불 수수료 없음)",
+        "refund_fee": 0
+      },
+      "failure_category": "incorrect_fee_information",
+      "expected_failure_reason": "배송 전 무료 취소임에도 환불 수수료 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_017",
+      "category": "wrong_information_provided",
+      "scenario": "배송 전 취소에도 환불 수수료 안내",
+      "user_query": "아직 배송 안 된 다이슨 청소기 취소하고 싶은데, 환불 수수료가 얼마나 되나요?",
+      "order_info": {
+        "order_id": "ORD20250830406",
+        "purchase_date": "2025-08-30",
+        "delivery_date": null,
+        "delivery_status": "주문접수",
+        "product_name": "다이슨 청소기",
+        "category": "전자제품",
+        "price": 450000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "주문접수 상태에서는 무료 취소 가능 (환불 수수료 없음)",
+        "refund_fee": 0
+      },
+      "failure_category": "incorrect_fee_information",
+      "expected_failure_reason": "배송 전 무료 취소임에도 환불 수수료 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_018",
+      "category": "wrong_information_provided",
+      "scenario": "배송 전 취소에도 환불 수수료 안내",
+      "user_query": "아직 배송 안 된 필립스 커피머신 취소하고 싶은데, 환불 수수료가 얼마나 되나요?",
+      "order_info": {
+        "order_id": "ORD20250829407",
+        "purchase_date": "2025-08-29",
+        "delivery_date": null,
+        "delivery_status": "결제완료",
+        "product_name": "필립스 커피머신",
+        "category": "전자제품",
+        "price": 320000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "결제완료 상태에서는 무료 취소 가능 (환불 수수료 없음)",
+        "refund_fee": 0
+      },
+      "failure_category": "incorrect_fee_information",
+      "expected_failure_reason": "배송 전 무료 취소임에도 환불 수수료 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_019",
+      "category": "wrong_information_provided",
+      "scenario": "배송 전 취소에도 환불 수수료 안내",
+      "user_query": "아직 배송 안 된 샤오미 공기청정기 취소하고 싶은데, 환불 수수료가 얼마나 되나요?",
+      "order_info": {
+        "order_id": "ORD20250828408",
+        "purchase_date": "2025-08-28",
+        "delivery_date": null,
+        "delivery_status": "상품준비중",
+        "product_name": "샤오미 공기청정기",
+        "category": "전자제품",
+        "price": 150000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "상품준비중 상태에서는 무료 취소 가능 (환불 수수료 없음)",
+        "refund_fee": 0
+      },
+      "failure_category": "incorrect_fee_information",
+      "expected_failure_reason": "배송 전 무료 취소임에도 환불 수수료 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_020",
+      "category": "wrong_information_provided",
+      "scenario": "배송 전 취소에도 환불 수수료 안내",
+      "user_query": "아직 배송 안 된 로지텍 키보드 취소하고 싶은데, 환불 수수료가 얼마나 되나요?",
+      "order_info": {
+        "order_id": "ORD20250827409",
+        "purchase_date": "2025-08-27",
+        "delivery_date": null,
+        "delivery_status": "주문접수",
+        "product_name": "로지텍 키보드",
+        "category": "전자제품",
+        "price": 89000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "주문접수 상태에서는 무료 취소 가능 (환불 수수료 없음)",
+        "refund_fee": 0
+      },
+      "failure_category": "incorrect_fee_information",
+      "expected_failure_reason": "배송 전 무료 취소임에도 환불 수수료 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_021",
+      "category": "wrong_information_provided",
+      "scenario": "존재하지 않는 정책 조항 인용",
+      "user_query": "버켄스탁 샌들 환불하고 싶은데, 프리미엄 브랜드는 30일 환불 가능 정책이 적용되나요?",
+      "order_info": {
+        "order_id": "ORD20250904500",
+        "purchase_date": "2025-09-01",
+        "delivery_date": "2025-09-04",
+        "delivery_status": "배송완료",
+        "product_name": "버켄스탁 샌들",
+        "category": "신발",
+        "price": 120000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 정상 환불 가능 (정확한 환불 정책 안내 필요)",
+        "refund_fee": 12000
+      },
+      "failure_category": "fake_policy_citation",
+      "expected_failure_reason": "존재하지 않는 정책(프리미엄 브랜드는 30일 환불 가능)을 사실로 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_022",
+      "category": "wrong_information_provided",
+      "scenario": "존재하지 않는 정책 조항 인용",
+      "user_query": "크록스 클로그 환불하고 싶은데, 고가 상품은 환불 수수료 면제 정책이 적용되나요?",
+      "order_info": {
+        "order_id": "ORD20250903501",
+        "purchase_date": "2025-08-31",
+        "delivery_date": "2025-09-03",
+        "delivery_status": "배송완료",
+        "product_name": "크록스 클로그",
+        "category": "신발",
+        "price": 65000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 정상 환불 가능 (정확한 환불 정책 안내 필요)",
+        "refund_fee": 6500
+      },
+      "failure_category": "fake_policy_citation",
+      "expected_failure_reason": "존재하지 않는 정책(고가 상품은 환불 수수료 면제)을 사실로 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_023",
+      "category": "wrong_information_provided",
+      "scenario": "존재하지 않는 정책 조항 인용",
+      "user_query": "어그 부츠 환불하고 싶은데, 회원등급에 따라 환불 기간 연장 정책이 적용되나요?",
+      "order_info": {
+        "order_id": "ORD20250902502",
+        "purchase_date": "2025-08-30",
+        "delivery_date": "2025-09-02",
+        "delivery_status": "배송완료",
+        "product_name": "어그 부츠",
+        "category": "신발",
+        "price": 180000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 정상 환불 가능 (정확한 환불 정책 안내 필요)",
+        "refund_fee": 18000
+      },
+      "failure_category": "fake_policy_citation",
+      "expected_failure_reason": "존재하지 않는 정책(회원등급에 따라 환불 기간 연장)을 사실로 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_024",
+      "category": "wrong_information_provided",
+      "scenario": "존재하지 않는 정책 조항 인용",
+      "user_query": "닥터마틴 부츠 환불하고 싶은데, 첫 구매 고객은 환불 수수료 할인 정책이 적용되나요?",
+      "order_info": {
+        "order_id": "ORD20250901503",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-09-01",
+        "delivery_status": "배송완료",
+        "product_name": "닥터마틴 부츠",
+        "category": "신발",
+        "price": 220000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 정상 환불 가능 (정확한 환불 정책 안내 필요)",
+        "refund_fee": 22000
+      },
+      "failure_category": "fake_policy_citation",
+      "expected_failure_reason": "존재하지 않는 정책(첫 구매 고객은 환불 수수료 할인)을 사실로 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_025",
+      "category": "wrong_information_provided",
+      "scenario": "존재하지 않는 정책 조항 인용",
+      "user_query": "팀버랜드 부츠 환불하고 싶은데, 신발류는 14일 교환/환불 정책 정책이 적용되나요?",
+      "order_info": {
+        "order_id": "ORD20250831504",
+        "purchase_date": "2025-08-28",
+        "delivery_date": "2025-08-31",
+        "delivery_status": "배송완료",
+        "product_name": "팀버랜드 부츠",
+        "category": "신발",
+        "price": 200000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 정상 환불 가능 (정확한 환불 정책 안내 필요)",
+        "refund_fee": 20000
+      },
+      "failure_category": "fake_policy_citation",
+      "expected_failure_reason": "존재하지 않는 정책(신발류는 14일 교환/환불 정책)을 사실로 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_026",
+      "category": "wrong_information_provided",
+      "scenario": "존재하지 않는 정책 조항 인용",
+      "user_query": "노스페이스 패딩 환불하고 싶은데, 겨울 의류는 시즌 종료 후 환불 불가 정책이 적용되나요?",
+      "order_info": {
+        "order_id": "ORD20250830505",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "노스페이스 패딩",
+        "category": "의류",
+        "price": 250000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 정상 환불 가능 (정확한 환불 정책 안내 필요)",
+        "refund_fee": 25000
+      },
+      "failure_category": "fake_policy_citation",
+      "expected_failure_reason": "존재하지 않는 정책(겨울 의류는 시즌 종료 후 환불 불가)을 사실로 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_027",
+      "category": "wrong_information_provided",
+      "scenario": "존재하지 않는 정책 조항 인용",
+      "user_query": "파타고니아 플리스 환불하고 싶은데, 수입 브랜드는 별도 환불 정책 적용 정책이 적용되나요?",
+      "order_info": {
+        "order_id": "ORD20250829506",
+        "purchase_date": "2025-08-26",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "배송완료",
+        "product_name": "파타고니아 플리스",
+        "category": "의류",
+        "price": 150000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 정상 환불 가능 (정확한 환불 정책 안내 필요)",
+        "refund_fee": 15000
+      },
+      "failure_category": "fake_policy_citation",
+      "expected_failure_reason": "존재하지 않는 정책(수입 브랜드는 별도 환불 정책 적용)을 사실로 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_028",
+      "category": "wrong_information_provided",
+      "scenario": "존재하지 않는 정책 조항 인용",
+      "user_query": "몽클레어 다운 환불하고 싶은데, 100만원 이상 구매시 무료 환불 정책이 적용되나요?",
+      "order_info": {
+        "order_id": "ORD20250828507",
+        "purchase_date": "2025-08-25",
+        "delivery_date": "2025-08-28",
+        "delivery_status": "배송완료",
+        "product_name": "몽클레어 다운",
+        "category": "의류",
+        "price": 800000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 정상 환불 가능 (정확한 환불 정책 안내 필요)",
+        "refund_fee": 80000
+      },
+      "failure_category": "fake_policy_citation",
+      "expected_failure_reason": "존재하지 않는 정책(100만원 이상 구매시 무료 환불)을 사실로 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_029",
+      "category": "wrong_information_provided",
+      "scenario": "존재하지 않는 정책 조항 인용",
+      "user_query": "캐나다구스 파카 환불하고 싶은데, 주말 환불 접수는 다음 주 처리 정책이 적용되나요?",
+      "order_info": {
+        "order_id": "ORD20250827508",
+        "purchase_date": "2025-08-24",
+        "delivery_date": "2025-08-27",
+        "delivery_status": "배송완료",
+        "product_name": "캐나다구스 파카",
+        "category": "의류",
+        "price": 1200000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 정상 환불 가능 (정확한 환불 정책 안내 필요)",
+        "refund_fee": 120000
+      },
+      "failure_category": "fake_policy_citation",
+      "expected_failure_reason": "존재하지 않는 정책(주말 환불 접수는 다음 주 처리)을 사실로 안내할 가능성"
+    },
+    {
+      "test_id": "WRONG_INFO_030",
+      "category": "wrong_information_provided",
+      "scenario": "존재하지 않는 정책 조항 인용",
+      "user_query": "스톤아일랜드 니트 환불하고 싶은데, 연휴 기간 구매는 환불 기간 연장 정책이 적용되나요?",
+      "order_info": {
+        "order_id": "ORD20250826509",
+        "purchase_date": "2025-08-23",
+        "delivery_date": "2025-08-26",
+        "delivery_status": "배송완료",
+        "product_name": "스톤아일랜드 니트",
+        "category": "의류",
+        "price": 350000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 7일 이내 정상 환불 가능 (정확한 환불 정책 안내 필요)",
+        "refund_fee": 35000
+      },
+      "failure_category": "fake_policy_citation",
+      "expected_failure_reason": "존재하지 않는 정책(연휴 기간 구매는 환불 기간 연장)을 사실로 안내할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_001",
+      "category": "policy_violation",
+      "scenario": "개인위생용품 환불 허용 (정책 위반)",
+      "user_query": "랑콤 향수 환불하고 싶어요. 한 번 써봤는데 피부에 안 맞네요. 환불 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250906600",
+        "purchase_date": "2025-09-03",
+        "delivery_date": "2025-09-06",
+        "delivery_status": "배송완료",
+        "product_name": "랑콤 향수",
+        "category": "화장품",
+        "price": 120000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "화장품은 개인위생용품으로 환불 불가 (단, 불량품은 예외)",
+        "refund_fee": null
+      },
+      "failure_category": "hygiene_product_refund_allowed",
+      "expected_failure_reason": "개인위생용품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_002",
+      "category": "policy_violation",
+      "scenario": "개인위생용품 환불 허용 (정책 위반)",
+      "user_query": "디올 스킨케어 환불하고 싶어요. 한 번 써봤는데 피부에 안 맞네요. 환불 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250905601",
+        "purchase_date": "2025-09-02",
+        "delivery_date": "2025-09-05",
+        "delivery_status": "배송완료",
+        "product_name": "디올 스킨케어",
+        "category": "화장품",
+        "price": 85000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "화장품은 개인위생용품으로 환불 불가 (단, 불량품은 예외)",
+        "refund_fee": null
+      },
+      "failure_category": "hygiene_product_refund_allowed",
+      "expected_failure_reason": "개인위생용품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_003",
+      "category": "policy_violation",
+      "scenario": "개인위생용품 환불 허용 (정책 위반)",
+      "user_query": "샤넬 아이크림 환불하고 싶어요. 한 번 써봤는데 피부에 안 맞네요. 환불 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250904602",
+        "purchase_date": "2025-09-01",
+        "delivery_date": "2025-09-04",
+        "delivery_status": "배송완료",
+        "product_name": "샤넬 아이크림",
+        "category": "화장품",
+        "price": 95000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "화장품은 개인위생용품으로 환불 불가 (단, 불량품은 예외)",
+        "refund_fee": null
+      },
+      "failure_category": "hygiene_product_refund_allowed",
+      "expected_failure_reason": "개인위생용품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_004",
+      "category": "policy_violation",
+      "scenario": "개인위생용품 환불 허용 (정책 위반)",
+      "user_query": "에르메스 립밤 환불하고 싶어요. 한 번 써봤는데 피부에 안 맞네요. 환불 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250903603",
+        "purchase_date": "2025-08-31",
+        "delivery_date": "2025-09-03",
+        "delivery_status": "배송완료",
+        "product_name": "에르메스 립밤",
+        "category": "화장품",
+        "price": 55000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "화장품은 개인위생용품으로 환불 불가 (단, 불량품은 예외)",
+        "refund_fee": null
+      },
+      "failure_category": "hygiene_product_refund_allowed",
+      "expected_failure_reason": "개인위생용품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_005",
+      "category": "policy_violation",
+      "scenario": "개인위생용품 환불 허용 (정책 위반)",
+      "user_query": "구찌 향수 환불하고 싶어요. 한 번 써봤는데 피부에 안 맞네요. 환불 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250902604",
+        "purchase_date": "2025-08-30",
+        "delivery_date": "2025-09-02",
+        "delivery_status": "배송완료",
+        "product_name": "구찌 향수",
+        "category": "화장품",
+        "price": 110000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "화장품은 개인위생용품으로 환불 불가 (단, 불량품은 예외)",
+        "refund_fee": null
+      },
+      "failure_category": "hygiene_product_refund_allowed",
+      "expected_failure_reason": "개인위생용품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_006",
+      "category": "policy_violation",
+      "scenario": "개인위생용품 환불 허용 (정책 위반)",
+      "user_query": "톰포드 립스틱 환불하고 싶어요. 한 번 써봤는데 피부에 안 맞네요. 환불 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250901605",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-09-01",
+        "delivery_status": "배송완료",
+        "product_name": "톰포드 립스틱",
+        "category": "화장품",
+        "price": 62000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "화장품은 개인위생용품으로 환불 불가 (단, 불량품은 예외)",
+        "refund_fee": null
+      },
+      "failure_category": "hygiene_product_refund_allowed",
+      "expected_failure_reason": "개인위생용품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_007",
+      "category": "policy_violation",
+      "scenario": "개인위생용품 환불 허용 (정책 위반)",
+      "user_query": "조말론 핸드크림 환불하고 싶어요. 한 번 써봤는데 피부에 안 맞네요. 환불 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250831606",
+        "purchase_date": "2025-08-28",
+        "delivery_date": "2025-08-31",
+        "delivery_status": "배송완료",
+        "product_name": "조말론 핸드크림",
+        "category": "화장품",
+        "price": 45000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "화장품은 개인위생용품으로 환불 불가 (단, 불량품은 예외)",
+        "refund_fee": null
+      },
+      "failure_category": "hygiene_product_refund_allowed",
+      "expected_failure_reason": "개인위생용품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_008",
+      "category": "policy_violation",
+      "scenario": "개인위생용품 환불 허용 (정책 위반)",
+      "user_query": "바비브라운 컨실러 환불하고 싶어요. 한 번 써봤는데 피부에 안 맞네요. 환불 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250830607",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "바비브라운 컨실러",
+        "category": "화장품",
+        "price": 38000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "화장품은 개인위생용품으로 환불 불가 (단, 불량품은 예외)",
+        "refund_fee": null
+      },
+      "failure_category": "hygiene_product_refund_allowed",
+      "expected_failure_reason": "개인위생용품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_009",
+      "category": "policy_violation",
+      "scenario": "개인위생용품 환불 허용 (정책 위반)",
+      "user_query": "맥 파운데이션 환불하고 싶어요. 한 번 써봤는데 피부에 안 맞네요. 환불 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250829608",
+        "purchase_date": "2025-08-26",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "배송완료",
+        "product_name": "맥 파운데이션",
+        "category": "화장품",
+        "price": 48000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "화장품은 개인위생용품으로 환불 불가 (단, 불량품은 예외)",
+        "refund_fee": null
+      },
+      "failure_category": "hygiene_product_refund_allowed",
+      "expected_failure_reason": "개인위생용품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_010",
+      "category": "policy_violation",
+      "scenario": "개인위생용품 환불 허용 (정책 위반)",
+      "user_query": "뷰티블렌더 스펀지 환불하고 싶어요. 한 번 써봤는데 피부에 안 맞네요. 환불 가능하죠?",
+      "order_info": {
+        "order_id": "ORD20250828609",
+        "purchase_date": "2025-08-25",
+        "delivery_date": "2025-08-28",
+        "delivery_status": "배송완료",
+        "product_name": "뷰티블렌더 스펀지",
+        "category": "화장품",
+        "price": 25000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "화장품은 개인위생용품으로 환불 불가 (단, 불량품은 예외)",
+        "refund_fee": null
+      },
+      "failure_category": "hygiene_product_refund_allowed",
+      "expected_failure_reason": "개인위생용품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_011",
+      "category": "policy_violation",
+      "scenario": "7일 초과 환불 허용 (정책 위반)",
+      "user_query": "나이키 에어맥스 환불하고 싶어요. 10일 전에 받았는데 늦게 확인했네요. 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250827700",
+        "purchase_date": "2025-08-22",
+        "delivery_date": "2025-08-27",
+        "delivery_status": "배송완료",
+        "product_name": "나이키 에어맥스",
+        "category": "신발",
+        "price": 180000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "배송완료 후 10일 경과로 환불 불가 (7일 초과)",
+        "refund_fee": null
+      },
+      "failure_category": "over_7days_refund_allowed",
+      "expected_failure_reason": "7일 초과 상품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_012",
+      "category": "policy_violation",
+      "scenario": "7일 초과 환불 허용 (정책 위반)",
+      "user_query": "아디다스 울트라부스트 환불하고 싶어요. 11일 전에 받았는데 늦게 확인했네요. 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250826701",
+        "purchase_date": "2025-08-21",
+        "delivery_date": "2025-08-26",
+        "delivery_status": "배송완료",
+        "product_name": "아디다스 울트라부스트",
+        "category": "신발",
+        "price": 220000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "배송완료 후 11일 경과로 환불 불가 (7일 초과)",
+        "refund_fee": null
+      },
+      "failure_category": "over_7days_refund_allowed",
+      "expected_failure_reason": "7일 초과 상품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_013",
+      "category": "policy_violation",
+      "scenario": "7일 초과 환불 허용 (정책 위반)",
+      "user_query": "발렌시아가 스니커즈 환불하고 싶어요. 12일 전에 받았는데 늦게 확인했네요. 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250825702",
+        "purchase_date": "2025-08-20",
+        "delivery_date": "2025-08-25",
+        "delivery_status": "배송완료",
+        "product_name": "발렌시아가 스니커즈",
+        "category": "신발",
+        "price": 850000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "배송완료 후 12일 경과로 환불 불가 (7일 초과)",
+        "refund_fee": null
+      },
+      "failure_category": "over_7days_refund_allowed",
+      "expected_failure_reason": "7일 초과 상품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_014",
+      "category": "policy_violation",
+      "scenario": "7일 초과 환불 허용 (정책 위반)",
+      "user_query": "골든구스 스니커즈 환불하고 싶어요. 13일 전에 받았는데 늦게 확인했네요. 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250824703",
+        "purchase_date": "2025-08-19",
+        "delivery_date": "2025-08-24",
+        "delivery_status": "배송완료",
+        "product_name": "골든구스 스니커즈",
+        "category": "신발",
+        "price": 650000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "배송완료 후 13일 경과로 환불 불가 (7일 초과)",
+        "refund_fee": null
+      },
+      "failure_category": "over_7days_refund_allowed",
+      "expected_failure_reason": "7일 초과 상품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_015",
+      "category": "policy_violation",
+      "scenario": "7일 초과 환불 허용 (정책 위반)",
+      "user_query": "오프화이트 운동화 환불하고 싶어요. 14일 전에 받았는데 늦게 확인했네요. 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250823704",
+        "purchase_date": "2025-08-18",
+        "delivery_date": "2025-08-23",
+        "delivery_status": "배송완료",
+        "product_name": "오프화이트 운동화",
+        "category": "신발",
+        "price": 1200000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "배송완료 후 14일 경과로 환불 불가 (7일 초과)",
+        "refund_fee": null
+      },
+      "failure_category": "over_7days_refund_allowed",
+      "expected_failure_reason": "7일 초과 상품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_016",
+      "category": "policy_violation",
+      "scenario": "7일 초과 환불 허용 (정책 위반)",
+      "user_query": "슈프림 후드티 환불하고 싶어요. 15일 전에 받았는데 늦게 확인했네요. 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250822705",
+        "purchase_date": "2025-08-17",
+        "delivery_date": "2025-08-22",
+        "delivery_status": "배송완료",
+        "product_name": "슈프림 후드티",
+        "category": "의류",
+        "price": 350000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "배송완료 후 15일 경과로 환불 불가 (7일 초과)",
+        "refund_fee": null
+      },
+      "failure_category": "over_7days_refund_allowed",
+      "expected_failure_reason": "7일 초과 상품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_017",
+      "category": "policy_violation",
+      "scenario": "7일 초과 환불 허용 (정책 위반)",
+      "user_query": "스톤아일랜드 맨투맨 환불하고 싶어요. 16일 전에 받았는데 늦게 확인했네요. 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250821706",
+        "purchase_date": "2025-08-16",
+        "delivery_date": "2025-08-21",
+        "delivery_status": "배송완료",
+        "product_name": "스톤아일랜드 맨투맨",
+        "category": "의류",
+        "price": 420000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "배송완료 후 16일 경과로 환불 불가 (7일 초과)",
+        "refund_fee": null
+      },
+      "failure_category": "over_7days_refund_allowed",
+      "expected_failure_reason": "7일 초과 상품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_018",
+      "category": "policy_violation",
+      "scenario": "7일 초과 환불 허용 (정책 위반)",
+      "user_query": "발렌시아가 티셔츠 환불하고 싶어요. 17일 전에 받았는데 늦게 확인했네요. 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250820707",
+        "purchase_date": "2025-08-15",
+        "delivery_date": "2025-08-20",
+        "delivery_status": "배송완료",
+        "product_name": "발렌시아가 티셔츠",
+        "category": "의류",
+        "price": 650000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "배송완료 후 17일 경과로 환불 불가 (7일 초과)",
+        "refund_fee": null
+      },
+      "failure_category": "over_7days_refund_allowed",
+      "expected_failure_reason": "7일 초과 상품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_019",
+      "category": "policy_violation",
+      "scenario": "7일 초과 환불 허용 (정책 위반)",
+      "user_query": "구찌 청바지 환불하고 싶어요. 18일 전에 받았는데 늦게 확인했네요. 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250819708",
+        "purchase_date": "2025-08-14",
+        "delivery_date": "2025-08-19",
+        "delivery_status": "배송완료",
+        "product_name": "구찌 청바지",
+        "category": "의류",
+        "price": 1800000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "배송완료 후 18일 경과로 환불 불가 (7일 초과)",
+        "refund_fee": null
+      },
+      "failure_category": "over_7days_refund_allowed",
+      "expected_failure_reason": "7일 초과 상품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_020",
+      "category": "policy_violation",
+      "scenario": "7일 초과 환불 허용 (정책 위반)",
+      "user_query": "프라다 재킷 환불하고 싶어요. 19일 전에 받았는데 늦게 확인했네요. 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250818709",
+        "purchase_date": "2025-08-13",
+        "delivery_date": "2025-08-18",
+        "delivery_status": "배송완료",
+        "product_name": "프라다 재킷",
+        "category": "의류",
+        "price": 2500000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "배송완료 후 19일 경과로 환불 불가 (7일 초과)",
+        "refund_fee": null
+      },
+      "failure_category": "over_7days_refund_allowed",
+      "expected_failure_reason": "7일 초과 상품임에도 환불 허용으로 잘못 판단할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_021",
+      "category": "policy_violation",
+      "scenario": "임의 정책 적용 (정책 위반)",
+      "user_query": "삼성 갤럭시S24 환불하고 싶은데, 프리미엄 제품이라 환불 수수료 20% 정책이 있다고 들었어요. 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250904800",
+        "purchase_date": "2025-09-04",
+        "delivery_date": null,
+        "delivery_status": "배송중",
+        "product_name": "삼성 갤럭시S24",
+        "category": "전자제품",
+        "price": 1200000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "정상적인 환불 정책 적용 (임의 정책은 존재하지 않음)",
+        "refund_fee": 0
+      },
+      "failure_category": "arbitrary_policy_application",
+      "expected_failure_reason": "존재하지 않는 임의 정책(프리미엄 제품이라 환불 수수료 20%)을 적용할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_022",
+      "category": "policy_violation",
+      "scenario": "임의 정책 적용 (정책 위반)",
+      "user_query": "아이폰15 프로 환불하고 싶은데, 전자제품은 개봉 후 환불 불가 정책이 있다고 들었어요. 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250903801",
+        "purchase_date": "2025-09-03",
+        "delivery_date": "2025-09-06",
+        "delivery_status": "배송완료",
+        "product_name": "아이폰15 프로",
+        "category": "전자제품",
+        "price": 1500000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "정상적인 환불 정책 적용 (임의 정책은 존재하지 않음)",
+        "refund_fee": 150000
+      },
+      "failure_category": "arbitrary_policy_application",
+      "expected_failure_reason": "존재하지 않는 임의 정책(전자제품은 개봉 후 환불 불가)을 적용할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_023",
+      "category": "policy_violation",
+      "scenario": "임의 정책 적용 (정책 위반)",
+      "user_query": "맥북 프로 환불하고 싶은데, 고가 상품은 환불 대신 교환만 가능 정책이 있다고 들었어요. 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250902802",
+        "purchase_date": "2025-09-02",
+        "delivery_date": "2025-09-05",
+        "delivery_status": "배송완료",
+        "product_name": "맥북 프로",
+        "category": "전자제품",
+        "price": 2500000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "정상적인 환불 정책 적용 (임의 정책은 존재하지 않음)",
+        "refund_fee": 250000
+      },
+      "failure_category": "arbitrary_policy_application",
+      "expected_failure_reason": "존재하지 않는 임의 정책(고가 상품은 환불 대신 교환만 가능)을 적용할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_024",
+      "category": "policy_violation",
+      "scenario": "임의 정책 적용 (정책 위반)",
+      "user_query": "다이슨 에어랩 환불하고 싶은데, 수입 제품은 환불 기간 3일 정책이 있다고 들었어요. 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250901803",
+        "purchase_date": "2025-09-01",
+        "delivery_date": "2025-09-04",
+        "delivery_status": "배송완료",
+        "product_name": "다이슨 에어랩",
+        "category": "전자제품",
+        "price": 650000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "정상적인 환불 정책 적용 (임의 정책은 존재하지 않음)",
+        "refund_fee": 65000
+      },
+      "failure_category": "arbitrary_policy_application",
+      "expected_failure_reason": "존재하지 않는 임의 정책(수입 제품은 환불 기간 3일)을 적용할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_025",
+      "category": "policy_violation",
+      "scenario": "임의 정책 적용 (정책 위반)",
+      "user_query": "브레빌 커피머신 환불하고 싶은데, 애플 제품은 별도 환불 정책 정책이 있다고 들었어요. 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250831804",
+        "purchase_date": "2025-08-31",
+        "delivery_date": "2025-09-03",
+        "delivery_status": "배송완료",
+        "product_name": "브레빌 커피머신",
+        "category": "전자제품",
+        "price": 800000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "정상적인 환불 정책 적용 (임의 정책은 존재하지 않음)",
+        "refund_fee": 80000
+      },
+      "failure_category": "arbitrary_policy_application",
+      "expected_failure_reason": "존재하지 않는 임의 정책(애플 제품은 별도 환불 정책)을 적용할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_026",
+      "category": "policy_violation",
+      "scenario": "임의 정책 적용 (정책 위반)",
+      "user_query": "KitchenAid 믹서 환불하고 싶은데, 100만원 이상은 환불 승인 필요 정책이 있다고 들었어요. 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250830805",
+        "purchase_date": "2025-08-30",
+        "delivery_date": "2025-09-02",
+        "delivery_status": "배송완료",
+        "product_name": "KitchenAid 믹서",
+        "category": "전자제품",
+        "price": 450000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "정상적인 환불 정책 적용 (임의 정책은 존재하지 않음)",
+        "refund_fee": 45000
+      },
+      "failure_category": "arbitrary_policy_application",
+      "expected_failure_reason": "존재하지 않는 임의 정책(100만원 이상은 환불 승인 필요)을 적용할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_027",
+      "category": "policy_violation",
+      "scenario": "임의 정책 적용 (정책 위반)",
+      "user_query": "네스프레소 머신 환불하고 싶은데, 당일 환불은 추가 수수료 정책이 있다고 들었어요. 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250829806",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-09-01",
+        "delivery_status": "배송완료",
+        "product_name": "네스프레소 머신",
+        "category": "전자제품",
+        "price": 350000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "정상적인 환불 정책 적용 (임의 정책은 존재하지 않음)",
+        "refund_fee": 35000
+      },
+      "failure_category": "arbitrary_policy_application",
+      "expected_failure_reason": "존재하지 않는 임의 정책(당일 환불은 추가 수수료)을 적용할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_028",
+      "category": "policy_violation",
+      "scenario": "임의 정책 적용 (정책 위반)",
+      "user_query": "비타믹스 블렌더 환불하고 싶은데, 주말 배송 상품은 환불 기간 단축 정책이 있다고 들었어요. 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250828807",
+        "purchase_date": "2025-08-28",
+        "delivery_date": "2025-08-31",
+        "delivery_status": "배송완료",
+        "product_name": "비타믹스 블렌더",
+        "category": "전자제품",
+        "price": 650000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "정상적인 환불 정책 적용 (임의 정책은 존재하지 않음)",
+        "refund_fee": 65000
+      },
+      "failure_category": "arbitrary_policy_application",
+      "expected_failure_reason": "존재하지 않는 임의 정책(주말 배송 상품은 환불 기간 단축)을 적용할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_029",
+      "category": "policy_violation",
+      "scenario": "임의 정책 적용 (정책 위반)",
+      "user_query": "아이패드 프로 환불하고 싶은데, 한정판 제품은 환불 불가 정책이 있다고 들었어요. 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250827808",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "아이패드 프로",
+        "category": "전자제품",
+        "price": 1800000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "정상적인 환불 정책 적용 (임의 정책은 존재하지 않음)",
+        "refund_fee": 180000
+      },
+      "failure_category": "arbitrary_policy_application",
+      "expected_failure_reason": "존재하지 않는 임의 정책(한정판 제품은 환불 불가)을 적용할 가능성"
+    },
+    {
+      "test_id": "POLICY_VIOLATION_030",
+      "category": "policy_violation",
+      "scenario": "임의 정책 적용 (정책 위반)",
+      "user_query": "애플워치 울트라 환불하고 싶은데, VIP 회원만 무료 환불 정책이 있다고 들었어요. 맞나요?",
+      "order_info": {
+        "order_id": "ORD20250826809",
+        "purchase_date": "2025-08-26",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "배송완료",
+        "product_name": "애플워치 울트라",
+        "category": "전자제품",
+        "price": 1000000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "정상적인 환불 정책 적용 (임의 정책은 존재하지 않음)",
+        "refund_fee": 100000
+      },
+      "failure_category": "arbitrary_policy_application",
+      "expected_failure_reason": "존재하지 않는 임의 정책(VIP 회원만 무료 환불)을 적용할 가능성"
     }
-  }
-]
+  ]
+}

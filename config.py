@@ -16,11 +16,13 @@ class Config:
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o")
     OPENAI_MINI_MODEL: str = os.getenv("OPENAI_MINI_MODEL", "gpt-4o-mini")  # Smaller model for tools
+    POLICY_COMPLIANCE_MODEL: str = os.getenv("POLICY_COMPLIANCE_MODEL", "gpt-4o-mini")
+    REASON_QUALITY_MODEL: str = os.getenv("REASON_QUALITY_MODEL", "gpt-4o-mini")
     TEMPERATURE: float = float(os.getenv("TEMPERATURE", "0.7"))
     MAX_TOKENS: int = int(os.getenv("MAX_TOKENS", "2000"))
     
     # System Settings
-    CURRENT_DATE: str = "2025-08-22"
+    CURRENT_DATE: str = "2025-09-06"
     LANGUAGE: str = os.getenv("LANGUAGE", "ko")  # Default to Korean (ko, en, jp)
     
     # Retry Settings
