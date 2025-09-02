@@ -146,13 +146,11 @@ class OrderAgent:
     
     def _cal_days_since_delivery(self, order: Dict[str, Any]) -> Dict[str, Any]:
         """주문 정보에 간단한 경과일 정보 추가"""
-        current_date = datetime.strptime(config.CURRENT_DATE, "%Y-%m-%d")
         enriched_order = order.copy()
         
         # 배송 후 경과일 (있는 경우만)
-        if order.get("delivery_date"):
-            delivery_date = datetime.strptime(order["delivery_date"], "%Y-%m-%d")
-            enriched_order["days_since_delivery"] = (current_date - delivery_date).days
+        if order.get("purchase_date"):
+            enriched_order["days_since_delivery"] = (datetime.strptime(config.CURRENT_DATE, "%Y-%m-%d") - datetime.strptime(order["purchase_date"], "%Y-%m-%d")).days
         else:
             enriched_order["days_since_delivery"] = None
         
