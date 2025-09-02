@@ -8,13 +8,13 @@ from config import config
 class LLMClient:
     """간단한 LLM 클라이언트"""
     
-    def __init__(self, model: str = "gpt-4o"):
+    def __init__(self, model: str = None):
         import openai
         self.client = openai.OpenAI(
             api_key=config.OPENAI_API_KEY
             # 표준 OpenAI API 사용 (base_url 제거)
         )
-        self.model = model
+        self.model = model if model else config.OPENAI_MINI_MODEL
     
     def chat(self, messages: List[Dict[str, str]], temperature: float = 0.7) -> str:
         """채팅 완성 요청"""

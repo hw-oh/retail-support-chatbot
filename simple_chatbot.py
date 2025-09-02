@@ -9,6 +9,7 @@ from typing import List, Dict, Any
 
 # 에이전트 import
 from agents import LLMClient, IntentAgent, PlanningAgent, OrderAgent, RefundAgent, GeneralAgent
+from config import config
 
 
 # 이제 에이전트들은 별도 파일에서 import됩니다
@@ -18,20 +19,23 @@ class SimplifiedChatbot:
     """간소화된 멀티턴 챗봇"""
     
     def __init__(self):
-        # LLM 클라이언트
-        self.llm = LLMClient()
+        # 1. Intent 분석 에이전트 (경량 모델)
+        intent_llm = LLMClient(model=config.INTENT_AGENT_MODEL)
+        self.intent_agent = IntentAgent(intent_llm)
         
-        # 1. Intent 분석 에이전트
-        self.intent_agent = IntentAgent(self.llm)
+        # 2. Planning 에이전트 (경량 모델)
+        planning_llm = LLMClient(model=config.PLANNING_AGENT_MODEL)
+        self.planning_agent = PlanningAgent(planning_llm)
         
-        # 2. Planning 에이전트
-        self.planning_agent = PlanningAgent(self.llm)
+        # 3. 도메인별 에이전트들 (각각 적절한 모델 사용)
+        order_llm = LLMClient(model=config.ORDER_AGENT_MODEL)
+        refund_llm = LLMClient(model=config.REFUND_AGENT_MODEL)
+        general_llm = LLMClient(model=config.GENERAL_AGENT_MODEL)
         
-        # 3. 도메인별 에이전트들
         self.agents = {
-            'order_agent': OrderAgent(self.llm),
-            'refund_agent': RefundAgent(self.llm), 
-            'general_agent': GeneralAgent(self.llm)
+            'order_agent': OrderAgent(order_llm),
+            'refund_agent': RefundAgent(refund_llm), 
+            'general_agent': GeneralAgent(general_llm)
         }
         
         # 4. 대화 컨텍스트 (멀티턴용)

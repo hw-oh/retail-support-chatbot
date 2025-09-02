@@ -16,6 +16,15 @@ class Config:
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o")
     OPENAI_MINI_MODEL: str = os.getenv("OPENAI_MINI_MODEL", "gpt-4o-mini")  # Smaller model for tools
+    
+    # Agent-specific models
+    INTENT_AGENT_MODEL: str = os.getenv("INTENT_AGENT_MODEL", "gpt-4o-mini")
+    PLANNING_AGENT_MODEL: str = os.getenv("PLANNING_AGENT_MODEL", "gpt-4o-mini")
+    ORDER_AGENT_MODEL: str = os.getenv("ORDER_AGENT_MODEL", "gpt-4o")
+    REFUND_AGENT_MODEL: str = os.getenv("REFUND_AGENT_MODEL", "gpt-4o")
+    GENERAL_AGENT_MODEL: str = os.getenv("GENERAL_AGENT_MODEL", "gpt-4o-mini")
+    
+    # Scorer models
     POLICY_COMPLIANCE_MODEL: str = os.getenv("POLICY_COMPLIANCE_MODEL", "gpt-4o-mini")
     REASON_QUALITY_MODEL: str = os.getenv("REASON_QUALITY_MODEL", "gpt-4o-mini")
     REFUND_DECISION_MODEL: str = os.getenv("REFUND_DECISION_MODEL", "gpt-4o-mini")
