@@ -104,3 +104,43 @@ class OrderAgent:
         ]
         
         return self.llm.chat(messages)
+    
+    @weave.op()
+    def handle_with_structured_context(self, user_input: str, structured_context: str, test_order_info: Dict = None) -> str:
+        """구조화된 컨텍스트를 사용한 주문 조회 처리"""
+        
+        # 평가 시에는 test_order_info를 사용, 없으면 기본 구매 데이터 사용
+        if test_order_info:
+            # 테스트 케이스의 order_info를 배열로 감싸서 사용
+            orders = [test_order_info]
+            data_source = "테스트 케이스 주문 정보"
+        else:
+            # 기본 구매 데이터 사용
+            orders = self.purchase_data if isinstance(self.purchase_data, list) else self.purchase_data.get('orders', [])
+            data_source = "기본 구매 데이터"
+        
+        print(f"[DEBUG] OrderAgent - 데이터 소스: {data_source}")
+        
+        # Weave에서 프롬프트 가져오기
+        system_prompt = prompt_manager.get_order_agent_prompt()
+        user_prompt = f"""
+**현재 사용자 입력:** "{user_input}"
+
+## 구조화된 대화 맥락
+{structured_context if structured_context.strip() else "(첫 대화)"}
+
+## 주문 데이터 ({data_source})
+{json.dumps(orders, ensure_ascii=False, indent=2)}
+
+## 작업 지시
+위 구조화된 대화 맥락을 고려하여 사용자 요청에 맞는 주문 정보를 찾아서 친절하게 안내해주세요.
+- 이전 에이전트 결과에서 언급된 조건이나 필터가 있다면 적용
+- 사용자가 참조하는 이전 정보가 있다면 연결하여 설명
+- 환불 등 액션이 필요한 정보는 설명하지 말고 주문 정보만 제공"""
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+        
+        return self.llm.chat(messages)

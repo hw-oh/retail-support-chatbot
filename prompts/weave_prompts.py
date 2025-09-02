@@ -68,7 +68,13 @@ def register_all_prompts():
 
 
 def get_prompt_from_weave(prompt_name: str, **kwargs) -> str:
-    """Weave에서 StringPrompt 객체를 가져와서 format() 호출"""
+    """Weave에서 StringPrompt 객체를 가져와서 format() 호출 (Weave 없이도 동작)"""
+    
+    # Weave가 비활성화되어 있으면 바로 로컬 프롬프트 사용
+    import os
+    if os.getenv('WEAVE_INIT_DISABLED') == '1':
+        return get_fallback_prompt(prompt_name, **kwargs)
+    
     try:
         # Weave에서 StringPrompt 객체 가져오기
         ref = weave.ref(prompt_name)
@@ -81,8 +87,13 @@ def get_prompt_from_weave(prompt_name: str, **kwargs) -> str:
             return prompt_obj.format()
         
     except Exception as e:
-        print(f"⚠️ Weave에서 프롬프트를 가져오는데 실패 ({prompt_name}): {e}")
-        print("📁 로컬 프롬프트로 폴백합니다.")
+        # 개발/테스트 환경에서는 조용히 폴백
+        if os.getenv('WEAVE_INIT_DISABLED') == '1':
+            pass  # 조용히 폴백
+        else:
+            print(f"⚠️ Weave에서 프롬프트를 가져오는데 실패 ({prompt_name}): {e}")
+            print("📁 로컬 프롬프트로 폴백합니다.")
+        
         # 폴백: 로컬 프롬프트 사용
         return get_fallback_prompt(prompt_name, **kwargs)
 

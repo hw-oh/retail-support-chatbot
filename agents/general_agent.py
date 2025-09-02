@@ -42,3 +42,26 @@ class GeneralAgent:
         ]
         
         return self.llm.chat(messages)
+    
+    @weave.op()
+    def handle_with_structured_context(self, user_input: str, structured_context: str) -> str:
+        """구조화된 컨텍스트를 사용한 일반 문의 처리"""
+        
+        # Weave에서 프롬프트 가져오기
+        system_prompt = prompt_manager.get_general_agent_prompt()
+        user_prompt = f"""
+## 현재 사용자 입력: {user_input}
+
+## 구조화된 대화 맥락
+{structured_context if structured_context.strip() else "(첫 대화)"}
+
+## 작업 지시
+위 구조화된 대화 맥락을 고려하여 친근하고 도움이 되는 응답을 해주세요.
+특히 이전 에이전트들의 결과를 종합하여 최종적으로 사용자에게 도움이 되는 응답을 제공해주세요."""
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+        
+        return self.llm.chat(messages)

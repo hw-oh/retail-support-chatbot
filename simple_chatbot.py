@@ -5,11 +5,107 @@
 - 지속적인 컨텍스트 관리
 """
 import weave
-from typing import List, Dict, Any
+import json
+from typing import List, Dict, Any, Optional
+from dataclasses import dataclass, asdict
 
 # 에이전트 import
 from agents import LLMClient, IntentAgent, PlanningAgent, OrderAgent, RefundAgent, GeneralAgent
 from config import config
+
+
+@dataclass
+class AgentOutput:
+    """에이전트 출력 정보를 구조화"""
+    agent_name: str
+    step_id: int
+    raw_output: Any
+    structured_data: Optional[Dict[str, Any]] = None
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass 
+class ConversationTurn:
+    """단일 대화 턴의 완전한 정보"""
+    user_input: str
+    bot_response: str
+    intent: str
+    entities: Dict[str, Any]
+    plan: Optional[Dict[str, Any]] = None
+    agent_outputs: List[AgentOutput] = None
+    
+    def __post_init__(self):
+        if self.agent_outputs is None:
+            self.agent_outputs = []
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
+class ContextManager:
+    """대화 컨텍스트 관리자 - 채팅 내용과 구조화된 데이터 분리"""
+    
+    def __init__(self):
+        self.conversation_history: List[ConversationTurn] = []
+    
+    def add_turn(self, turn: ConversationTurn):
+        """새로운 대화 턴 추가"""
+        self.conversation_history.append(turn)
+    
+    def get_recent_turns(self, count: int = 3) -> List[ConversationTurn]:
+        """최근 N개 턴 반환"""
+        return self.conversation_history[-count:] if self.conversation_history else []
+    
+    def get_legacy_context(self) -> List[Dict[str, Any]]:
+        """기존 방식의 채팅 컨텍스트 반환 (호환성용)"""
+        legacy_context = []
+        for turn in self.get_recent_turns():
+            legacy_context.append({
+                'user': turn.user_input,
+                'bot': turn.bot_response,
+                'intent': turn.intent,
+                'entities': turn.entities
+            })
+        return legacy_context
+    
+    def get_structured_context_for_llm(self) -> str:
+        """LLM 입력용 구조화된 컨텍스트 생성"""
+        recent_turns = self.get_recent_turns()
+        if not recent_turns:
+            return "(첫 대화)"
+        
+        context_parts = []
+        for i, turn in enumerate(recent_turns, 1):
+            context_parts.append(f"## 대화 {i}")
+            context_parts.append(f"사용자: {turn.user_input}")
+            context_parts.append(f"봇 응답: {turn.bot_response}")
+            
+            # 의도 및 엔티티 정보
+            if turn.intent != 'general_chat':
+                context_parts.append(f"분석된 의도: {turn.intent}")
+                if turn.entities:
+                    context_parts.append(f"추출된 정보: {json.dumps(turn.entities, ensure_ascii=False)}")
+            
+            # 에이전트별 구조화된 데이터
+            if turn.agent_outputs:
+                for output in turn.agent_outputs:
+                    if output.structured_data:
+                        context_parts.append(f"## {output.agent_name} 결과")
+                        context_parts.append(json.dumps(output.structured_data, ensure_ascii=False, indent=2))
+            
+            context_parts.append("")  # 빈 줄로 구분
+        
+        return "\n".join(context_parts)
+    
+    def get_latest_agent_output(self, agent_name: str) -> Optional[AgentOutput]:
+        """특정 에이전트의 최신 출력 반환"""
+        for turn in reversed(self.conversation_history):
+            for output in turn.agent_outputs:
+                if output.agent_name == agent_name:
+                    return output
+        return None
 
 
 # 이제 에이전트들은 별도 파일에서 import됩니다
@@ -38,25 +134,26 @@ class SimplifiedChatbot:
             'general_agent': GeneralAgent(general_llm)
         }
         
-        # 4. 대화 컨텍스트 (멀티턴용)
-        self.conversation_context: List[Dict[str, Any]] = []
+        # 4. 대화 컨텍스트 관리자
+        self.context_manager = ContextManager()
     
     @weave.op()
     def chat(self, user_input: str, order_info: Dict[str, Any] = None) -> str:
         """Planning Agent 기반 멀티 스텝 처리"""
         
-        # 1. Intent 분석
-        intent_result = self.intent_agent.classify(user_input, self.conversation_context)
+        # 1. Intent 분석 (레거시 컨텍스트 사용)
+        legacy_context = self.context_manager.get_legacy_context()
+        intent_result = self.intent_agent.classify(user_input, legacy_context)
         intent = intent_result.get('intent', 'general_chat')
         entities = intent_result.get('entities', {})
         
         # 2. Planning Agent가 실행 계획 수립
-        plan = self.planning_agent.create_plan(user_input, intent_result, self.conversation_context)
+        plan = self.planning_agent.create_plan(user_input, intent_result, legacy_context)
         
         print(f"[DEBUG] 실행 계획: {plan['plan_type']} - {plan['reason']}")
         
         # 3. 계획에 따라 에이전트들을 순차 실행
-        step_results = []
+        agent_outputs = []
         for step in plan['steps']:
             agent_name = step['agent']
             agent = self.agents.get(agent_name)
@@ -67,45 +164,54 @@ class SimplifiedChatbot:
             
             print(f"[DEBUG] Step {step['step_id']}: {agent_name} - {step['purpose']}")
             
-            # 이전 스텝의 결과를 컨텍스트에 반영
-            if step['parameters'].get('context_from_previous') and step_results:
-                # 이전 결과를 임시 컨텍스트에 추가
-                temp_context = self.conversation_context.copy()
-                prev_result = step_results[-1]
-                temp_context.append({
-                    'user': f"[이전 단계 결과] {step['purpose']}",
-                    'bot': str(prev_result),
-                    'step_result': True
-                })
-                current_context = temp_context
-            else:
-                current_context = self.conversation_context
+            # 구조화된 컨텍스트 생성
+            structured_context = self.context_manager.get_structured_context_for_llm()
+            
+            # 이전 스텝의 결과를 구조화된 컨텍스트에 추가
+            if step['parameters'].get('context_from_previous') and agent_outputs:
+                prev_output = agent_outputs[-1]
+                if prev_output.structured_data:
+                    structured_context += f"\n\n## 이전 단계 결과\n{json.dumps(prev_output.structured_data, ensure_ascii=False, indent=2)}"
             
             # 에이전트 실행
             try:
                 # OrderAgent인 경우 order_info 전달
-                if agent_name == 'order_agent' and hasattr(agent, 'handle_with_order_info'):
-                    step_result = agent.handle_with_order_info(user_input, current_context, order_info)
+                if agent_name == 'order_agent' and hasattr(agent, 'handle_with_structured_context'):
+                    raw_result = agent.handle_with_structured_context(user_input, structured_context, order_info)
+                elif hasattr(agent, 'handle_with_structured_context'):
+                    raw_result = agent.handle_with_structured_context(user_input, structured_context)
                 else:
-                    step_result = agent.handle(user_input, current_context)
-                step_results.append(step_result)
+                    # 레거시 방식으로 폴백
+                    raw_result = self._call_agent_legacy(agent, agent_name, user_input, order_info)
+                
+                # 에이전트 출력을 구조화
+                agent_output = self._create_agent_output(agent_name, step['step_id'], raw_result)
+                agent_outputs.append(agent_output)
+                
                 print(f"[DEBUG] Step {step['step_id']} 완료")
             except Exception as e:
                 print(f"[ERROR] Step {step['step_id']} 실행 중 오류: {e}")
-                step_results.append(f"오류 발생: {str(e)}")
+                error_output = AgentOutput(
+                    agent_name=agent_name,
+                    step_id=step['step_id'],
+                    raw_output=f"오류 발생: {str(e)}",
+                    structured_data={"error": str(e), "agent_type": agent_name}
+                )
+                agent_outputs.append(error_output)
         
         # 4. 최종 응답 처리
-        final_response = self._process_final_response(plan, step_results, intent)
+        final_response = self._process_final_response_v2(plan, agent_outputs, intent)
         
-        # 5. 컨텍스트 업데이트 (planning 정보 포함)
-        self.conversation_context.append({
-            'user': user_input,
-            'bot': final_response,
-            'intent': intent,
-            'entities': entities,
-            'plan': plan,
-            'step_results': step_results
-        })
+        # 5. 구조화된 컨텍스트로 저장
+        conversation_turn = ConversationTurn(
+            user_input=user_input,
+            bot_response=final_response,
+            intent=intent,
+            entities=entities,
+            plan=plan,
+            agent_outputs=agent_outputs
+        )
+        self.context_manager.add_turn(conversation_turn)
         
         return final_response
     
@@ -131,6 +237,101 @@ class SimplifiedChatbot:
         
         # 마지막 결과가 문자열이면 그대로 반환
         return str(last_result)
+    
+    def _call_agent_legacy(self, agent, agent_name: str, user_input: str, order_info: Dict = None):
+        """레거시 방식으로 에이전트 호출"""
+        legacy_context = self.context_manager.get_legacy_context()
+        
+        if agent_name == 'order_agent' and hasattr(agent, 'handle_with_order_info'):
+            return agent.handle_with_order_info(user_input, legacy_context, order_info)
+        else:
+            return agent.handle(user_input, legacy_context)
+    
+    def _create_agent_output(self, agent_name: str, step_id: int, raw_result: Any) -> AgentOutput:
+        """에이전트 출력을 구조화된 형태로 변환"""
+        structured_data = None
+        
+        if agent_name == 'order_agent':
+            # Order Agent 출력 구조화
+            structured_data = {
+                "agent_type": "order_search",
+                "response_summary": str(raw_result)[:200] + "..." if len(str(raw_result)) > 200 else str(raw_result),
+                "found_orders": True if "주문" in str(raw_result) else False,
+                "search_timestamp": "current"
+            }
+        
+        elif agent_name == 'refund_agent':
+            # Refund Agent 출력 구조화
+            if isinstance(raw_result, dict):
+                structured_data = {
+                    "agent_type": "refund_decision",
+                    "refund_possible": raw_result.get('refund_possible'),
+                    "refund_fee": raw_result.get('refund_fee', 0),
+                    "total_refund_amount": raw_result.get('total_refund_amount', 0),
+                    "reason": raw_result.get('reason', ''),
+                    "policy_applied": raw_result.get('policy_applied', []),
+                    "decision_timestamp": "current"
+                }
+            else:
+                structured_data = {
+                    "agent_type": "refund_decision",
+                    "response_summary": str(raw_result)[:200] + "..." if len(str(raw_result)) > 200 else str(raw_result)
+                }
+        
+        elif agent_name == 'planning_agent':
+            # Planning Agent 출력 구조화
+            if isinstance(raw_result, dict):
+                structured_data = {
+                    "agent_type": "planning",
+                    "plan_type": raw_result.get('plan_type'),
+                    "steps_count": len(raw_result.get('steps', [])),
+                    "reason": raw_result.get('reason'),
+                    "expected_outcome": raw_result.get('expected_outcome')
+                }
+        
+        elif agent_name == 'general_agent':
+            # General Agent 출력 구조화
+            structured_data = {
+                "agent_type": "general_response",
+                "response_summary": str(raw_result)[:200] + "..." if len(str(raw_result)) > 200 else str(raw_result),
+                "response_timestamp": "current"
+            }
+        
+        else:
+            # 기본 구조화
+            structured_data = {
+                "agent_type": agent_name,
+                "response_summary": str(raw_result)[:200] + "..." if len(str(raw_result)) > 200 else str(raw_result)
+            }
+        
+        return AgentOutput(
+            agent_name=agent_name,
+            step_id=step_id,
+            raw_output=raw_result,
+            structured_data=structured_data
+        )
+    
+    def _process_final_response_v2(self, plan: Dict[str, Any], agent_outputs: List[AgentOutput], intent: str) -> str:
+        """구조화된 에이전트 출력을 최종 응답으로 처리"""
+        
+        if not agent_outputs:
+            return "죄송합니다. 요청을 처리하는 중 문제가 발생했습니다."
+        
+        # single_agent인 경우 마지막 결과만 반환
+        if plan['plan_type'] == 'single_agent':
+            last_output = agent_outputs[-1]
+            if hasattr(last_output.raw_output, 'get'):
+                return last_output.raw_output.get('conversational_response', 
+                                                last_output.raw_output.get('user_response', str(last_output.raw_output)))
+            return str(last_output.raw_output)
+        
+        # multi_step인 경우 마지막 결과를 우선 반환
+        last_output = agent_outputs[-1]
+        if hasattr(last_output.raw_output, 'get'):
+            return last_output.raw_output.get('conversational_response',
+                                            last_output.raw_output.get('user_response', str(last_output.raw_output)))
+        
+        return str(last_output.raw_output)
     
     def chat_loop(self):
         """멀티턴 대화 루프"""
