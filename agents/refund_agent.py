@@ -14,10 +14,6 @@ class RefundAgent:
     
     def __init__(self, llm_client: LLMClient):
         self.llm = llm_client
-        
-        # 환불 정책 로드
-        with open('data/refund_policy.txt', 'r', encoding='utf-8') as f:
-            self.refund_policy = f.read()
     
     @weave.op()
     def handle(self, user_input: str, context: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -31,16 +27,13 @@ class RefundAgent:
                 context_text += f"사용자: {turn.get('user', '')}\n"
                 context_text += f"봇: {turn.get('bot', '')}\n\n"
         
-        # Weave에서 프롬프트 가져오기
+        # Weave에서 프롬프트 가져오기 (환불 정책은 이미 포함됨)
         system_prompt = prompt_manager.get_refund_agent_prompt()
         user_prompt = f"""
 **현재 사용자 입력:** "{user_input}"
 
 ## 대화 맥락
 {context_text if context_text.strip() else "(첫 대화)"}
-
-## 환불 정책
-{self.refund_policy}
 
 ## 작업 지시
 위 대화 맥락을 고려하여 사용자의 환불 요청을 처리해주세요. 

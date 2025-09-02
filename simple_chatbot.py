@@ -8,7 +8,7 @@ import weave
 from typing import List, Dict, Any
 
 # 에이전트 import
-from agents import LLMClient, IntentAgent, OrderAgent, RefundAgent, GeneralAgent
+from agents import LLMClient, IntentAgent, PlanningAgent, OrderAgent, RefundAgent, GeneralAgent
 
 
 # 이제 에이전트들은 별도 파일에서 import됩니다
@@ -24,64 +24,105 @@ class SimplifiedChatbot:
         # 1. Intent 분석 에이전트
         self.intent_agent = IntentAgent(self.llm)
         
-        # 2. 도메인별 에이전트들
+        # 2. Planning 에이전트
+        self.planning_agent = PlanningAgent(self.llm)
+        
+        # 3. 도메인별 에이전트들
         self.agents = {
-            'order_status': OrderAgent(self.llm),
-            'refund_inquiry': RefundAgent(self.llm), 
-            'general_chat': GeneralAgent(self.llm),
-            'product_inquiry': GeneralAgent(self.llm),  # 임시로 일반 에이전트 사용
-            'clarification': None  # 동적 처리
+            'order_agent': OrderAgent(self.llm),
+            'refund_agent': RefundAgent(self.llm), 
+            'general_agent': GeneralAgent(self.llm)
         }
         
-        # 3. 대화 컨텍스트 (멀티턴용)
+        # 4. 대화 컨텍스트 (멀티턴용)
         self.conversation_context: List[Dict[str, Any]] = []
     
     @weave.op()
     def chat(self, user_input: str) -> str:
-        """단일 턴 처리"""
+        """Planning Agent 기반 멀티 스텝 처리"""
         
         # 1. Intent 분석
         intent_result = self.intent_agent.classify(user_input, self.conversation_context)
         intent = intent_result.get('intent', 'general_chat')
         entities = intent_result.get('entities', {})
         
-        # 2. 적절한 에이전트에 라우팅
-        if intent == 'clarification':
-            # 이전 컨텍스트 기반으로 적절한 에이전트 선택
-            if entities.get('refund_reference'):
-                agent = self.agents['refund_inquiry']
+        # 2. Planning Agent가 실행 계획 수립
+        plan = self.planning_agent.create_plan(user_input, intent_result, self.conversation_context)
+        
+        print(f"[DEBUG] 실행 계획: {plan['plan_type']} - {plan['reason']}")
+        
+        # 3. 계획에 따라 에이전트들을 순차 실행
+        step_results = []
+        for step in plan['steps']:
+            agent_name = step['agent']
+            agent = self.agents.get(agent_name)
+            
+            if not agent:
+                print(f"[WARNING] 에이전트 '{agent_name}'를 찾을 수 없습니다.")
+                continue
+            
+            print(f"[DEBUG] Step {step['step_id']}: {agent_name} - {step['purpose']}")
+            
+            # 이전 스텝의 결과를 컨텍스트에 반영
+            if step['parameters'].get('context_from_previous') and step_results:
+                # 이전 결과를 임시 컨텍스트에 추가
+                temp_context = self.conversation_context.copy()
+                prev_result = step_results[-1]
+                temp_context.append({
+                    'user': f"[이전 단계 결과] {step['purpose']}",
+                    'bot': str(prev_result),
+                    'step_result': True
+                })
+                current_context = temp_context
             else:
-                agent = self.agents['order_status']
-        else:
-            agent = self.agents.get(intent, self.agents['general_chat'])
+                current_context = self.conversation_context
+            
+            # 에이전트 실행
+            try:
+                step_result = agent.handle(user_input, current_context)
+                step_results.append(step_result)
+                print(f"[DEBUG] Step {step['step_id']} 완료")
+            except Exception as e:
+                print(f"[ERROR] Step {step['step_id']} 실행 중 오류: {e}")
+                step_results.append(f"오류 발생: {str(e)}")
         
-        # 3. 에이전트 실행
-        agent_response = agent.handle(user_input, self.conversation_context)
+        # 4. 최종 응답 처리
+        final_response = self._process_final_response(plan, step_results, intent)
         
-        # 4. 응답 처리 (refund agent는 구조화된 응답 반환)
-        if intent == 'refund_inquiry' and isinstance(agent_response, dict):
-            # 자연스러운 대화체 응답 우선 사용, 없으면 기존 user_response 사용
-            response = agent_response.get('conversational_response', 
-                                        agent_response.get('user_response', str(agent_response)))
-            # 컨텍스트에는 전체 구조화된 응답 저장
-            self.conversation_context.append({
-                'user': user_input,
-                'bot': response,
-                'agent_data': agent_response,  # 구조화된 데이터 저장
-                'intent': intent,
-                'entities': entities
-            })
-        else:
-            response = str(agent_response)
-            # 4. 컨텍스트 업데이트
-            self.conversation_context.append({
-                'user': user_input,
-                'bot': response,
-                'intent': intent,
-                'entities': entities
-            })
+        # 5. 컨텍스트 업데이트 (planning 정보 포함)
+        self.conversation_context.append({
+            'user': user_input,
+            'bot': final_response,
+            'intent': intent,
+            'entities': entities,
+            'plan': plan,
+            'step_results': step_results
+        })
         
-        return response
+        return final_response
+    
+    def _process_final_response(self, plan: Dict[str, Any], step_results: List[Any], intent: str) -> str:
+        """단계별 결과를 최종 응답으로 처리"""
+        
+        if not step_results:
+            return "죄송합니다. 요청을 처리하는 중 문제가 발생했습니다."
+        
+        # single_agent인 경우 마지막 결과만 반환
+        if plan['plan_type'] == 'single_agent':
+            result = step_results[-1]
+            if isinstance(result, dict):
+                return result.get('conversational_response', 
+                               result.get('user_response', str(result)))
+            return str(result)
+        
+        # multi_step인 경우 마지막 결과를 우선 반환 (보통 general_agent나 refund_agent)
+        last_result = step_results[-1]
+        if isinstance(last_result, dict):
+            return last_result.get('conversational_response',
+                                 last_result.get('user_response', str(last_result)))
+        
+        # 마지막 결과가 문자열이면 그대로 반환
+        return str(last_result)
     
     def chat_loop(self):
         """멀티턴 대화 루프"""
