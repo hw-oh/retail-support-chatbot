@@ -116,9 +116,20 @@ def get_fallback_prompt(prompt_name: str, **kwargs) -> str:
 
 
 class WeavePromptManager:
-    """Weave 프롬프트 관리자"""
+    """프롬프트 관리자 - 개발 모드에서는 로컬 프롬프트 직접 사용"""
     
-    def __init__(self):
+    def __init__(self, use_local_only: bool = None):
+        """
+        Args:
+            use_local_only: True면 항상 로컬 프롬프트 사용, None이면 환경변수로 결정
+        """
+        import os
+        if use_local_only is None:
+            # 환경변수로 결정 (기본값: 로컬 사용)
+            self.use_local_only = os.getenv('USE_LOCAL_PROMPTS', '1') == '1'
+        else:
+            self.use_local_only = use_local_only
+            
         self.prompt_refs = {
             "intent_classifier": "intent_classifier_korean",
             "order_agent": "order_agent_system",
@@ -130,23 +141,38 @@ class WeavePromptManager:
         """의도 분류 프롬프트 가져오기"""
         if current_date is None:
             current_date = config.CURRENT_DATE
-            
-        return get_prompt_from_weave(
-            self.prompt_refs["intent_classifier"],
-            current_date=current_date
-        )
+        
+        if self.use_local_only:
+            # 로컬 프롬프트 직접 사용 (즉시 반영)
+            prompt = INTENT_PROMPTS["ko"]["system"]
+            return prompt.format(current_date=current_date)
+        else:
+            # Weave 프롬프트 사용
+            return get_prompt_from_weave(
+                self.prompt_refs["intent_classifier"],
+                current_date=current_date
+            )
     
     def get_order_agent_prompt(self) -> str:
         """주문 에이전트 프롬프트 가져오기"""
-        return get_prompt_from_weave(self.prompt_refs["order_agent"])
+        if self.use_local_only:
+            return AGENT_PROMPTS["order_agent"]["system"]
+        else:
+            return get_prompt_from_weave(self.prompt_refs["order_agent"])
     
     def get_refund_agent_prompt(self) -> str:
         """환불 에이전트 프롬프트 가져오기"""
-        return get_prompt_from_weave(self.prompt_refs["refund_agent"])
+        if self.use_local_only:
+            return AGENT_PROMPTS["refund_agent"]["system"] % load_refund_policy()
+        else:
+            return get_prompt_from_weave(self.prompt_refs["refund_agent"])
     
     def get_general_agent_prompt(self) -> str:
         """일반 에이전트 프롬프트 가져오기"""
-        return get_prompt_from_weave(self.prompt_refs["general_agent"])
+        if self.use_local_only:
+            return AGENT_PROMPTS["general_agent"]["system"]
+        else:
+            return get_prompt_from_weave(self.prompt_refs["general_agent"])
 
 
 # 전역 프롬프트 매니저 인스턴스

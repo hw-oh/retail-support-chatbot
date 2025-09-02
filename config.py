@@ -35,6 +35,9 @@ class Config:
     CURRENT_DATE: str = "2025-09-01"
     LANGUAGE: str = os.getenv("LANGUAGE", "ko")  # Default to Korean (ko, en, jp)
     
+    # Prompt Settings
+    USE_LOCAL_PROMPTS: bool = os.getenv("USE_LOCAL_PROMPTS", "1") == "1"  # 개발 시 로컬 프롬프트 사용
+    
     # Retry Settings
     MAX_RETRIES: int = 3
     RETRY_DELAY: int = 1  # seconds
