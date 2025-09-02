@@ -38,7 +38,7 @@ class SimplifiedChatbot:
         self.conversation_context: List[Dict[str, Any]] = []
     
     @weave.op()
-    def chat(self, user_input: str) -> str:
+    def chat(self, user_input: str, order_info: Dict[str, Any] = None) -> str:
         """Planning Agent 기반 멀티 스텝 처리"""
         
         # 1. Intent 분석
@@ -79,7 +79,11 @@ class SimplifiedChatbot:
             
             # 에이전트 실행
             try:
-                step_result = agent.handle(user_input, current_context)
+                # OrderAgent인 경우 order_info 전달
+                if agent_name == 'order_agent' and hasattr(agent, 'handle_with_order_info'):
+                    step_result = agent.handle_with_order_info(user_input, current_context, order_info)
+                else:
+                    step_result = agent.handle(user_input, current_context)
                 step_results.append(step_result)
                 print(f"[DEBUG] Step {step['step_id']} 완료")
             except Exception as e:

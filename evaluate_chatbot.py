@@ -26,7 +26,7 @@ class RefundChatbotModel(weave.Model):
         try:
             # 챗봇 인스턴스 생성 및 응답 생성
             chatbot = SimplifiedChatbot()
-            response = chatbot.chat(user_query)
+            response = chatbot.chat(user_query, order_info)
             
             return {
                 "response": response,

@@ -34,7 +34,7 @@ class GeneralAgent:
 {context_text if context_text.strip() else "(첫 대화)"}
 
 ## 작업 지시
-위 대화 맥락을 고려하여 친근하고 도움이 되는 응답을 해주세요."""
+위 대화 맥락을 고려하여 응답해주세요."""
 
         messages = [
             {"role": "system", "content": system_prompt},

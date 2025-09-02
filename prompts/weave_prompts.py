@@ -9,6 +9,16 @@ from .agent_prompts import AGENT_PROMPTS
 from config import config
 
 
+# 환불 정책 로드
+def load_refund_policy():
+    try:
+        import os
+        policy_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'refund_policy.txt')
+        with open(policy_path, 'r', encoding='utf-8') as f:
+            return f.read()
+    except FileNotFoundError:
+        return "환불 정책 파일을 찾을 수 없습니다."
+
 def register_all_prompts():
     """모든 프롬프트를 Weave에 등록 (공식 StringPrompt 클래스 사용)"""
     
@@ -25,7 +35,7 @@ def register_all_prompts():
             "description": "주문 조회 및 관리 전문 에이전트 시스템 프롬프트"
         },
         "refund_agent_system": {
-            "content": AGENT_PROMPTS["refund_agent"]["system"],
+            "content": AGENT_PROMPTS["refund_agent"]["system"] % load_refund_policy(),
             "description": "환불 처리 및 정책 안내 전문 에이전트 시스템 프롬프트"
         },
         "general_agent_system": {
@@ -79,16 +89,6 @@ def get_prompt_from_weave(prompt_name: str, **kwargs) -> str:
 
 def get_fallback_prompt(prompt_name: str, **kwargs) -> str:
     """Weave 실패시 로컬 프롬프트 폴백"""
-    
-    # 환불 정책 로드
-    def load_refund_policy():
-        try:
-            import os
-            policy_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'refund_policy.txt')
-            with open(policy_path, 'r', encoding='utf-8') as f:
-                return f.read()
-        except FileNotFoundError:
-            return "환불 정책 파일을 찾을 수 없습니다."
     
     fallback_prompts = {
         "intent_classifier_korean": INTENT_PROMPTS["ko"]["system"],
