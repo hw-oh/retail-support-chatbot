@@ -1,0 +1,1232 @@
+{
+  "dataset_info": {
+    "name": "Retail Support Chatbot Policy Conflict Evaluation Dataset",
+    "description": "환불 정책 간 상충되는 규칙들을 올바르게 판단하는지 평가하는 데이터셋",
+    "current_date": "2025-09-01",
+    "total_cases": 60,
+    "categories": {
+      "baseline_correct": {
+        "count": 30,
+        "expected_failure_rate": "10%",
+        "description": "모델이 잘 맞출만한 기본적인 환불 케이스들"
+      },
+      "hygiene_vs_pre_delivery": {
+        "count": 10,
+        "expected_failure_rate": "40%",
+        "description": "개인위생용품 환불 불가 vs 배송 전 취소 가능 상충"
+      },
+      "hygiene_vs_defect": {
+        "count": 10,
+        "expected_failure_rate": "35%", 
+        "description": "개인위생용품 환불 불가 vs 불량품 예외 상충"
+      },
+      "time_limit_vs_defect": {
+        "count": 10,
+        "expected_failure_rate": "30%",
+        "description": "7일 초과 환불 불가 vs 불량품 예외 상충"
+      }
+    }
+  },
+  "test_cases": [
+    {
+      "test_id": "BASELINE_001",
+      "category": "baseline_correct",
+      "scenario": "정상적인 환불 가능 케이스",
+      "user_query": "3일 전에 받은 티셔츠 환불하고 싶어요.",
+      "order_info": {
+        "order_id": "ORD20250829001",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "유니클로 티셔츠",
+        "category": "의류",
+        "price": 25000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 3일로 7일 이내 환불 가능",
+        "refund_fee": 2500
+      }
+    },
+    {
+      "test_id": "BASELINE_002",
+      "category": "baseline_correct",
+      "scenario": "7일 초과로 환불 불가",
+      "user_query": "10일 전에 받은 신발 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250820001",
+        "purchase_date": "2025-08-20",
+        "delivery_date": "2025-08-22",
+        "delivery_status": "배송완료",
+        "product_name": "나이키 운동화",
+        "category": "신발",
+        "price": 120000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "배송완료 후 10일로 7일 환불 기간 초과",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "BASELINE_003",
+      "category": "baseline_correct", 
+      "scenario": "배송 전 무료 취소",
+      "user_query": "어제 주문한 책 취소하고 싶어요. 아직 발송 안 됐어요.",
+      "order_info": {
+        "order_id": "ORD20250831001",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "상품준비중",
+        "product_name": "프로그래밍 서적",
+        "category": "도서",
+        "price": 35000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송 전 상태로 무료 취소 가능",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "BASELINE_004",
+      "category": "baseline_correct",
+      "scenario": "일반 상품 환불 가능",
+      "user_query": "5일 전에 받은 가방 환불하려고 해요.",
+      "order_info": {
+        "order_id": "ORD20250827001",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-28",
+        "delivery_status": "배송완료",
+        "product_name": "에코백",
+        "category": "가방",
+        "price": 45000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 5일로 환불 가능",
+        "refund_fee": 4500
+      }
+    },
+    {
+      "test_id": "BASELINE_005",
+      "category": "baseline_correct",
+      "scenario": "배송 중 취소",
+      "user_query": "배송 중인 모니터 취소할 수 있나요?",
+      "order_info": {
+        "order_id": "ORD20250830001",
+        "purchase_date": "2025-08-30",
+        "delivery_date": null,
+        "delivery_status": "배송중",
+        "product_name": "삼성 모니터",
+        "category": "전자제품",
+        "price": 300000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송 중이므로 취소 가능하나 환불 수수료 적용",
+        "refund_fee": 30000
+      }
+    },
+    {
+      "test_id": "BASELINE_006",
+      "category": "baseline_correct",
+      "scenario": "최소 수수료 적용",
+      "user_query": "어제 받은 저렴한 양말 환불하고 싶어요.",
+      "order_info": {
+        "order_id": "ORD20250831002",
+        "purchase_date": "2025-08-31",
+        "delivery_date": "2025-09-01",
+        "delivery_status": "배송완료",
+        "product_name": "면 양말 3켤레",
+        "category": "양말",
+        "price": 15000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "양말은 개인위생용품으로 환불 불가",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "BASELINE_007",
+      "category": "baseline_correct",
+      "scenario": "정확히 7일째 환불",
+      "user_query": "정확히 7일 전에 받은 재킷 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250825001",
+        "purchase_date": "2025-08-25",
+        "delivery_date": "2025-08-26",
+        "delivery_status": "배송완료",
+        "product_name": "가죽 재킷",
+        "category": "의류",
+        "price": 180000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 정확히 7일째로 환불 가능",
+        "refund_fee": 18000
+      }
+    },
+    {
+      "test_id": "BASELINE_008",
+      "category": "baseline_correct",
+      "scenario": "고가 제품 환불",
+      "user_query": "4일 전에 받은 노트북 환불하고 싶어요.",
+      "order_info": {
+        "order_id": "ORD20250828001",
+        "purchase_date": "2025-08-28",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "배송완료",
+        "product_name": "맥북 프로",
+        "category": "노트북",
+        "price": 2500000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 4일로 환불 가능",
+        "refund_fee": 250000
+      }
+    },
+    {
+      "test_id": "BASELINE_009",
+      "category": "baseline_correct",
+      "scenario": "주문접수 단계 취소",
+      "user_query": "방금 주문한 스마트폰 바로 취소할 수 있나요?",
+      "order_info": {
+        "order_id": "ORD20250901001",
+        "purchase_date": "2025-09-01",
+        "delivery_date": null,
+        "delivery_status": "주문접수",
+        "product_name": "아이폰 15",
+        "category": "스마트폰",
+        "price": 1200000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "주문접수 단계로 즉시 무료 취소 가능",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "BASELINE_010",
+      "category": "baseline_correct",
+      "scenario": "결제완료 후 취소",
+      "user_query": "결제 완료된 헤드폰 취소하고 싶어요.",
+      "order_info": {
+        "order_id": "ORD20250901002",
+        "purchase_date": "2025-09-01",
+        "delivery_date": null,
+        "delivery_status": "결제완료",
+        "product_name": "소니 헤드폰",
+        "category": "전자제품",
+        "price": 350000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "결제완료 상태로 배송 전 무료 취소 가능",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "BASELINE_011",
+      "category": "baseline_correct",
+      "scenario": "개인위생용품 환불 불가",
+      "user_query": "2일 전에 받은 샴푸 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250830002",
+        "purchase_date": "2025-08-30",
+        "delivery_date": "2025-08-31",
+        "delivery_status": "배송완료",
+        "product_name": "헤드앤숄더 샴푸",
+        "category": "개인위생용품",
+        "price": 18000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "샴푸는 개인위생용품으로 환불 불가",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "BASELINE_012",
+      "category": "baseline_correct",
+      "scenario": "화장품 환불 불가",
+      "user_query": "어제 받은 립스틱 환불하고 싶어요.",
+      "order_info": {
+        "order_id": "ORD20250831003",
+        "purchase_date": "2025-08-31",
+        "delivery_date": "2025-09-01",
+        "delivery_status": "배송완료",
+        "product_name": "맥 립스틱",
+        "category": "화장품",
+        "price": 42000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "립스틱은 개인위생용품(화장품)으로 환불 불가",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "BASELINE_013",
+      "category": "baseline_correct",
+      "scenario": "일반 가전제품 환불",
+      "user_query": "6일 전에 받은 블렌더 환불하려고 해요.",
+      "order_info": {
+        "order_id": "ORD20250826001",
+        "purchase_date": "2025-08-26",
+        "delivery_date": "2025-08-27",
+        "delivery_status": "배송완료",
+        "product_name": "비타믹스 블렌더",
+        "category": "주방가전",
+        "price": 450000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 6일로 환불 가능",
+        "refund_fee": 45000
+      }
+    },
+    {
+      "test_id": "BASELINE_014",
+      "category": "baseline_correct",
+      "scenario": "스포츠용품 환불",
+      "user_query": "1일 전에 받은 골프채 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250831004",
+        "purchase_date": "2025-08-31",
+        "delivery_date": "2025-09-01",
+        "delivery_status": "배송완료",
+        "product_name": "타이틀리스트 드라이버",
+        "category": "스포츠용품",
+        "price": 580000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 1일로 환불 가능",
+        "refund_fee": 58000
+      }
+    },
+    {
+      "test_id": "BASELINE_015",
+      "category": "baseline_correct",
+      "scenario": "홈데코 제품 환불",
+      "user_query": "3일 전에 받은 쿠션 환불하고 싶어요.",
+      "order_info": {
+        "order_id": "ORD20250829002",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "인테리어 쿠션",
+        "category": "홈데코",
+        "price": 35000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 3일로 환불 가능",
+        "refund_fee": 3500
+      }
+    },
+    {
+      "test_id": "BASELINE_016",
+      "category": "baseline_correct",
+      "scenario": "최소 수수료 적용 케이스",
+      "user_query": "2일 전에 받은 저가 제품 환불하려고 해요.",
+      "order_info": {
+        "order_id": "ORD20250830003",
+        "purchase_date": "2025-08-30",
+        "delivery_date": "2025-08-31",
+        "delivery_status": "배송완료",
+        "product_name": "휴대폰 케이스",
+        "category": "액세서리",
+        "price": 8000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 2일로 환불 가능, 최소 수수료 적용",
+        "refund_fee": 2000
+      }
+    },
+    {
+      "test_id": "BASELINE_017",
+      "category": "baseline_correct",
+      "scenario": "가구 환불",
+      "user_query": "5일 전에 받은 의자 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250827002",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-28",
+        "delivery_status": "배송완료",
+        "product_name": "사무용 의자",
+        "category": "가구",
+        "price": 280000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 5일로 환불 가능",
+        "refund_fee": 28000
+      }
+    },
+    {
+      "test_id": "BASELINE_018",
+      "category": "baseline_correct",
+      "scenario": "액세서리 환불",
+      "user_query": "4일 전에 받은 목걸이 환불하려고 해요.",
+      "order_info": {
+        "order_id": "ORD20250828002",
+        "purchase_date": "2025-08-28",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "배송완료",
+        "product_name": "실버 목걸이",
+        "category": "액세서리",
+        "price": 85000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 4일로 환불 가능",
+        "refund_fee": 8500
+      }
+    },
+    {
+      "test_id": "BASELINE_019",
+      "category": "baseline_correct",
+      "scenario": "완구 환불",
+      "user_query": "7일 전에 받은 레고 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250825002",
+        "purchase_date": "2025-08-25",
+        "delivery_date": "2025-08-26",
+        "delivery_status": "배송완료",
+        "product_name": "레고 세트",
+        "category": "완구",
+        "price": 120000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 정확히 7일째로 환불 가능",
+        "refund_fee": 12000
+      }
+    },
+    {
+      "test_id": "BASELINE_020",
+      "category": "baseline_correct",
+      "scenario": "8일 초과 환불 불가",
+      "user_query": "8일 전에 받은 키보드 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250823001",
+        "purchase_date": "2025-08-23",
+        "delivery_date": "2025-08-24",
+        "delivery_status": "배송완료",
+        "product_name": "기계식 키보드",
+        "category": "전자제품",
+        "price": 180000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "배송완료 후 8일로 7일 환불 기간 초과",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "BASELINE_021",
+      "category": "baseline_correct",
+      "scenario": "향수 환불 불가",
+      "user_query": "3일 전에 받은 향수 환불하고 싶어요.",
+      "order_info": {
+        "order_id": "ORD20250829003",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "샤넬 향수",
+        "category": "향수",
+        "price": 150000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "향수는 개인위생용품으로 환불 불가",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "BASELINE_022",
+      "category": "baseline_correct",
+      "scenario": "크림 환불 불가",
+      "user_query": "어제 받은 페이스크림 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250831005",
+        "purchase_date": "2025-08-31",
+        "delivery_date": "2025-09-01",
+        "delivery_status": "배송완료",
+        "product_name": "닥터지 크림",
+        "category": "크림",
+        "price": 48000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "크림은 개인위생용품으로 환불 불가",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "BASELINE_023",
+      "category": "baseline_correct",
+      "scenario": "마스크 환불 불가",
+      "user_query": "2일 전에 받은 마스크 환불하려고 해요.",
+      "order_info": {
+        "order_id": "ORD20250830004",
+        "purchase_date": "2025-08-30",
+        "delivery_date": "2025-08-31",
+        "delivery_status": "배송완료",
+        "product_name": "KF94 마스크",
+        "category": "마스크",
+        "price": 25000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "마스크는 개인위생용품으로 환불 불가",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "BASELINE_024",
+      "category": "baseline_correct",
+      "scenario": "일반 신발 환불",
+      "user_query": "6일 전에 받은 구두 환불하고 싶어요.",
+      "order_info": {
+        "order_id": "ORD20250826002",
+        "purchase_date": "2025-08-26",
+        "delivery_date": "2025-08-27",
+        "delivery_status": "배송완료",
+        "product_name": "정장 구두",
+        "category": "신발",
+        "price": 220000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 6일로 환불 가능",
+        "refund_fee": 22000
+      }
+    },
+    {
+      "test_id": "BASELINE_025",
+      "category": "baseline_correct",
+      "scenario": "주방용품 환불",
+      "user_query": "1일 전에 받은 냄비 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250831006",
+        "purchase_date": "2025-08-31",
+        "delivery_date": "2025-09-01",
+        "delivery_status": "배송완료",
+        "product_name": "스테인레스 냄비 세트",
+        "category": "주방용품",
+        "price": 180000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 1일로 환불 가능",
+        "refund_fee": 18000
+      }
+    },
+    {
+      "test_id": "BASELINE_026",
+      "category": "baseline_correct",
+      "scenario": "생리용품 환불 불가",
+      "user_query": "어제 받은 생리용품 환불하고 싶어요.",
+      "order_info": {
+        "order_id": "ORD20250831007",
+        "purchase_date": "2025-08-31",
+        "delivery_date": "2025-09-01",
+        "delivery_status": "배송완료",
+        "product_name": "유기농 생리대",
+        "category": "생리용품",
+        "price": 35000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "생리용품은 개인위생용품으로 환불 불가",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "BASELINE_027",
+      "category": "baseline_correct",
+      "scenario": "속옷 환불 불가",
+      "user_query": "3일 전에 받은 속옷 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250829004",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "언더웨어 세트",
+        "category": "속옷",
+        "price": 55000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "속옷은 개인위생용품으로 환불 불가",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "BASELINE_028",
+      "category": "baseline_correct",
+      "scenario": "면도기 환불 불가",
+      "user_query": "5일 전에 받은 면도기 환불하려고 해요.",
+      "order_info": {
+        "order_id": "ORD20250827003",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-28",
+        "delivery_status": "배송완료",
+        "product_name": "전기 면도기",
+        "category": "면도기",
+        "price": 180000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "면도기는 개인위생용품으로 환불 불가",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "BASELINE_029",
+      "category": "baseline_correct",
+      "scenario": "치약 환불 불가",
+      "user_query": "2일 전에 받은 치약 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250830005",
+        "purchase_date": "2025-08-30",
+        "delivery_date": "2025-08-31",
+        "delivery_status": "배송완료",
+        "product_name": "미백 치약",
+        "category": "치약",
+        "price": 12000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "치약은 개인위생용품으로 환불 불가",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "BASELINE_030",
+      "category": "baseline_correct",
+      "scenario": "일반 의류 환불",
+      "user_query": "7일 전에 받은 바지 환불하고 싶어요.",
+      "order_info": {
+        "order_id": "ORD20250825003",
+        "purchase_date": "2025-08-25",
+        "delivery_date": "2025-08-26",
+        "delivery_status": "배송완료",
+        "product_name": "청바지",
+        "category": "의류",
+        "price": 95000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송완료 후 정확히 7일째로 환불 가능",
+        "refund_fee": 9500
+      }
+    },
+    {
+      "test_id": "CONFLICT_001",
+      "category": "hygiene_vs_pre_delivery",
+      "scenario": "개인위생용품 배송 전 취소 요청",
+      "user_query": "어제 주문한 샴푸 취소하고 싶어요. 아직 배송 시작 안 했는데 개인위생용품이라서 안 되나요?",
+      "order_info": {
+        "order_id": "ORD20250901001",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "상품준비중",
+        "product_name": "헤드앤숄더 샴푸",
+        "category": "개인위생용품",
+        "price": 15000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송 전 취소는 상품 종류에 관계없이 무료 취소 가능",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "CONFLICT_002",
+      "category": "hygiene_vs_pre_delivery",
+      "scenario": "화장품 배송 전 취소",
+      "user_query": "주문접수 상태인 립스틱 주문 취소하려고 하는데 화장품은 환불이 안 되는 거 아닌가요?",
+      "order_info": {
+        "order_id": "ORD20250901002",
+        "purchase_date": "2025-09-01",
+        "delivery_date": null,
+        "delivery_status": "주문접수",
+        "product_name": "맥 립스틱",
+        "category": "화장품",
+        "price": 35000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송 전이므로 무료 취소 가능, 개인위생용품 제한은 배송 후에만 적용",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "CONFLICT_003",
+      "category": "hygiene_vs_pre_delivery",
+      "scenario": "향수 결제완료 후 즉시 취소",
+      "user_query": "방금 결제한 향수 바로 취소할 수 있나요? 개인위생용품이라서 걱정되네요.",
+      "order_info": {
+        "order_id": "ORD20250901003",
+        "purchase_date": "2025-09-01",
+        "delivery_date": null,
+        "delivery_status": "결제완료",
+        "product_name": "샤넬 넘버5",
+        "category": "향수",
+        "price": 180000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "결제완료 상태로 배송 전이므로 즉시 무료 취소 가능",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "CONFLICT_004",
+      "category": "hygiene_vs_pre_delivery",
+      "scenario": "마스크팩 상품준비중 취소",
+      "user_query": "상품준비중인 마스크팩 주문 취소하고 싶은데 위생용품이라서 안 될까요?",
+      "order_info": {
+        "order_id": "ORD20250901004",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "상품준비중",
+        "product_name": "미샤 마스크팩 10매",
+        "category": "마스크팩",
+        "price": 12000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송 전 상태이므로 무료 취소 가능, 개인위생용품 제한 적용 안됨",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "CONFLICT_005",
+      "category": "hygiene_vs_pre_delivery",
+      "scenario": "칫솔 주문접수 단계 취소",
+      "user_query": "주문접수 상태의 전동칫솔 취소 가능한가요? 칫솔은 개인위생용품이라서 원래 환불이 안 되는 걸로 아는데요.",
+      "order_info": {
+        "order_id": "ORD20250901005",
+        "purchase_date": "2025-09-01",
+        "delivery_date": null,
+        "delivery_status": "주문접수",
+        "product_name": "오랄비 전동칫솔",
+        "category": "칫솔",
+        "price": 89000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "주문접수 단계로 배송 전이므로 즉시 무료 취소 가능",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "CONFLICT_006",
+      "category": "hygiene_vs_pre_delivery",
+      "scenario": "세안제 결제완료 후 취소",
+      "user_query": "결제는 완료됐는데 아직 발송 안 된 세안제 취소하려고 해요. 위생용품이어도 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250901006",
+        "purchase_date": "2025-09-01",
+        "delivery_date": null,
+        "delivery_status": "결제완료",
+        "product_name": "이니스프리 세안제",
+        "category": "세안제",
+        "price": 18000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "결제완료 상태로 배송 전이므로 무료 취소 가능",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "CONFLICT_007",
+      "category": "hygiene_vs_pre_delivery",
+      "scenario": "크림 상품준비중 취소",
+      "user_query": "상품준비중인 페이스크림 주문 취소하고 싶은데 개인위생용품이라서 안 되나요?",
+      "order_info": {
+        "order_id": "ORD20250901007",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "상품준비중",
+        "product_name": "라네즈 워터뱅크 크림",
+        "category": "크림",
+        "price": 45000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송 전 상태이므로 무료 취소 가능",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "CONFLICT_008",
+      "category": "hygiene_vs_pre_delivery",
+      "scenario": "로션 주문접수 취소",
+      "user_query": "주문접수된 바디로션 취소 가능한가요? 위생용품은 환불이 안 되는 걸로 아는데요.",
+      "order_info": {
+        "order_id": "ORD20250901008",
+        "purchase_date": "2025-09-01",
+        "delivery_date": null,
+        "delivery_status": "주문접수",
+        "product_name": "바디샵 바디로션",
+        "category": "로션",
+        "price": 28000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "주문접수 단계로 배송 전이므로 무료 취소 가능",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "CONFLICT_009",
+      "category": "hygiene_vs_pre_delivery",
+      "scenario": "마스크 결제완료 취소",
+      "user_query": "결제완료된 마스크 주문 취소하고 싶어요. 개인위생용품이라서 취소가 안 되나요?",
+      "order_info": {
+        "order_id": "ORD20250901009",
+        "purchase_date": "2025-09-01",
+        "delivery_date": null,
+        "delivery_status": "결제완료",
+        "product_name": "KF94 마스크 50매",
+        "category": "마스크",
+        "price": 35000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "결제완료 상태로 배송 전이므로 무료 취소 가능",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "CONFLICT_010",
+      "category": "hygiene_vs_pre_delivery",
+      "scenario": "데오드란트 상품준비중 취소",
+      "user_query": "상품준비중인 데오드란트 취소하려고 하는데 개인위생용품이어도 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250901010",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "상품준비중",
+        "product_name": "니베아 데오드란트",
+        "category": "데오드란트",
+        "price": 8000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송 전 상태이므로 무료 취소 가능",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "CONFLICT_011",
+      "category": "hygiene_vs_defect",
+      "scenario": "불량 화장품 환불 요청",
+      "user_query": "받은 파운데이션이 굳어있어서 사용할 수 없어요. 화장품은 원래 환불 안 되는데 불량품이면 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250825001",
+        "purchase_date": "2025-08-25",
+        "delivery_date": "2025-08-28",
+        "delivery_status": "배송완료",
+        "product_name": "에스티로더 파운데이션",
+        "category": "화장품",
+        "price": 65000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "불량품이므로 개인위생용품이어도 환불 가능",
+        "refund_fee": 6500
+      }
+    },
+    {
+      "test_id": "CONFLICT_012",
+      "category": "hygiene_vs_defect",
+      "scenario": "파손된 향수 환불",
+      "user_query": "배송 중에 향수병이 깨져서 받았어요. 향수는 환불이 안 되는 걸로 아는데 이런 경우에도 안 되나요?",
+      "order_info": {
+        "order_id": "ORD20250826001",
+        "purchase_date": "2025-08-26",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "배송완료",
+        "product_name": "조말론 향수",
+        "category": "향수",
+        "price": 120000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "배송 중 파손으로 불량품에 해당하므로 개인위생용품이어도 환불 가능",
+        "refund_fee": 12000
+      }
+    },
+    {
+      "test_id": "CONFLICT_013",
+      "category": "hygiene_vs_defect",
+      "scenario": "불량 마스크팩 환불",
+      "user_query": "마스크팩을 뜯었는데 곰팡이가 생겨있어요. 위생용품이라서 환불이 원래 안 되지만 이런 경우는 어떻게 되나요?",
+      "order_info": {
+        "order_id": "ORD20250827001",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "더페이스샵 마스크팩",
+        "category": "마스크팩",
+        "price": 25000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "제품 결함(곰팡이)으로 불량품에 해당하므로 환불 가능",
+        "refund_fee": 2500
+      }
+    },
+    {
+      "test_id": "CONFLICT_014",
+      "category": "hygiene_vs_defect",
+      "scenario": "결함 있는 칫솔 환불",
+      "user_query": "전동칫솔이 처음부터 작동을 안 해요. 칫솔은 위생용품이라서 환불 안 되는 걸로 아는데 고장 난 것도 안 되나요?",
+      "order_info": {
+        "order_id": "ORD20250828001",
+        "purchase_date": "2025-08-28",
+        "delivery_date": "2025-08-31",
+        "delivery_status": "배송완료",
+        "product_name": "필립스 전동칫솔",
+        "category": "칫솔",
+        "price": 150000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "제품 결함으로 불량품에 해당하므로 개인위생용품이어도 환불 가능",
+        "refund_fee": 15000
+      }
+    },
+    {
+      "test_id": "CONFLICT_015",
+      "category": "hygiene_vs_defect",
+      "scenario": "변질된 크림 환불",
+      "user_query": "페이스크림이 분리되어서 사용할 수 없는 상태예요. 화장품은 환불이 어렵다고 하는데 이런 경우는 어떻게 처리되나요?",
+      "order_info": {
+        "order_id": "ORD20250829001",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-09-01",
+        "delivery_status": "배송완료",
+        "product_name": "클리니크 모이스처라이저",
+        "category": "크림",
+        "price": 55000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "제품 변질로 불량품에 해당하므로 개인위생용품이어도 환불 가능",
+        "refund_fee": 5500
+      }
+    },
+    {
+      "test_id": "CONFLICT_016",
+      "category": "hygiene_vs_defect",
+      "scenario": "포장 불량 로션 환불",
+      "user_query": "주문한 로션이 뚜껑이 열린 채로 와서 반 이상 쏟아져있어요. 로션은 위생용품이라서 환불이 안 되는 걸로 아는데요.",
+      "order_info": {
+        "order_id": "ORD20250830001",
+        "purchase_date": "2025-08-30",
+        "delivery_date": "2025-09-01",
+        "delivery_status": "배송완료",
+        "product_name": "바디샵 바디로션",
+        "category": "로션",
+        "price": 28000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "포장 불량으로 배송 중 파손에 해당하므로 환불 가능",
+        "refund_fee": 2800
+      }
+    },
+    {
+      "test_id": "CONFLICT_017",
+      "category": "hygiene_vs_defect",
+      "scenario": "불량 샴푸 환불",
+      "user_query": "받은 샴푸에서 이상한 냄새가 나고 색이 변했어요. 샴푸는 위생용품이라서 환불이 안 되는데 이런 경우도 안 되나요?",
+      "order_info": {
+        "order_id": "ORD20250827002",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "배송완료",
+        "product_name": "로레알 샴푸",
+        "category": "샴푸",
+        "price": 22000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "제품 변질로 불량품에 해당하므로 환불 가능",
+        "refund_fee": 2200
+      }
+    },
+    {
+      "test_id": "CONFLICT_018",
+      "category": "hygiene_vs_defect",
+      "scenario": "파손된 면도기 환불",
+      "user_query": "전기면도기 포장을 뜯었는데 날이 깨져있어요. 면도기는 개인위생용품이라서 원래 환불이 안 되는 걸로 아는데요.",
+      "order_info": {
+        "order_id": "ORD20250828002",
+        "purchase_date": "2025-08-28",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
+        "product_name": "브라운 전기면도기",
+        "category": "면도기",
+        "price": 180000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "제품 파손으로 불량품에 해당하므로 환불 가능",
+        "refund_fee": 18000
+      }
+    },
+    {
+      "test_id": "CONFLICT_019",
+      "category": "hygiene_vs_defect",
+      "scenario": "불량 치약 환불",
+      "user_query": "치약 튜브가 찢어져서 와서 사용할 수 없어요. 치약은 위생용품이라서 환불이 원래 안 되는데 이런 경우는 어떻게 되나요?",
+      "order_info": {
+        "order_id": "ORD20250829002",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-08-31",
+        "delivery_status": "배송완료",
+        "product_name": "센소다인 치약",
+        "category": "치약",
+        "price": 15000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "포장 파손으로 불량품에 해당하므로 환불 가능",
+        "refund_fee": 2000
+      }
+    },
+    {
+      "test_id": "CONFLICT_020",
+      "category": "hygiene_vs_defect",
+      "scenario": "변질된 세안제 환불",
+      "user_query": "세안제가 굳어져서 펌프가 안 나와요. 세안제는 개인위생용품이라서 환불이 안 되는데 이런 제품 불량도 안 되나요?",
+      "order_info": {
+        "order_id": "ORD20250830002",
+        "purchase_date": "2025-08-30",
+        "delivery_date": "2025-09-01",
+        "delivery_status": "배송완료",
+        "product_name": "세타필 세안제",
+        "category": "세안제",
+        "price": 25000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "제품 변질로 불량품에 해당하므로 환불 가능",
+        "refund_fee": 2500
+      }
+    },
+    {
+      "test_id": "CONFLICT_021",
+      "category": "time_limit_vs_defect",
+      "scenario": "7일 초과한 불량품 환불",
+      "user_query": "10일 전에 받은 헤드폰인데 어제부터 소리가 안 나요. 7일이 지났는데도 불량품이면 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250820001",
+        "purchase_date": "2025-08-20",
+        "delivery_date": "2025-08-22",
+        "delivery_status": "배송완료",
+        "product_name": "소니 WH-1000XM4",
+        "category": "전자제품",
+        "price": 350000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "불량품은 7일 초과해도 예외적으로 환불 가능",
+        "refund_fee": 35000
+      }
+    },
+    {
+      "test_id": "CONFLICT_022",
+      "category": "time_limit_vs_defect",
+      "scenario": "2주 후 발견된 제품 결함",
+      "user_query": "2주 전에 받은 블렌더인데 오늘 처음 써보니까 날이 빠져있어요. 환불 기간은 지났지만 처음부터 불량품이었던 것 같은데요.",
+      "order_info": {
+        "order_id": "ORD20250815001",
+        "purchase_date": "2025-08-15",
+        "delivery_date": "2025-08-18",
+        "delivery_status": "배송완료",
+        "product_name": "비타믹스 블렌더",
+        "category": "주방가전",
+        "price": 480000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "제품 결함으로 불량품에 해당하므로 7일 초과해도 환불 가능",
+        "refund_fee": 48000
+      }
+    },
+    {
+      "test_id": "CONFLICT_023",
+      "category": "time_limit_vs_defect",
+      "scenario": "10일 후 발견된 스마트폰 결함",
+      "user_query": "10일 전에 받은 스마트폰인데 배터리가 부풀어올라 있어요. 7일은 지났지만 안전상 문제가 있는 불량품인 것 같은데 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250820002",
+        "purchase_date": "2025-08-20",
+        "delivery_date": "2025-08-22",
+        "delivery_status": "배송완료",
+        "product_name": "갤럭시 S24",
+        "category": "스마트폰",
+        "price": 950000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "안전상 문제가 있는 불량품으로 7일 초과해도 환불 가능",
+        "refund_fee": 95000
+      }
+    },
+    {
+      "test_id": "CONFLICT_024",
+      "category": "time_limit_vs_defect",
+      "scenario": "1주일 후 발견된 의류 제조 결함",
+      "user_query": "8일 전에 받은 재킷인데 오늘 입어보니 지퍼가 완전히 고장났어요. 7일은 지났지만 처음부터 불량품이었던 것 같아요.",
+      "order_info": {
+        "order_id": "ORD20250822001",
+        "purchase_date": "2025-08-22",
+        "delivery_date": "2025-08-24",
+        "delivery_status": "배송완료",
+        "product_name": "노스페이스 재킷",
+        "category": "의류",
+        "price": 280000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "지퍼 제조 결함으로 불량품에 해당하므로 7일 초과해도 환불 가능",
+        "refund_fee": 28000
+      }
+    },
+    {
+      "test_id": "CONFLICT_025",
+      "category": "time_limit_vs_defect",
+      "scenario": "12일 후 발견된 가전제품 결함",
+      "user_query": "12일 전에 받은 커피머신인데 오늘 물이 새는 걸 발견했어요. 7일은 많이 지났지만 결함이 있는 제품인데 환불이 안 되나요?",
+      "order_info": {
+        "order_id": "ORD20250818001",
+        "purchase_date": "2025-08-18",
+        "delivery_date": "2025-08-20",
+        "delivery_status": "배송완료",
+        "product_name": "네스프레소 커피머신",
+        "category": "가전제품",
+        "price": 180000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "물 새는 제조 결함으로 불량품에 해당하므로 환불 가능",
+        "refund_fee": 18000
+      }
+    },
+    {
+      "test_id": "CONFLICT_026",
+      "category": "time_limit_vs_defect",
+      "scenario": "9일 후 발견된 신발 제조 불량",
+      "user_query": "9일 전에 받은 운동화인데 오늘 신어보니 밑창이 벌어져 있어요. 환불 기간은 지났지만 명백한 제조 불량인데 어떻게 되나요?",
+      "order_info": {
+        "order_id": "ORD20250821001",
+        "purchase_date": "2025-08-21",
+        "delivery_date": "2025-08-23",
+        "delivery_status": "배송완료",
+        "product_name": "나이키 에어맥스",
+        "category": "신발",
+        "price": 140000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "밑창 분리는 제조 결함으로 7일 초과해도 불량품 환불 가능",
+        "refund_fee": 14000
+      }
+    },
+    {
+      "test_id": "CONFLICT_027",
+      "category": "time_limit_vs_defect",
+      "scenario": "15일 후 발견된 가구 결함",
+      "user_query": "15일 전에 받은 의자인데 오늘 앉아보니 다리가 부러져 있어요. 환불 기간은 훨씬 지났지만 처음부터 결함이 있었던 것 같은데요.",
+      "order_info": {
+        "order_id": "ORD20250815002",
+        "purchase_date": "2025-08-15",
+        "delivery_date": "2025-08-17",
+        "delivery_status": "배송완료",
+        "product_name": "사무용 의자",
+        "category": "가구",
+        "price": 320000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "구조적 결함으로 불량품에 해당하므로 환불 가능",
+        "refund_fee": 32000
+      }
+    },
+    {
+      "test_id": "CONFLICT_028",
+      "category": "time_limit_vs_defect",
+      "scenario": "11일 후 발견된 가방 불량",
+      "user_query": "11일 전에 받은 가방인데 오늘 사용하려니까 지퍼가 완전히 망가져 있어요. 7일은 지났지만 제조 불량인 것 같은데요.",
+      "order_info": {
+        "order_id": "ORD20250819001",
+        "purchase_date": "2025-08-19",
+        "delivery_date": "2025-08-21",
+        "delivery_status": "배송완료",
+        "product_name": "루이비통 토트백",
+        "category": "가방",
+        "price": 1800000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "지퍼 제조 결함으로 불량품에 해당하므로 환불 가능",
+        "refund_fee": 180000
+      }
+    },
+    {
+      "test_id": "CONFLICT_029",
+      "category": "time_limit_vs_defect",
+      "scenario": "13일 후 발견된 시계 불량",
+      "user_query": "13일 전에 받은 시계인데 오늘 보니까 시간이 계속 멈춰요. 환불 기간은 지났지만 명백한 불량품인데 환불 가능한가요?",
+      "order_info": {
+        "order_id": "ORD20250817001",
+        "purchase_date": "2025-08-17",
+        "delivery_date": "2025-08-19",
+        "delivery_status": "배송완료",
+        "product_name": "애플워치 울트라",
+        "category": "시계",
+        "price": 950000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "시계 기능 불량으로 불량품에 해당하므로 환불 가능",
+        "refund_fee": 95000
+      }
+    },
+    {
+      "test_id": "CONFLICT_030",
+      "category": "time_limit_vs_defect",
+      "scenario": "16일 후 발견된 악기 불량",
+      "user_query": "16일 전에 받은 기타인데 오늘 연주해보니 줄이 계속 끊어져요. 환불 기간은 많이 지났지만 제품에 문제가 있는 것 같은데요.",
+      "order_info": {
+        "order_id": "ORD20250814001",
+        "purchase_date": "2025-08-14",
+        "delivery_date": "2025-08-16",
+        "delivery_status": "배송완료",
+        "product_name": "펜더 어쿠스틱 기타",
+        "category": "악기",
+        "price": 650000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "줄 고정 부위 결함으로 불량품에 해당하므로 환불 가능",
+        "refund_fee": 65000
+      }
+    }
+  ]
+}

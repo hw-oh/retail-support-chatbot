@@ -6,6 +6,7 @@ import weave
 from datetime import datetime
 from .intent_prompts import INTENT_PROMPTS
 from .agent_prompts import AGENT_PROMPTS
+from config import config
 
 
 def register_all_prompts():
@@ -107,7 +108,7 @@ class WeavePromptManager:
     def get_intent_prompt(self, current_date: str = None) -> str:
         """의도 분류 프롬프트 가져오기"""
         if current_date is None:
-            current_date = datetime.now().strftime("%Y-%m-%d")
+            current_date = config.CURRENT_DATE
             
         return get_prompt_from_weave(
             self.prompt_refs["intent_classifier"],

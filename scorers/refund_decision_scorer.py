@@ -27,6 +27,8 @@ class RefundDecisionScorer(weave.Model):
         if not response.strip():
             return {
                 "accuracy": 0.0,
+                "accuracy_refund": 0.0,
+                "accuracy_fee": 0.0,
                 "reason": "응답이 비어있습니다."
             }
         
@@ -46,20 +48,33 @@ class RefundDecisionScorer(weave.Model):
             )
             
             result = json.loads(llm_response.choices[0].message.content)
+            
+            # 전체 정확도 (기본값)
             accuracy = float(result.get("accuracy", 0.0))
+            # 환불 가능 여부 정확도
+            accuracy_refund = float(result.get("accuracy_refund", 0.0))
+            # 환불 수수료 정확도
+            accuracy_fee = float(result.get("accuracy_fee", 0.0))
+            # 평가 이유
             reason = result.get("reason", "평가 결과를 가져올 수 없습니다.")
             
             # 정확도가 0-1 범위를 벗어나면 조정
             accuracy = max(0.0, min(1.0, accuracy))
+            accuracy_refund = max(0.0, min(1.0, accuracy_refund))
+            accuracy_fee = max(0.0, min(1.0, accuracy_fee))
             
             return {
                 "accuracy": accuracy,
+                "accuracy_refund": accuracy_refund,
+                "accuracy_fee": accuracy_fee,
                 "reason": reason
             }
             
         except Exception as e:
             return {
                 "accuracy": 0.0,
+                "accuracy_refund": 0.0,
+                "accuracy_fee": 0.0,
                 "reason": f"LLM 평가 중 오류 발생: {str(e)}"
             }
     
@@ -68,6 +83,7 @@ class RefundDecisionScorer(weave.Model):
         
         expected_refund = expected_result.get("refund_possible", None)
         expected_reason = expected_result.get("reason", "")
+        expected_fee = expected_result.get("refund_fee", 0)
         with open('data/refund_policy.txt', 'r', encoding='utf-8') as f:
             refund_policy = f.read()
         prompt = f"""
@@ -79,6 +95,7 @@ class RefundDecisionScorer(weave.Model):
 **정답 정보:**
 - 환불 가능 여부: {expected_refund}
 - 예상 이유: {expected_reason}
+- 예상 환불 수수료: {expected_fee}원
 
 **환불 정책:**
 {refund_policy}
@@ -93,17 +110,22 @@ class RefundDecisionScorer(weave.Model):
 위 응답에서 환불 가능 여부 판단이 얼마나 정확한지 0.0에서 1.0 사이의 점수로 평가하고, 구체적인 이유를 제시해주세요.
 
 **점수 기준:**
-- 1.0: 환불 가능 여부와 이유가 모두 정확함
-- 0.8: 환불 가능 여부는 정확하나 이유가 일부 부정확함
-- 0.6: 환불 가능 여부는 정확하나 이유가 많이 부정확함
-- 0.4: 환불 가능 여부가 부정확하나 부분적으로 타당한 근거가 있음
-- 0.2: 환불 가능 여부가 부정확하고 근거도 부적절함
-- 0.0: 완전히 잘못된 판단이거나 응답이 부적절함
+accuracy 1.0~0.0: 환불 가능 여부와 수수료 정확도 및 근거 타당성 정확도
+- 1.0: 환불 가능 여부와 수수료가 모두 정확하고 근거 타당성이 정확함
+- 0.0: 환불 가능 여부와 수수료가 모두 부정확하고 근거 타당성이 부정확함
+accuracy_refund 1.0 or 0.0: 환불 가능 여부 정확도
+- 1.0: 환불 가능 여부가 정확함
+- 0.0: 환불 가능 여부가 부정확함
+accuracy_fee 1.0 or 0.0: 환불 수수료 정확도
+- 1.0: 환불 수수료가 정확함
+- 0.0: 환불 수수료가 부정확함
 
-**응답 형식 예시(JSON):**
+**응답 형식 (JSON):**
 {{
-    "accuracy": 0.85,
-    "reason": "환불 가능 여부는 정확하게 판단함. 전반적으로 정책을 잘 적용한 응답임."
+    "accuracy": 1.0,
+    "accuracy_refund": 1.0,
+    "accuracy_fee": 0.0,
+    "reason": "환불 가능 여부는 정확하게 판단했으나, 환불 수수료 계산에서 일부 오류가 있음. 전반적으로 정책을 잘 적용한 응답임."
 }}
 """
         return prompt

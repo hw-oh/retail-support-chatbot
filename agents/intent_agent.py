@@ -7,6 +7,7 @@ from typing import List, Dict, Any
 from datetime import datetime
 from .base import LLMClient
 from prompts.weave_prompts import prompt_manager
+from config import config
 
 
 class IntentAgent:
@@ -28,7 +29,7 @@ class IntentAgent:
         
         # Weave에서 프롬프트 가져오기
         system_prompt = prompt_manager.get_intent_prompt(
-            current_date=datetime.now().strftime("%Y-%m-%d")
+            current_date=config.CURRENT_DATE
         )
         
         user_prompt = f"""

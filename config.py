@@ -23,7 +23,7 @@ class Config:
     MAX_TOKENS: int = int(os.getenv("MAX_TOKENS", "2000"))
     
     # System Settings
-    CURRENT_DATE: str = "2025-09-06"
+    CURRENT_DATE: str = "2025-09-01"
     LANGUAGE: str = os.getenv("LANGUAGE", "ko")  # Default to Korean (ko, en, jp)
     
     # Retry Settings

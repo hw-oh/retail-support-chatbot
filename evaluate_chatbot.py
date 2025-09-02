@@ -6,6 +6,7 @@ from simple_chatbot import SimplifiedChatbot
 from scorers.policy_compliance_scorer import PolicyComplianceScorer
 from scorers.reason_quality_scorer import ReasonQualityScorer
 from scorers.refund_decision_scorer import RefundDecisionScorer
+from config import config
 
 class RefundChatbotModel(weave.Model):
     """환불 챗봇 평가를 위한 Weave Model 클래스"""
@@ -60,18 +61,26 @@ def reasoning_performance_evaluation(target: Dict, output: Dict) -> Dict[str, An
 
 @weave.op()
 def refund_accuracy_evaluation(target: Dict, output: Dict) -> Dict[str, Any]:
-    """환불 정확도 평가 - LLM 기반 평가 (점수 + 이유)"""
+    """환불 정확도 평가 - LLM 기반 평가 (전체/환불/수수료 정확도 + 이유)"""
     scorer = RefundDecisionScorer()
     result = scorer.score(target, output)
     return {
-        "accuracy": result.get("accuracy", 0.0),
+        "accuracy": result.get("accuracy", 0.0),  # 전체 정확도
+        "accuracy_refund": result.get("accuracy_refund", 0.0),  # 환불 가능 여부 정확도
+        "accuracy_fee": result.get("accuracy_fee", 0.0),  # 환불 수수료 정확도
         "reason": result.get("reason", "평가 결과 없음")
     }
 
 def load_evaluation_dataset():
-    """평가 데이터셋 로드"""
+    """평가 데이터셋 로드 및 current_date 추출"""
     with open('data/evaluation_dataset_policy_conflicts.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
+    
+    # 데이터셋의 current_date 추출 (있다면)
+    dataset_current_date = data.get("dataset_info", {}).get("current_date")
+    if not dataset_current_date:
+        # current_date가 없다면 created_date를 사용
+        dataset_current_date = data.get("dataset_info", {}).get("created_date", config.CURRENT_DATE)
     
     # 새로운 JSON 구조에서 test_cases 배열 추출
     test_cases = data.get("test_cases", [])
@@ -88,7 +97,7 @@ def load_evaluation_dataset():
         }
         examples.append(example)
     
-    return examples
+    return examples, dataset_current_date
 
 async def main():
     # Weave 초기화
@@ -97,9 +106,14 @@ async def main():
     # 모델 생성
     model = RefundChatbotModel()
     
-    # 데이터셋 로드
-    examples = load_evaluation_dataset()
+    # 데이터셋 로드 및 현재 날짜 설정
+    examples, dataset_current_date = load_evaluation_dataset()
     print(f"📊 {len(examples)}개의 테스트 시나리오 로드됨")
+    
+    # 평가용 날짜 설정 (원래 날짜 백업)
+    original_date = config.CURRENT_DATE
+    config.CURRENT_DATE = dataset_current_date
+    print(f"📅 평가용 날짜 설정: {dataset_current_date} (원래: {original_date})")
     
     # 평가 설정 - 3가지 핵심 평가만 수행
     evaluation = weave.Evaluation(
@@ -116,15 +130,21 @@ async def main():
     print("📋 평가 항목:")
     print("   1. 정책 준수 (Policy Compliance) - LLM 기반 평가 (점수 + 이유)")
     print("   2. 추론 성능 (Reasoning Performance) - LLM 기반 평가 (점수 + 이유)")
-    print("   3. 환불 정확도 (Refund Accuracy) - LLM 기반 평가 (점수 + 이유)")
+    print("   3. 환불 정확도 (Refund Accuracy) - LLM 기반 평가 (전체/환불/수수료 정확도 + 이유)")
     
-    # 평가 실행
-    results = await evaluation.evaluate(model)
+    try:
+        # 평가 실행
+        results = await evaluation.evaluate(model)
+        
+        print("\n✅ 평가 완료!")
+        print(f"📈 결과: {results}")
+        
+        return results
     
-    print("\n✅ 평가 완료!")
-    print(f"📈 결과: {results}")
-    
-    return results
+    finally:
+        # 평가 완료 후 원래 날짜로 복원
+        config.CURRENT_DATE = original_date
+        print(f"🔄 날짜 복원: {original_date}")
 
 if __name__ == "__main__":
     asyncio.run(main())

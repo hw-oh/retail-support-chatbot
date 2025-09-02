@@ -4,7 +4,7 @@
     "product_name": "마이크로소프트 마우스",
     "price": 45000,
     "category": "전자제품",
-    "purchase_date": "2025-09-05",
+    "purchase_date": "2025-09-01",
     "delivery_date": null,
     "delivery_status": "주문접수"
   },
@@ -13,8 +13,8 @@
     "product_name": "노스페이스 바람막이",
     "price": 120000,
     "category": "의류",
-    "purchase_date": "2025-09-04",
-    "delivery_date": "2025-09-07",
+    "purchase_date": "2025-08-27",
+    "delivery_date": "2025-08-30",
     "delivery_status": "배송완료"
   },
   {
@@ -22,8 +22,8 @@
     "product_name": "올버즈 울 러너",
     "price": 98000,
     "category": "신발",
-    "purchase_date": "2025-09-03",
-    "delivery_date": "2025-09-07",
+    "purchase_date": "2025-08-30",
+    "delivery_date": "2025-09-01",
     "delivery_status": "배송완료"
   },
   {
@@ -31,7 +31,7 @@
     "product_name": "키엘 크림",
     "price": 48000,
     "category": "화장품",
-    "purchase_date": "2025-09-02",
+    "purchase_date": "2025-08-29",
     "delivery_date": null,
     "delivery_status": "주문접수"
   },
@@ -40,8 +40,8 @@
     "product_name": "젠하이저 이어폰",
     "price": 89000,
     "category": "전자제품",
-    "purchase_date": "2025-09-01",
-    "delivery_date": "2025-09-04",
+    "purchase_date": "2025-08-28",
+    "delivery_date": "2025-08-31",
     "delivery_status": "배송완료"
   },
   {
