@@ -230,19 +230,19 @@
     {
       "test_id": "REFUND_012",
       "scenario": "화장품 배송 전 취소",
-      "user_query": "주문접수 상태인 립스틱 주문 취소하려고 하는데 가능한가요?",
+      "user_query": "립스틱이 깨져있어요. 환불해주세요.",
       "order_info": {
         "order_id": "ORD20250901012",
-        "purchase_date": "2025-08-31",
-        "delivery_date": null,
-        "delivery_status": "주문접수",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "배송완료",
         "product_name": "맥 립스틱",
         "category": "화장품",
         "price": 35000
       },
       "expected_result": {
         "refund_possible": true,
-        "reason": "배송 전이므로 무료 취소 가능, 개인위생용품 제한은 배송 후에만 적용",
+        "reason": "불량품이므로 개인위생용품이어도 환불 가능",
         "refund_fee": 0
       }
     },
@@ -287,15 +287,15 @@
     {
       "test_id": "REFUND_015",
       "scenario": "불량 화장품 환불 요청",
-      "user_query": "받은 파운데이션이 굳어있어서 사용할 수 없어요. 환불해주세요.",
+      "user_query": "티트리 마스크팩이 말라있어서 사용할 수 없어요. 환불해주세요.",
       "order_info": {
         "order_id": "ORD20250901015",
         "purchase_date": "2025-08-25",
         "delivery_date": "2025-08-28",
         "delivery_status": "배송완료",
-        "product_name": "에스티로더 파운데이션",
+        "product_name": "티트리 마스크팩",
         "category": "화장품",
-        "price": 65000
+        "price": 5000
       },
       "expected_result": {
         "refund_possible": true,
@@ -306,32 +306,32 @@
     {
       "test_id": "REFUND_016",
       "scenario": "배송 전 화장품 환불요청",
-      "user_query": "지난주에 주문한 파운데이션 환불해주세요.",
+      "user_query": "지난주에 주문한 티트리 마스크팩 화장품을 환불해주세요.",
       "order_info": {
         "order_id": "ORD20250901016",
-        "purchase_date": "2025-08-27",
+        "purchase_date": "2025-08-30",
         "delivery_date": null,
         "delivery_status": "배송중",
-        "product_name": "에스티로더 파운데이션",
+        "product_name": "티트리 마스크팩",
         "category": "화장품",
-        "price": 65000
+        "price": 5000
       },
       "expected_result": {
         "refund_possible": true,
-        "reason": "불량품이므로 개인위생용품이어도 환불 가능",
+        "reason": "배송 전이므로 개인위생용품이어도 환불 가능",
         "refund_fee": 0
       }
     },
     {
       "test_id": "REFUND_017",
       "scenario": "불량 칫솔 환불",
-      "user_query": "어제 받은 전동 칫솔이 불량품입니다. 환불해주세요.",
+      "user_query": "어제 받은 칫솔이 고장나있어요. 환불해주세요.",
       "order_info": {
         "order_id": "ORD20250901017",
         "purchase_date": "2025-08-28",
         "delivery_date": "2025-08-30",
         "delivery_status": "배송완료",
-        "product_name": "필립스 전동칫솔",
+        "product_name": "필립스 칫솔",
         "category": "칫솔",
         "price": 150000
       },

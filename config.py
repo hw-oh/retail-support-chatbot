@@ -21,14 +21,14 @@ class Config:
     INTENT_AGENT_MODEL: str = os.getenv("INTENT_AGENT_MODEL", "gpt-4o")
     PLANNING_AGENT_MODEL: str = os.getenv("PLANNING_AGENT_MODEL", "gpt-4o-mini")
     ORDER_AGENT_MODEL: str = os.getenv("ORDER_AGENT_MODEL", "gpt-4o-mini")
-    REFUND_AGENT_MODEL: str = os.getenv("REFUND_AGENT_MODEL", "gpt-4o-mini")
+    REFUND_AGENT_MODEL: str = os.getenv("REFUND_AGENT_MODEL", "gpt-4o")
     GENERAL_AGENT_MODEL: str = os.getenv("GENERAL_AGENT_MODEL", "gpt-4o-mini")
     
     # Scorer models
     POLICY_COMPLIANCE_MODEL: str = os.getenv("POLICY_COMPLIANCE_MODEL", "gpt-4o")
     REASON_QUALITY_MODEL: str = os.getenv("REASON_QUALITY_MODEL", "gpt-4o")
     REFUND_DECISION_MODEL: str = os.getenv("REFUND_DECISION_MODEL", "gpt-4o")
-    TEMPERATURE: float = float(os.getenv("TEMPERATURE", "0.7"))
+    TEMPERATURE: float = float(os.getenv("TEMPERATURE", "0.0"))
     MAX_TOKENS: int = int(os.getenv("MAX_TOKENS", "2000"))
     
     # System Settings
