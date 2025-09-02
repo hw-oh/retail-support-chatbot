@@ -257,7 +257,9 @@ class SimplifiedChatbot:
                 "agent_type": "order_search",
                 "response_summary": str(raw_result)[:200] + "..." if len(str(raw_result)) > 200 else str(raw_result),
                 "found_orders": True if "주문" in str(raw_result) else False,
-                "search_timestamp": "current"
+                "search_timestamp": "current",
+                "time_analysis_included": True if "일 전" in str(raw_result) or "환불" in str(raw_result) else False,
+                "contains_refund_status": True if "환불" in str(raw_result) else False
             }
         
         elif agent_name == 'refund_agent':
