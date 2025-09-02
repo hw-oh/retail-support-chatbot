@@ -73,7 +73,7 @@ def refund_accuracy_evaluation(target: Dict, output: Dict) -> Dict[str, Any]:
 
 def load_evaluation_dataset():
     """평가 데이터셋 로드 및 current_date 추출"""
-    with open('data/evaluation_dataset_policy_conflicts.json', 'r', encoding='utf-8') as f:
+    with open('data/evaluate_refund.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     
     # 데이터셋의 current_date 추출 (있다면)
