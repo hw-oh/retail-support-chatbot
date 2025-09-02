@@ -1,5 +1,14 @@
 [
   {
+    "order_id": "ORD20250819000",
+    "product_name": "칫솔",
+    "price": 5000,
+    "category": "개인위생용품",
+    "purchase_date": "2025-09-01",
+    "delivery_date": null,
+    "delivery_status": "주문접수"
+  },
+  {
     "order_id": "ORD20250819001",
     "product_name": "마이크로소프트 마우스",
     "price": 45000,
