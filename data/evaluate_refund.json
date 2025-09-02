@@ -654,7 +654,7 @@
     {
       "test_id": "REFUND_034",
       "scenario": "[tricky] 세안제 거품 불량",
-      "user_query": "세안제가 거품이 안 납니다.",
+      "user_query": "세안제가 거품이 안 납니다. 불량품인것 같은데 환불해주세요.",
       "order_info": {
         "order_id": "ORD20250901034",
         "purchase_date": "2025-08-21",
@@ -703,8 +703,8 @@
         "price": 6000
       },
       "expected_result": {
-        "refund_possible": true,
-        "reason": "불량은 기간 초과여도 환불",
+        "refund_possible": false,
+        "reason": "고객과실일 수 있으니 환불 불가",
         "refund_fee": 0
       }
     },
@@ -722,8 +722,8 @@
         "price": 23000
       },
       "expected_result": {
-        "refund_possible": true,
-        "reason": "불량은 7일 초과도 환불",
+        "refund_possible": false,
+        "reason": "불량품인지 알 수 없으니 환불 불가",
         "refund_fee": 0
       }
     },
