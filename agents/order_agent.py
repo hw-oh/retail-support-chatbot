@@ -82,8 +82,6 @@ class OrderAgent:
             orders = [self._cal_days_since_delivery(order) for order in raw_orders[:20]]
             data_source = "기본 구매 데이터"
         
-        print(f"[DEBUG] OrderAgent - 데이터 소스: {data_source}")
-        
         # Weave에서 프롬프트 가져오기
         system_prompt = prompt_manager.get_order_agent_prompt()
         user_prompt = f"""
@@ -122,8 +120,6 @@ class OrderAgent:
             orders = [self._cal_days_since_delivery(order) for order in raw_orders[:20]]
             data_source = "기본 구매 데이터"
         
-        print(f"[DEBUG] OrderAgent - 데이터 소스: {data_source}")
-        
         # Weave에서 프롬프트 가져오기
         system_prompt = prompt_manager.get_order_agent_prompt()
         user_prompt = f"""
@@ -150,19 +146,14 @@ class OrderAgent:
     
     def _cal_days_since_delivery(self, order: Dict[str, Any]) -> Dict[str, Any]:
         """주문 정보에 간단한 경과일 정보 추가"""
-        try:
-            current_date = datetime.strptime(config.CURRENT_DATE, "%Y-%m-%d")
-            enriched_order = order.copy()
-            
-            # 배송 후 경과일 (있는 경우만)
-            if order.get("purchase_date"):
-                delivery_date = datetime.strptime(order["purchase_date"], "%Y-%m-%d")
-                enriched_order["days_since_delivery"] = (current_date - delivery_date).days
-            else:
-                enriched_order["days_since_delivery"] = None
-            
-            return enriched_order
-            
-        except Exception as e:
-            print(f"[DEBUG] 날짜 계산 오류: {e}")
-            return order
+        current_date = datetime.strptime(config.CURRENT_DATE, "%Y-%m-%d")
+        enriched_order = order.copy()
+        
+        # 배송 후 경과일 (있는 경우만)
+        if order.get("delivery_date"):
+            delivery_date = datetime.strptime(order["delivery_date"], "%Y-%m-%d")
+            enriched_order["days_since_delivery"] = (current_date - delivery_date).days
+        else:
+            enriched_order["days_since_delivery"] = None
+        
+        return enriched_order

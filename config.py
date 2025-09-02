@@ -21,7 +21,7 @@ class Config:
     INTENT_AGENT_MODEL: str = os.getenv("INTENT_AGENT_MODEL", "gpt-4o")
     PLANNING_AGENT_MODEL: str = os.getenv("PLANNING_AGENT_MODEL", "gpt-4o-mini")
     ORDER_AGENT_MODEL: str = os.getenv("ORDER_AGENT_MODEL", "gpt-4o-mini")
-    REFUND_AGENT_MODEL: str = os.getenv("REFUND_AGENT_MODEL", "gpt-4o")
+    REFUND_AGENT_MODEL: str = os.getenv("REFUND_AGENT_MODEL", "gpt-4o-mini")
     GENERAL_AGENT_MODEL: str = os.getenv("GENERAL_AGENT_MODEL", "gpt-4o-mini")
     
     # Scorer models

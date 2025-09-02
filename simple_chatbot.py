@@ -150,8 +150,6 @@ class SimplifiedChatbot:
         # 2. Planning Agent가 실행 계획 수립
         plan = self.planning_agent.create_plan(user_input, intent_result, legacy_context)
         
-        print(f"[DEBUG] 실행 계획: {plan['plan_type']} - {plan['reason']}")
-        
         # 3. 계획에 따라 에이전트들을 순차 실행
         agent_outputs = []
         for step in plan['steps']:
@@ -161,8 +159,6 @@ class SimplifiedChatbot:
             if not agent:
                 print(f"[WARNING] 에이전트 '{agent_name}'를 찾을 수 없습니다.")
                 continue
-            
-            print(f"[DEBUG] Step {step['step_id']}: {agent_name} - {step['purpose']}")
             
             # 구조화된 컨텍스트 생성
             structured_context = self.context_manager.get_structured_context_for_llm()
@@ -188,7 +184,6 @@ class SimplifiedChatbot:
                 agent_output = self._create_agent_output(agent_name, step['step_id'], raw_result)
                 agent_outputs.append(agent_output)
                 
-                print(f"[DEBUG] Step {step['step_id']} 완료")
             except Exception as e:
                 print(f"[ERROR] Step {step['step_id']} 실행 중 오류: {e}")
                 error_output = AgentOutput(
@@ -255,7 +250,7 @@ class SimplifiedChatbot:
             # Order Agent 출력 구조화
             structured_data = {
                 "agent_type": "order_search",
-                "response_summary": str(raw_result)[:200] + "..." if len(str(raw_result)) > 200 else str(raw_result),
+                "response_summary": str(raw_result),
                 "found_orders": True if "주문" in str(raw_result) else False,
                 "search_timestamp": "current",
                 "time_analysis_included": True if "일 전" in str(raw_result) or "환불" in str(raw_result) else False,
