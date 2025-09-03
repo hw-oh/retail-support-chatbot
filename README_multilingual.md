@@ -213,6 +213,28 @@ Each language test includes:
 2. **Order Inquiry**: "최근 구매목록 3개 보여주세요" / "Show me my recent 3 purchase list" / "最近の購入リスト3つを見せてください"
 3. **Refund Request**: "키엘 크림 환불해주세요" / "Please refund Kiehl's cream" / "キールズクリームを返品してください"
 
+### Evaluation System Testing
+Test the multilingual evaluation system:
+
+```bash
+# Evaluate specific language
+python evaluate_chatbot.py ko        # Korean evaluation
+python evaluate_chatbot.py en        # English evaluation  
+python evaluate_chatbot.py jp        # Japanese evaluation
+python evaluate_chatbot.py all       # All languages evaluation
+
+# Evaluation demos
+python multilingual_evaluation_demo.py        # Full demo
+python multilingual_evaluation_demo.py quick  # Quick test
+```
+
+The evaluation system includes:
+- **Policy Compliance**: LLM-based policy adherence scoring
+- **Reasoning Performance**: LLM-based explanation quality scoring  
+- **Refund Accuracy**: LLM-based refund decision accuracy scoring
+
+All evaluations are performed in the target language with language-appropriate datasets and prompts.
+
 ## Notes
 
 - All comments in the code have been updated to English

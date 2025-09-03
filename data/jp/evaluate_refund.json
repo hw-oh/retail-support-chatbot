@@ -1,51 +1,51 @@
 {
   "dataset_info": {
-    "name": "Retail Support Chatbot Refund Evaluation Dataset",
-    "description": "返品ポリシー遵守、個人衛生用品・不良品処理、日付計算バグ検出の評価",
+    "name": "小売サポートチャットボット 返品評価データセット",
+    "description": "返品ポリシー遵守、個人衛生用品/不良品の取扱い、日付計算バグ検出を評価",
     "current_date": "2025-09-01",
-    "total_cases": 10,
+    "total_cases": 50,
     "categories": {
       "baseline_correct": {
-        "count": 5,
+        "count": 20,
         "expected_failure_rate": "<5%",
-        "description": "モデルが簡単に正解すべき基本・明確なケース（バグの影響なし）"
+        "description": "モデルが容易に正解すべき基本/明確ケース（バグ影響なし）"
       },
       "tricky_mispredict": {
-        "count": 3,
+        "count": 20,
         "expected_failure_rate": ">30%",
-        "description": "個人衛生用品・不良品で返品可能なのに誤判定しやすいケース"
+        "description": "個人衛生用品/不良品で本来返品可能だが誤判定しやすいケース"
       },
       "delivery_date_bug": {
-        "count": 2,
+        "count": 10,
         "expected_failure_rate": ">80%",
-        "description": "現在日 - 購入日で間違って計算すると不正解になるケース"
+        "description": "current - purchase と誤計算すると不正解になるケース"
       }
     }
   },
   "test_cases": [
     {
       "test_id": "REFUND_001",
-      "scenario": "[baseline] 3日前受領の衣類、返品可能",
+      "scenario": "[baseline] 3日前に受け取りの衣類は返品可",
       "user_query": "3日前に受け取ったTシャツを返品したいです。",
       "order_info": {
         "order_id": "ORD20250901001",
         "purchase_date": "2025-08-28",
         "delivery_date": "2025-08-29",
         "delivery_status": "配送完了",
-        "product_name": "ベーシック Tシャツ",
+        "product_name": "ベーシックTシャツ",
         "category": "衣類",
         "price": 22000
       },
       "expected_result": {
         "refund_possible": true,
-        "reason": "配送完了後3日以内で返品可能（手数料10%）",
+        "reason": "配送完了後7日以内は返品可（経過3日、手数料10%）",
         "refund_fee": 2200
       }
     },
     {
       "test_id": "REFUND_002",
-      "scenario": "[baseline] 6日前受領のシューズ、返品可能",
-      "user_query": "6日前に受け取ったスニーカーを返品できますか？",
+      "scenario": "[baseline] 6日前に受け取りの靴は返品可",
+      "user_query": "6日前に受け取ったスニーカーは返品できますか？",
       "order_info": {
         "order_id": "ORD20250901002",
         "purchase_date": "2025-08-27",
@@ -57,66 +57,922 @@
       },
       "expected_result": {
         "refund_possible": true,
-        "reason": "配送完了後6日で7日以内",
+        "reason": "配送後6日で7日以内",
         "refund_fee": 9900
       }
     },
     {
       "test_id": "REFUND_003",
-      "scenario": "[baseline] ちょうど7日前受領のバッグ、返品可能",
-      "user_query": "ちょうど7日前に受け取ったバッグを返品できますか？",
+      "scenario": "[baseline] ちょうど7日目のバッグは返品可",
+      "user_query": "ちょうど7日前に受け取ったバッグは返品可能ですか？",
       "order_info": {
         "order_id": "ORD20250901003",
-        "purchase_date": "2025-08-24",
+        "purchase_date": "2025-08-26",
         "delivery_date": "2025-08-25",
         "delivery_status": "配送完了",
-        "product_name": "バックパック",
-        "category": "アクセサリー",
+        "product_name": "キャンバス エコバッグ",
+        "category": "バッグ",
         "price": 45000
       },
       "expected_result": {
         "refund_possible": true,
-        "reason": "ちょうど7日、まだ返品期間内",
+        "reason": "配送完了後7日以内",
         "refund_fee": 4500
       }
     },
     {
       "test_id": "REFUND_004",
-      "scenario": "[tricky] 歯ブラシ（個人衛生用品） - 返品不可",
-      "user_query": "昨日受け取った歯ブラシを返品したいです。",
+      "scenario": "[baseline] 9日前受け取りのノートPCスリーブは返品不可",
+      "user_query": "9日前に受け取ったノートPCスリーブを返品したいです。",
       "order_info": {
         "order_id": "ORD20250901004",
-        "purchase_date": "2025-08-30",
-        "delivery_date": "2025-08-31",
+        "purchase_date": "2025-08-20",
+        "delivery_date": "2025-08-23",
         "delivery_status": "配送完了",
-        "product_name": "電動歯ブラシ",
-        "category": "個人衛生用品",
-        "price": 25000
+        "product_name": "ノートPCスリーブ",
+        "category": "アクセサリー",
+        "price": 38000
       },
       "expected_result": {
         "refund_possible": false,
-        "reason": "個人衛生用品は7日以内でも返品不可",
-        "refund_fee": 0
+        "reason": "配送完了後7日を超過",
+        "refund_fee": null
       }
     },
     {
       "test_id": "REFUND_005",
-      "scenario": "[tricky] 不良品 - 無料返品",
-      "user_query": "受け取ったヘッドホンに不具合があります。返品したいです。",
+      "scenario": "[baseline] 注文受付時は無料キャンセル",
+      "user_query": "今注文したばかりです。キャンセルお願いします。",
       "order_info": {
         "order_id": "ORD20250901005",
-        "purchase_date": "2025-08-20",
-        "delivery_date": "2025-08-22",
-        "delivery_status": "配送完了",
-        "product_name": "ブルートゥース ヘッドホン",
+        "purchase_date": "2025-09-01",
+        "delivery_date": null,
+        "delivery_status": "注文受付",
+        "product_name": "ワイヤレスマウス",
         "category": "電子機器",
-        "price": 89000,
-        "defective": true
+        "price": 29000
       },
       "expected_result": {
         "refund_possible": true,
-        "reason": "不良品 - 期間に関係なく無料返品",
+        "reason": "発送前は無料キャンセル",
         "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_006",
+      "scenario": "[baseline] 決済完了でも無料キャンセル",
+      "user_query": "決済だけで、まだ発送前ならキャンセルしてください。",
+      "order_info": {
+        "order_id": "ORD20250901006",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "決済完了",
+        "product_name": "有線充電器",
+        "category": "電子機器",
+        "price": 15000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "発送前は無料キャンセル",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_007",
+      "scenario": "[baseline] 商品準備中も無料キャンセル",
+      "user_query": "商品準備中と表示されています。返品してください。",
+      "order_info": {
+        "order_id": "ORD20250901007",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "商品準備中",
+        "product_name": "ヨガマット",
+        "category": "スポーツ用品",
+        "price": 42000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "発送前は無料キャンセル",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_008",
+      "scenario": "[baseline] 配送中のキャンセルは手数料あり",
+      "user_query": "配送中ですがキャンセルできますか？",
+      "order_info": {
+        "order_id": "ORD20250901008",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "配送中",
+        "product_name": "ゲーミングキーボード",
+        "category": "電子機器",
+        "price": 89000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "配送中のキャンセルは可能（手数料10%）",
+        "refund_fee": 8900
+      }
+    },
+    {
+      "test_id": "REFUND_009",
+      "scenario": "[baseline] 配送中キャンセルの最低手数料適用",
+      "user_query": "配送中ならキャンセルしたいです。",
+      "order_info": {
+        "order_id": "ORD20250901009",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "配送中",
+        "product_name": "タンブラー",
+        "category": "生活用品",
+        "price": 12000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "配送中キャンセル10%（最低2,000円）",
+        "refund_fee": 2000
+      }
+    },
+    {
+      "test_id": "REFUND_010",
+      "scenario": "[baseline] 2日前受け取りの電子書籍リーダーは返品可",
+      "user_query": "電子書籍リーダーを返品したいです。",
+      "order_info": {
+        "order_id": "ORD20250901010",
+        "purchase_date": "2025-08-31",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "配送完了",
+        "product_name": "電子書籍リーダー",
+        "category": "電子機器",
+        "price": 180000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "配送後2日",
+        "refund_fee": 18000
+      }
+    },
+    {
+      "test_id": "REFUND_011",
+      "scenario": "[baseline] 個人衛生用品（靴下）は返品不可",
+      "user_query": "3日前に受け取った靴下は返品可能ですか？",
+      "order_info": {
+        "order_id": "ORD20250901011",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "配送完了",
+        "product_name": "コットン靴下セット",
+        "category": "靴下",
+        "price": 15000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "個人衛生用品は返品不可",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "REFUND_012",
+      "scenario": "[baseline] 個人衛生用品（下着）は返品不可",
+      "user_query": "下着のサイズが合いません。返品できますか？",
+      "order_info": {
+        "order_id": "ORD20250901012",
+        "purchase_date": "2025-08-28",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "配送完了",
+        "product_name": "コットンブリーフ",
+        "category": "下着",
+        "price": 19000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "個人衛生用品は返品不可",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "REFUND_013",
+      "scenario": "[baseline] 10日前受け取りの衣類は返品不可",
+      "user_query": "10日前に受け取ったシャツを返品したいです。",
+      "order_info": {
+        "order_id": "ORD20250901013",
+        "purchase_date": "2025-08-20",
+        "delivery_date": "2025-08-22",
+        "delivery_status": "配送完了",
+        "product_name": "オックスフォードシャツ",
+        "category": "衣類",
+        "price": 49000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "7日の返品期間を超過",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "REFUND_014",
+      "scenario": "[baseline] 不良ノートPCアダプターは返品（手数料免除）",
+      "user_query": "充電器が故障しています。不良のようです。",
+      "order_info": {
+        "order_id": "ORD20250901014",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "配送完了",
+        "product_name": "ノートPCアダプター",
+        "category": "電子機器",
+        "price": 45000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "不良品は手数料免除",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_015",
+      "scenario": "[baseline] 不良の書籍は返品（手数料免除）",
+      "user_query": "本のページが外れています。返品お願いします。",
+      "order_info": {
+        "order_id": "ORD20250901015",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "配送完了",
+        "product_name": "小説",
+        "category": "書籍",
+        "price": 17000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "不良品は手数料なし",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_016",
+      "scenario": "[baseline] 1日前受け取りの靴は返品可",
+      "user_query": "昨日受け取ったランニングシューズを返品したいです。",
+      "order_info": {
+        "order_id": "ORD20250901016",
+        "purchase_date": "2025-08-31",
+        "delivery_date": "2025-08-31",
+        "delivery_status": "配送完了",
+        "product_name": "ランニングシューズ プロ",
+        "category": "シューズ",
+        "price": 129000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "7日以内",
+        "refund_fee": 12900
+      }
+    },
+    {
+      "test_id": "REFUND_017",
+      "scenario": "[baseline] 8日前受け取りの家電は返品不可",
+      "user_query": "8日前に受け取った空気清浄機は返品できますか？",
+      "order_info": {
+        "order_id": "ORD20250901017",
+        "purchase_date": "2025-08-20",
+        "delivery_date": "2025-08-24",
+        "delivery_status": "配送完了",
+        "product_name": "空気清浄機",
+        "category": "家電",
+        "price": 210000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "7日超過",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "REFUND_018",
+      "scenario": "[baseline] 低価格一般商品は最低手数料",
+      "user_query": "マグカップを返品したいです。",
+      "order_info": {
+        "order_id": "ORD20250901018",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "配送完了",
+        "product_name": "セラミックマグ",
+        "category": "生活用品",
+        "price": 15000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "7日以内、最低手数料2,000円",
+        "refund_fee": 2000
+      }
+    },
+    {
+      "test_id": "REFUND_019",
+      "scenario": "[baseline] 書籍を5日前に受け取り — 返品可",
+      "user_query": "5日前に受け取った問題集を返品したいです。",
+      "order_info": {
+        "order_id": "ORD20250901019",
+        "purchase_date": "2025-08-28",
+        "delivery_date": "2025-08-27",
+        "delivery_status": "配送完了",
+        "product_name": "数学問題集",
+        "category": "書籍",
+        "price": 21000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "7日以内",
+        "refund_fee": 2100
+      }
+    },
+    {
+      "test_id": "REFUND_020",
+      "scenario": "[baseline] 個人衛生用品（マスク）は返品不可",
+      "user_query": "マスクは返品可能ですか？",
+      "order_info": {
+        "order_id": "ORD20250901020",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "配送完了",
+        "product_name": "KF94マスク",
+        "category": "マスク",
+        "price": 8000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "個人衛生用品は返品不可",
+        "refund_fee": null
+      }
+    },
+    
+    {
+      "test_id": "REFUND_021",
+      "scenario": "[tricky] 不良シャンプーの返品（衛生用品）",
+      "user_query": "シャンプーが漏れて届きました。返品してください。",
+      "order_info": {
+        "order_id": "ORD20250901021",
+        "purchase_date": "2025-08-25",
+        "delivery_date": "2025-08-27",
+        "delivery_status": "配送完了",
+        "product_name": "デイリーシャンプー",
+        "category": "シャンプー",
+        "price": 12000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "不良品は衛生用品でも返品可、手数料なし",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_022",
+      "scenario": "[tricky] マスクパックの乾燥不良 — 返品可",
+      "user_query": "マスクパックが乾いています。返品できますか？",
+      "order_info": {
+        "order_id": "ORD20250901022",
+        "purchase_date": "2025-08-24",
+        "delivery_date": "2025-08-26",
+        "delivery_status": "配送完了",
+        "product_name": "ティーツリーマスクパック",
+        "category": "マスクパック",
+        "price": 7000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "不良品のため手数料免除",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_023",
+      "scenario": "[tricky] 衛生用品の発送前無料キャンセル",
+      "user_query": "歯ブラシがまだ未発送ならキャンセルしてください。",
+      "order_info": {
+        "order_id": "ORD20250901023",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "商品準備中",
+        "product_name": "電動歯ブラシ リフィル",
+        "category": "歯ブラシ",
+        "price": 14000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "発送前は無料キャンセル",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_024",
+      "scenario": "[tricky] 14日経過の化粧品不良 — 返品可",
+      "user_query": "2週間前に受け取ったリップバームにカビがあります。",
+      "order_info": {
+        "order_id": "ORD20250901024",
+        "purchase_date": "2025-08-16",
+        "delivery_date": "2025-08-18",
+        "delivery_status": "配送完了",
+        "product_name": "保湿リップバーム",
+        "category": "化粧品",
+        "price": 9000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "不良品は期間超過でも返品可",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_025",
+      "scenario": "[tricky] 下着の発送前キャンセル",
+      "user_query": "昨日注文した下着をキャンセルしたいです。",
+      "order_info": {
+        "order_id": "ORD20250901025",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "決済完了",
+        "product_name": "スポーツブラ",
+        "category": "下着",
+        "price": 32000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "発送前は無料キャンセル",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_026",
+      "scenario": "[tricky] シェーバー刃の破損 — 返品可",
+      "user_query": "シェーバーの刃が折れて届きました。",
+      "order_info": {
+        "order_id": "ORD20250901026",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "配送完了",
+        "product_name": "電気シェーバー",
+        "category": "シェーバー",
+        "price": 160000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "不良品のため手数料免除",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_027",
+      "scenario": "[tricky] コンタクトレンズ液の漏れ",
+      "user_query": "レンズ液が漏れていました。返品したいです。",
+      "order_info": {
+        "order_id": "ORD20250901027",
+        "purchase_date": "2025-08-26",
+        "delivery_date": "2025-08-28",
+        "delivery_status": "配送完了",
+        "product_name": "コンタクトレンズ",
+        "category": "コンタクトレンズ",
+        "price": 39000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "不良の衛生用品は返品可",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_028",
+      "scenario": "[tricky] 生理用品の異臭不良",
+      "user_query": "生理用品の臭いがひどいです。返品お願いします。",
+      "order_info": {
+        "order_id": "ORD20250901028",
+        "purchase_date": "2025-08-21",
+        "delivery_date": "2025-08-24",
+        "delivery_status": "配送完了",
+        "product_name": "オーガニック生理用ナプキン",
+        "category": "生理用品",
+        "price": 11000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "不良の衛生用品は返品可",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_029",
+      "scenario": "[tricky] デオドラントの噴射不良",
+      "user_query": "デオドラントが噴射できません。",
+      "order_info": {
+        "order_id": "ORD20250901029",
+        "purchase_date": "2025-08-23",
+        "delivery_date": "2025-08-26",
+        "delivery_status": "配送完了",
+        "product_name": "スプレーデオドラント",
+        "category": "デオドラント",
+        "price": 13000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "不良の衛生用品は返品可",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_030",
+      "scenario": "[tricky] ローションの変質疑い",
+      "user_query": "ローションから異臭がします。",
+      "order_info": {
+        "order_id": "ORD20250901030",
+        "purchase_date": "2025-08-19",
+        "delivery_date": "2025-08-22",
+        "delivery_status": "配送完了",
+        "product_name": "保湿ローション",
+        "category": "ローション",
+        "price": 18000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "不良の衛生用品は返品可（期間超過でも可）",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_031",
+      "scenario": "[tricky] クリーム内容物不足",
+      "user_query": "クリームが半分しか入っていません。",
+      "order_info": {
+        "order_id": "ORD20250901031",
+        "purchase_date": "2025-08-22",
+        "delivery_date": "2025-08-25",
+        "delivery_status": "配送完了",
+        "product_name": "保湿クリーム",
+        "category": "クリーム",
+        "price": 25000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "不良の衛生用品は返品可",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_032",
+      "scenario": "[tricky] 歯磨き粉チューブ破れ",
+      "user_query": "歯磨き粉のチューブが破れて届きました。",
+      "order_info": {
+        "order_id": "ORD20250901032",
+        "purchase_date": "2025-08-26",
+        "delivery_date": "2025-08-28",
+        "delivery_status": "配送完了",
+        "product_name": "ハーブ歯磨き粉",
+        "category": "歯磨き粉",
+        "price": 6000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "不良の衛生用品は返品可",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_033",
+      "scenario": "[tricky] 石鹸の異物混入",
+      "user_query": "石鹸に異物が入っています。",
+      "order_info": {
+        "order_id": "ORD20250901033",
+        "purchase_date": "2025-08-20",
+        "delivery_date": "2025-08-23",
+        "delivery_status": "配送完了",
+        "product_name": "ナチュラルソープ",
+        "category": "石鹸",
+        "price": 5000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "不良の衛生用品は返品可",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_034",
+      "scenario": "[tricky] 洗顔料の泡立ち不良",
+      "user_query": "洗顔料が泡立ちません。返品してください。",
+      "order_info": {
+        "order_id": "ORD20250901034",
+        "purchase_date": "2025-08-21",
+        "delivery_date": "2025-08-24",
+        "delivery_status": "配送完了",
+        "product_name": "フォームクレンザー",
+        "category": "洗顔料",
+        "price": 9000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "不良の衛生用品は返品可",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_035",
+      "scenario": "[tricky] 香水の噴射不良・漏れ",
+      "user_query": "香水が噴射できず漏れています。",
+      "order_info": {
+        "order_id": "ORD20250901035",
+        "purchase_date": "2025-08-22",
+        "delivery_date": "2025-08-25",
+        "delivery_status": "配送完了",
+        "product_name": "オードパルファン",
+        "category": "香水",
+        "price": 54000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "不良の衛生用品は返品可",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_036",
+      "scenario": "[tricky] マスクの耳紐不良（期間超過）",
+      "user_query": "3週間前に受け取ったマスクの紐がすぐ切れます。",
+      "order_info": {
+        "order_id": "ORD20250901036",
+        "purchase_date": "2025-08-05",
+        "delivery_date": "2025-08-10",
+        "delivery_status": "配送完了",
+        "product_name": "使い捨てマスク",
+        "category": "マスク",
+        "price": 6000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "顧客の過失の可能性があり、返品不可",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_037",
+      "scenario": "[tricky] リップスティックの色変化（期間超過）",
+      "user_query": "リップスティックの色が変わりました。",
+      "order_info": {
+        "order_id": "ORD20250901037",
+        "purchase_date": "2025-08-12",
+        "delivery_date": "2025-08-15",
+        "delivery_status": "配送完了",
+        "product_name": "マットリップスティック",
+        "category": "化粧品",
+        "price": 23000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "不良かどうか確認できないため返品不可",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_038",
+      "scenario": "[tricky] 衛生カテゴリの誤判定防止（発送前）",
+      "user_query": "石鹸がまだ発送前ならキャンセルしてください。",
+      "order_info": {
+        "order_id": "ORD20250901038",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "決済完了",
+        "product_name": "固形石鹸",
+        "category": "石鹸",
+        "price": 4000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "発送前は無料キャンセル",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_039",
+      "scenario": "[tricky] 電動歯ブラシのモーター不良",
+      "user_query": "電動歯ブラシが動きません。",
+      "order_info": {
+        "order_id": "ORD20250901039",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "配送完了",
+        "product_name": "電動歯ブラシ",
+        "category": "歯ブラシ",
+        "price": 89000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "不良の衛生用品は返品可",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_040",
+      "scenario": "[tricky] シャンプーの発送前キャンセル",
+      "user_query": "シャンプーはもう不要です。まだ発送されていませんか？",
+      "order_info": {
+        "order_id": "ORD20250901040",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "商品準備中",
+        "product_name": "クールシャンプー",
+        "category": "シャンプー",
+        "price": 11000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "発送前は無料キャンセル",
+        "refund_fee": 0
+      }
+    },
+    
+    {
+      "test_id": "REFUND_041",
+      "scenario": "[bug] 購入は以前、受け取りは6日前（許容）",
+      "user_query": "6日前に受け取ったコートを返品したいです。",
+      "order_info": {
+        "order_id": "ORD20250901041",
+        "purchase_date": "2025-08-20",
+        "delivery_date": "2025-08-26",
+        "delivery_status": "配送完了",
+        "product_name": "ウールコート",
+        "category": "衣類",
+        "price": 210000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "配送日基準で6日以内（購入日基準は誤り）",
+        "refund_fee": 21000
+      }
+    },
+    {
+      "test_id": "REFUND_042",
+      "scenario": "[bug] 購入12日前、受け取り5日前",
+      "user_query": "5日前に受け取ったバックパックを返品します。",
+      "order_info": {
+        "order_id": "ORD20250901042",
+        "purchase_date": "2025-08-20",
+        "delivery_date": "2025-08-27",
+        "delivery_status": "配送完了",
+        "product_name": "トラベルバックパック",
+        "category": "バッグ",
+        "price": 99000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "配送後5日",
+        "refund_fee": 9900
+      }
+    },
+    {
+      "test_id": "REFUND_043",
+      "scenario": "[bug] 購入15日前、受け取り7日前（境界）",
+      "user_query": "7日前に受け取ったジーンズは返品できますか？",
+      "order_info": {
+        "order_id": "ORD20250901043",
+        "purchase_date": "2025-08-17",
+        "delivery_date": "2025-08-25",
+        "delivery_status": "配送完了",
+        "product_name": "ストレートジーンズ",
+        "category": "衣類",
+        "price": 59000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "配送後ちょうど7日",
+        "refund_fee": 5900
+      }
+    },
+    {
+      "test_id": "REFUND_044",
+      "scenario": "[bug] 購入18日前、受け取り3日前",
+      "user_query": "3日前に受け取ったトースターを返品してください。",
+      "order_info": {
+        "order_id": "ORD20250901044",
+        "purchase_date": "2025-08-14",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "配送完了",
+        "product_name": "2口トースター",
+        "category": "キッチン家電",
+        "price": 69000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "配送後3日",
+        "refund_fee": 6900
+      }
+    },
+    {
+      "test_id": "REFUND_045",
+      "scenario": "[bug] 購入20日前、受け取り4日前",
+      "user_query": "4日前に受け取った机を返品したいです。",
+      "order_info": {
+        "order_id": "ORD20250901045",
+        "purchase_date": "2025-08-12",
+        "delivery_date": "2025-08-28",
+        "delivery_status": "配送完了",
+        "product_name": "コンピューターデスク",
+        "category": "家具",
+        "price": 129000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "配送後4日",
+        "refund_fee": 12900
+      }
+    },
+    {
+      "test_id": "REFUND_046",
+      "scenario": "[bug] 購入13日前、受け取り1日前",
+      "user_query": "昨日受け取った掃除機の返品をお願いします。",
+      "order_info": {
+        "order_id": "ORD20250901046",
+        "purchase_date": "2025-08-19",
+        "delivery_date": "2025-08-31",
+        "delivery_status": "配送完了",
+        "product_name": "コードレス掃除機",
+        "category": "家電",
+        "price": 239000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "配送後1日",
+        "refund_fee": 23900
+      }
+    },
+    {
+      "test_id": "REFUND_047",
+      "scenario": "[bug] 購入11日前、受け取り2日前",
+      "user_query": "2日前に受け取った椅子を返品してください。",
+      "order_info": {
+        "order_id": "ORD20250901047",
+        "purchase_date": "2025-08-21",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "配送完了",
+        "product_name": "オフィスチェア",
+        "category": "家具",
+        "price": 89000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "配送後2日",
+        "refund_fee": 8900
+      }
+    },
+    {
+      "test_id": "REFUND_048",
+      "scenario": "[bug] 購入16日前、受け取り6日前",
+      "user_query": "6日前に受け取った電子書籍リーダーの返品です。",
+      "order_info": {
+        "order_id": "ORD20250901048",
+        "purchase_date": "2025-08-16",
+        "delivery_date": "2025-08-26",
+        "delivery_status": "配送完了",
+        "product_name": "電子書籍リーダー",
+        "category": "電子機器",
+        "price": 179000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "配送後6日",
+        "refund_fee": 17900
+      }
+    },
+    {
+      "test_id": "REFUND_049",
+      "scenario": "[bug] 購入14日前、受け取り2日前",
+      "user_query": "2日前に受け取ったフーディーを返品したいです。",
+      "order_info": {
+        "order_id": "ORD20250901049",
+        "purchase_date": "2025-08-18",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "配送完了",
+        "product_name": "フーディースウェットシャツ",
+        "category": "衣類",
+        "price": 49000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "配送後2日",
+        "refund_fee": 4900
+      }
+    },
+    {
+      "test_id": "REFUND_050",
+      "scenario": "[bug] 購入10日前、受け取り1日前",
+      "user_query": "昨日受け取ったコーヒーメーカーは返品可能ですか？",
+      "order_info": {
+        "order_id": "ORD20250901050",
+        "purchase_date": "2025-08-22",
+        "delivery_date": "2025-08-31",
+        "delivery_status": "配送完了",
+        "product_name": "カプセル式コーヒーメーカー",
+        "category": "キッチン家電",
+        "price": 159000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "配送後1日",
+        "refund_fee": 15900
       }
     }
   ]

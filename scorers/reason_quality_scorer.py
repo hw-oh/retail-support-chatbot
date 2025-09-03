@@ -168,7 +168,7 @@ Evaluate the reasoning quality and explanation quality of the above response on 
 """
         }
         
-        prompt = prompts.get(language, prompts["ko"])
+        prompt = prompts.get(self.language, prompts["ko"])
         return prompt
     
     # Convenience methods for different languages
