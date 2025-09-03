@@ -83,29 +83,67 @@ class ContextManager:
         
         context_parts = []
         for i, turn in enumerate(recent_turns, 1):
-            context_parts.append(f"## 대화 {i}")
-            context_parts.append(f"사용자: {turn.user_input}")
-            context_parts.append(f"봇 응답: {turn.bot_response}")
+            # Localized conversation headers
+            if language == "ko":
+                context_parts.append(f"## 대화 {i}")
+                context_parts.append(f"사용자: {turn.user_input}")
+                context_parts.append(f"봇 응답: {turn.bot_response}")
+                
+                # Intent and entity information
+                if turn.intent != 'general_chat':
+                    context_parts.append(f"분석된 의도: {turn.intent}")
+                    if turn.entities:
+                        context_parts.append(f"추출된 정보: {json.dumps(turn.entities, ensure_ascii=False)}")
+                
+                # Agent-specific structured data
+                if turn.agent_outputs:
+                    for output in turn.agent_outputs:
+                        if output.structured_data:
+                            context_parts.append(f"## {output.agent_name} 결과")
+                            context_parts.append(json.dumps(output.structured_data, ensure_ascii=False, indent=2))
             
-            # 의도 및 엔티티 정보
-            if turn.intent != 'general_chat':
-                context_parts.append(f"분석된 의도: {turn.intent}")
-                if turn.entities:
-                    context_parts.append(f"추출된 정보: {json.dumps(turn.entities, ensure_ascii=False)}")
+            elif language == "en":
+                context_parts.append(f"## Conversation {i}")
+                context_parts.append(f"User: {turn.user_input}")
+                context_parts.append(f"Bot response: {turn.bot_response}")
+                
+                # Intent and entity information
+                if turn.intent != 'general_chat':
+                    context_parts.append(f"Analyzed intent: {turn.intent}")
+                    if turn.entities:
+                        context_parts.append(f"Extracted information: {json.dumps(turn.entities, ensure_ascii=False)}")
+                
+                # Agent-specific structured data
+                if turn.agent_outputs:
+                    for output in turn.agent_outputs:
+                        if output.structured_data:
+                            context_parts.append(f"## {output.agent_name} results")
+                            context_parts.append(json.dumps(output.structured_data, ensure_ascii=False, indent=2))
             
-            # 에이전트별 구조화된 데이터
-            if turn.agent_outputs:
-                for output in turn.agent_outputs:
-                    if output.structured_data:
-                        context_parts.append(f"## {output.agent_name} 결과")
-                        context_parts.append(json.dumps(output.structured_data, ensure_ascii=False, indent=2))
+            elif language == "jp":
+                context_parts.append(f"## 会話 {i}")
+                context_parts.append(f"ユーザー: {turn.user_input}")
+                context_parts.append(f"ボット応答: {turn.bot_response}")
+                
+                # Intent and entity information
+                if turn.intent != 'general_chat':
+                    context_parts.append(f"分析された意図: {turn.intent}")
+                    if turn.entities:
+                        context_parts.append(f"抽出された情報: {json.dumps(turn.entities, ensure_ascii=False)}")
+                
+                # Agent-specific structured data
+                if turn.agent_outputs:
+                    for output in turn.agent_outputs:
+                        if output.structured_data:
+                            context_parts.append(f"## {output.agent_name} 結果")
+                            context_parts.append(json.dumps(output.structured_data, ensure_ascii=False, indent=2))
             
-            context_parts.append("")  # 빈 줄로 구분
+            context_parts.append("")  # Empty line separator
         
         return "\n".join(context_parts)
     
     def get_latest_agent_output(self, agent_name: str) -> Optional[AgentOutput]:
-        """특정 에이전트의 최신 출력 반환"""
+        """Return the latest output from a specific agent"""
         for turn in reversed(self.conversation_history):
             for output in turn.agent_outputs:
                 if output.agent_name == agent_name:
@@ -179,36 +217,42 @@ class SimplifiedChatbot:
                 print(f"[WARNING] 에이전트 '{agent_name}'를 찾을 수 없습니다.")
                 continue
             
-            # 구조화된 컨텍스트 생성
-            structured_context = self.context_manager.get_structured_context_for_llm()
+            # Generate structured context with language support
+            structured_context = self.context_manager.get_structured_context_for_llm(self.language)
             
-            # 이전 스텝의 결과를 구조화된 컨텍스트에 추가
+            # Add previous step results to structured context
             if step['parameters'].get('context_from_previous') and agent_outputs:
                 prev_output = agent_outputs[-1]
                 if prev_output.structured_data:
-                    structured_context += f"\n\n## 이전 단계 결과\n{json.dumps(prev_output.structured_data, ensure_ascii=False, indent=2)}"
+                    if self.language == "ko":
+                        structured_context += f"\n\n## 이전 단계 결과\n{json.dumps(prev_output.structured_data, ensure_ascii=False, indent=2)}"
+                    elif self.language == "en":
+                        structured_context += f"\n\n## Previous Step Results\n{json.dumps(prev_output.structured_data, ensure_ascii=False, indent=2)}"
+                    elif self.language == "jp":
+                        structured_context += f"\n\n## 前のステップの結果\n{json.dumps(prev_output.structured_data, ensure_ascii=False, indent=2)}"
             
-            # 에이전트 실행
+            # Execute agent
             try:
-                # OrderAgent인 경우 order_info 전달
+                # Pass order_info for OrderAgent
                 if agent_name == 'order_agent' and hasattr(agent, 'handle_with_structured_context'):
                     raw_result = agent.handle_with_structured_context(user_input, structured_context, order_info)
                 elif hasattr(agent, 'handle_with_structured_context'):
                     raw_result = agent.handle_with_structured_context(user_input, structured_context)
                 else:
-                    # 레거시 방식으로 폴백
+                    # Fallback to legacy method
                     raw_result = self._call_agent_legacy(agent, agent_name, user_input, order_info)
                 
-                # 에이전트 출력을 구조화
+                # Structure agent output
                 agent_output = self._create_agent_output(agent_name, step['step_id'], raw_result)
                 agent_outputs.append(agent_output)
                 
             except Exception as e:
-                print(f"[ERROR] Step {step['step_id']} 실행 중 오류: {e}")
+                print(f"[ERROR] Error during step {step['step_id']} execution: {e}")
+                error_msg = f"Error occurred: {str(e)}" if self.language == "en" else f"エラーが発生しました: {str(e)}" if self.language == "jp" else f"오류 발생: {str(e)}"
                 error_output = AgentOutput(
                     agent_name=agent_name,
                     step_id=step['step_id'],
-                    raw_output=f"오류 발생: {str(e)}",
+                    raw_output=error_msg,
                     structured_data={"error": str(e), "agent_type": agent_name}
                 )
                 agent_outputs.append(error_output)

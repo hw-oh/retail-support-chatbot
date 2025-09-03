@@ -15,7 +15,11 @@ class IntentAgent:
     
     def __init__(self, llm_client: LLMClient, language: str = None):
         self.llm = llm_client
+        from prompts.weave_prompts import WeavePromptManager
         self.language = language or config.LANGUAGE
+        # Create dedicated prompt manager for this agent
+        self.prompt_manager = WeavePromptManager()
+        self.prompt_manager.set_language(self.language)
     
     @weave.op()
     def classify(self, user_input: str, context: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -34,9 +38,7 @@ class IntentAgent:
                     history_text += f"ユーザー: {turn.get('user', '')}\nボット: {turn.get('bot', '')}\n"
         
         # Get prompt from Weave
-        # Set language for prompt manager
-        prompt_manager.set_language(self.language)
-        system_prompt = prompt_manager.get_intent_prompt(
+        system_prompt = self.prompt_manager.get_intent_prompt(
             current_date=config.CURRENT_DATE
         )
         
