@@ -11,28 +11,38 @@ from config import config
 
 
 class IntentAgent:
-    """의도 분석 에이전트"""
+    """Intent analysis agent"""
     
-    def __init__(self, llm_client: LLMClient):
+    def __init__(self, llm_client: LLMClient, language: str = None):
         self.llm = llm_client
+        self.language = language or config.LANGUAGE
     
     @weave.op()
     def classify(self, user_input: str, context: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """사용자 입력의 의도 분류"""
+        """Classify user input intent"""
         
-        # 대화 히스토리 준비
+        # Prepare conversation history
         history_text = ""
         if context:
-            recent_turns = context[-3:]  # 최근 3턴만
+            recent_turns = context[-3:]  # Only recent 3 turns
             for turn in recent_turns:
-                history_text += f"사용자: {turn.get('user', '')}\n봇: {turn.get('bot', '')}\n"
+                if self.language == "ko":
+                    history_text += f"사용자: {turn.get('user', '')}\n봇: {turn.get('bot', '')}\n"
+                elif self.language == "en":
+                    history_text += f"User: {turn.get('user', '')}\nBot: {turn.get('bot', '')}\n"
+                elif self.language == "jp":
+                    history_text += f"ユーザー: {turn.get('user', '')}\nボット: {turn.get('bot', '')}\n"
         
-        # Weave에서 프롬프트 가져오기
+        # Get prompt from Weave
+        # Set language for prompt manager
+        prompt_manager.set_language(self.language)
         system_prompt = prompt_manager.get_intent_prompt(
             current_date=config.CURRENT_DATE
         )
         
-        user_prompt = f"""
+        # Create localized user prompt
+        if self.language == "ko":
+            user_prompt = f"""
 **현재 사용자 입력:** "{user_input}"
 
 **대화 히스토리:**
@@ -55,6 +65,54 @@ class IntentAgent:
         "selection_type": "선택유형_또는_null"
     }}
 }}"""
+        elif self.language == "en":
+            user_prompt = f"""
+**Current user input:** "{user_input}"
+
+**Conversation history:**
+{history_text if history_text.strip() else "(First conversation)"}
+
+## Task
+Analyze the above user input to classify intent and extract entities.
+
+**Output format (JSON only):**
+{{
+    "intent": "classified_intent",
+    "confidence": 0.95,
+    "entities": {{
+        "order_id": "ORD_number_or_null",
+        "product_name": "product_name_or_null", 
+        "time_reference": "time_expression_or_null",
+        "quantity": number_or_null,
+        "refund_reason": "reason_or_null",
+        "refund_reference": true_or_false,
+        "selection_type": "selection_type_or_null"
+    }}
+}}"""
+        elif self.language == "jp":
+            user_prompt = f"""
+**現在のユーザー入力:** "{user_input}"
+
+**会話履歴:**
+{history_text if history_text.strip() else "(初回会話)"}
+
+## タスク
+上記のユーザー入力を分析して意図を分類し、エンティティを抽出してください。
+
+**出力形式 (JSONのみ):**
+{{
+    "intent": "分類された意図",
+    "confidence": 0.95,
+    "entities": {{
+        "order_id": "ORD番号_またはnull",
+        "product_name": "商品名_またはnull", 
+        "time_reference": "時間表現_またはnull",
+        "quantity": 数字_またはnull,
+        "refund_reason": "理由_またはnull",
+        "refund_reference": true_またはfalse,
+        "selection_type": "選択タイプ_またはnull"
+    }}
+}}"""
 
         messages = [
             {"role": "system", "content": system_prompt},
@@ -73,9 +131,9 @@ class IntentAgent:
             result = json.loads(response)
             return result
         except Exception as e:
-            print(f"[DEBUG] JSON 파싱 실패: {e}")
-            print(f"[DEBUG] 원본 응답: {repr(response)}")
-            # JSON 파싱 실패시 기본값
+            print(f"[DEBUG] JSON parsing failed: {e}")
+            print(f"[DEBUG] Original response: {repr(response)}")
+            # Default values when JSON parsing fails
             return {
                 "intent": "general_chat",
                 "confidence": 0.5,

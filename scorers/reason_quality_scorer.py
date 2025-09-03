@@ -5,22 +5,25 @@ from openai import OpenAI
 from config import config
 
 class ReasonQualityScorer(weave.Model):
-    """LLM 기반 이유 설명 품질 평가 스코어러"""
+    """LLM-based reason explanation quality evaluation scorer with multi-language support"""
     
     model_name: str = config.REASON_QUALITY_MODEL
+    language: str = "ko"  # Default language
     
     @weave.op()
-    def score(self, target: Dict, model_output: Dict) -> Dict[str, Any]:
+    def score(self, target: Dict, model_output: Dict, language: str = "ko") -> Dict[str, Any]:
         """
-        LLM을 사용한 이유 설명 품질 평가
+        LLM-based reason explanation quality evaluation
         
         Args:
-            target: 기대 결과
-            model_output: 모델 출력
+            target: Expected result
+            model_output: Model output
+            language: Language for evaluation (ko, en, jp)
         
         Returns:
-            평가 결과 딕셔너리 (정확도와 이유 포함)
+            Evaluation result dictionary (accuracy and reason included)
         """
+        self.language = language
         response = model_output.get("response", "")
         expected_result = target
         
@@ -63,10 +66,11 @@ class ReasonQualityScorer(weave.Model):
                 "reason": f"LLM 평가 중 오류 발생: {str(e)}"
             }
     
-    def _create_evaluation_prompt(self, response: str, expected_result: Dict) -> str:
-        """이유 설명 품질 평가를 위한 프롬프트 생성"""
+    def _create_evaluation_prompt(self, response: str, expected_result: Dict, language: str = "ko") -> str:
+        """Generate prompt for reason explanation quality evaluation"""
         
-        prompt = f"""
+        prompts = {
+            "ko": f"""
 다음 환불 챗봇 응답의 추론 품질과 설명 품질을 평가해주세요.
 
 **평가 기준:**
@@ -97,5 +101,85 @@ class ReasonQualityScorer(weave.Model):
     "score": 0.75,
     "reason": "환불 불가 사유를 7일 초과라는 구체적 근거와 함께 명확히 설명했으나, 수수료나 배송비 관련 추가 안내가 부족함. 전반적으로 논리적이고 이해하기 쉬운 설명임."
 }}
+""",
+            "en": f"""
+Please evaluate the reasoning quality and explanation quality of the following refund chatbot response.
+
+**Evaluation Criteria:**
+1. **Logical Reasoning**: Is the logic for refund possible/impossible judgment clear and valid?
+2. **Specific Explanation**: Did it specifically explain why it reached that decision?
+3. **Relevant Information Included**: Did it appropriately mention relevant information such as refund period, product type, order status, etc.?
+4. **Customer-Friendly**: Did it explain in a way that customers can easily understand?
+5. **Accuracy**: Are the reasons and information provided accurate?
+6. **Completeness**: Is the explanation sufficient and are there no missing important information?
+
+**Chatbot Response:**
+{response}
+
+**Expected Result Information:**
+{json.dumps(expected_result, ensure_ascii=False, indent=2)}
+
+**Evaluation Request:**
+Evaluate the reasoning quality and explanation quality of the above response on a scale of 0.0 to 1.0, and provide specific reasons.
+
+**Evaluation Points:**
+- Is the logical flow natural?
+- Can customers clearly understand the decision reasons?
+- Are necessary information appropriately included?
+- Is the explanation specific and helpful?
+
+**Response Format (JSON):**
+{{
+    "score": 0.75,
+    "reason": "Clearly explained the reason for refund rejection with specific basis of exceeding 7 days, but lacks additional guidance on fees or shipping costs. Overall, it's a logical and easy-to-understand explanation."
+}}
+""",
+            "jp": f"""
+以下の返品チャットボットの応答の推論品質と説明品質を評価してください。
+
+**評価基準:**
+1. **論理的推論**: 返品可能・不可能の判断の論理が明確で妥当か？
+2. **具体的説明**: なぜその決定に達したのか具体的に説明したか？
+3. **関連情報の含有**: 返品期間、商品タイプ、注文状態などの関連情報を適切に言及したか？
+4. **顧客フレンドリー**: 顧客が理解しやすいように説明したか？
+5. **正確性**: 提示した理由と情報が正確か？
+6. **完成度**: 説明が十分で重要な情報の漏れがないか？
+
+**チャットボットの応答:**
+{response}
+
+**期待結果情報:**
+{json.dumps(expected_result, ensure_ascii=False, indent=2)}
+
+**評価リクエスト:**
+上記の応答の推論品質と説明品質を0.0から1.0のスコアで評価し、具体的な理由を提示してください。
+
+**評価ポイント:**
+- 論理的な流れが自然か？
+- 顧客が決定理由を明確に理解できるか？
+- 必要な情報が適切に含まれているか？
+- 説明が具体的で役に立つか？
+
+**応答形式 (JSON):**
+{{
+    "score": 0.75,
+    "reason": "返品不可理由を7日超過という具体的根拠とともに明確に説明しましたが、手数料や送料関連の追加案内が不足しています。全体的に論理的で理解しやすい説明です。"
+}}
 """
+        }
+        
+        prompt = prompts.get(language, prompts["ko"])
         return prompt
+    
+    # Convenience methods for different languages
+    def score_ko(self, target: Dict, model_output: Dict) -> Dict[str, Any]:
+        """Korean evaluation"""
+        return self.score(target, model_output, "ko")
+    
+    def score_en(self, target: Dict, model_output: Dict) -> Dict[str, Any]:
+        """English evaluation"""
+        return self.score(target, model_output, "en")
+    
+    def score_jp(self, target: Dict, model_output: Dict) -> Dict[str, Any]:
+        """Japanese evaluation"""
+        return self.score(target, model_output, "jp")

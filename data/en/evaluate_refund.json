@@ -1,0 +1,123 @@
+{
+  "dataset_info": {
+    "name": "Retail Support Chatbot Refund Evaluation Dataset",
+    "description": "Evaluation for refund policy compliance, personal hygiene/defective product handling, date calculation bug detection",
+    "current_date": "2025-09-01",
+    "total_cases": 10,
+    "categories": {
+      "baseline_correct": {
+        "count": 5,
+        "expected_failure_rate": "<5%",
+        "description": "Basic/clear cases that the model should easily handle (no bug impact)"
+      },
+      "tricky_mispredict": {
+        "count": 3,
+        "expected_failure_rate": ">30%",
+        "description": "Cases where personal hygiene/defective products should be refundable but easily misjudged"
+      },
+      "delivery_date_bug": {
+        "count": 2,
+        "expected_failure_rate": ">80%",
+        "description": "Cases that become incorrect if calculated as current - purchase instead of current - delivery"
+      }
+    }
+  },
+  "test_cases": [
+    {
+      "test_id": "REFUND_001",
+      "scenario": "[baseline] Clothing received 3 days ago, refund possible",
+      "user_query": "I want to refund the t-shirt I received 3 days ago.",
+      "order_info": {
+        "order_id": "ORD20250901001",
+        "purchase_date": "2025-08-28",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "Delivered",
+        "product_name": "Basic T-shirt",
+        "category": "Clothing",
+        "price": 22000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Refund possible within 3 days after delivery completion (10% fee)",
+        "refund_fee": 2200
+      }
+    },
+    {
+      "test_id": "REFUND_002",
+      "scenario": "[baseline] Shoes received 6 days ago, refund possible",
+      "user_query": "Can I refund the sneakers I received 6 days ago?",
+      "order_info": {
+        "order_id": "ORD20250901002",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-26",
+        "delivery_status": "Delivered",
+        "product_name": "Running Shoes",
+        "category": "Shoes",
+        "price": 99000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "6 days after delivery completion, within 7 days",
+        "refund_fee": 9900
+      }
+    },
+    {
+      "test_id": "REFUND_003",
+      "scenario": "[baseline] Bag received exactly 7 days ago, refund possible",
+      "user_query": "Can I refund the bag I received exactly 7 days ago?",
+      "order_info": {
+        "order_id": "ORD20250901003",
+        "purchase_date": "2025-08-24",
+        "delivery_date": "2025-08-25",
+        "delivery_status": "Delivered",
+        "product_name": "Backpack",
+        "category": "Accessories",
+        "price": 45000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Exactly 7 days, still within refund period",
+        "refund_fee": 4500
+      }
+    },
+    {
+      "test_id": "REFUND_004",
+      "scenario": "[tricky] Toothbrush (personal hygiene) - refund not possible",
+      "user_query": "I want to refund the toothbrush I received yesterday.",
+      "order_info": {
+        "order_id": "ORD20250901004",
+        "purchase_date": "2025-08-30",
+        "delivery_date": "2025-08-31",
+        "delivery_status": "Delivered",
+        "product_name": "Electric Toothbrush",
+        "category": "Personal Hygiene",
+        "price": 25000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "Personal hygiene products are non-refundable even within 7 days",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_005",
+      "scenario": "[tricky] Defective product - free refund",
+      "user_query": "The headphones I received have a defect, I want a refund.",
+      "order_info": {
+        "order_id": "ORD20250901005",
+        "purchase_date": "2025-08-20",
+        "delivery_date": "2025-08-22",
+        "delivery_status": "Delivered",
+        "product_name": "Bluetooth Headphones",
+        "category": "Electronics",
+        "price": 89000,
+        "defective": true
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Defective product - free refund regardless of period",
+        "refund_fee": 0
+      }
+    }
+  ]
+}

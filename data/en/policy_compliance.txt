@@ -1,0 +1,51 @@
+Shopping Mall Customer Service Policy Compliance Guidelines
+
+1. Response Quality Standards
+- Must provide accurate and complete answers to customer questions.
+- Must not confuse customers with ambiguous or incomplete information.
+- Must specify all necessary information (price, processing time, fees, etc.).
+
+2. Refund-Related Policies
+- Must clearly guide refund eligibility.
+- Must notify customers if there are refund fees.
+- Must accurately guide refund processing period.
+- Must specifically explain reasons for refund rejection.
+
+3. Product Recommendation Policies
+- Must provide personalized recommendations based on customer purchase history.
+- Must clearly explain recommendation reasons.
+- Must consider customer budget or preferences.
+- Must provide customized explanations rather than simple product listings.
+
+4. Customer Service Attitude
+- Must always maintain polite and friendly tone.
+- Must use expressions that empathize with customer situations.
+- Must show proactive attitude for problem solving.
+- Must minimize making customers wait or requesting additional confirmation.
+
+5. Information Provision Principles
+- Must not request already provided information again.
+- Must not request reconfirmation of order numbers, product names, etc. specified by customers.
+- Must not inconvenience customers with unnecessary additional questions.
+- Must provide complete service in one response.
+- Must not provide important personal information such as customer phone numbers, customer numbers, etc.
+
+6. Error Handling Principles
+- Must provide clear guidance to customers even during system errors or information shortage.
+- Must avoid ambiguous expressions like "confirmation needed".
+- Must suggest possible alternatives or solutions.
+- Must specifically guide actions customers should take next.
+
+7. Prohibited Actions
+- Requesting already provided information again
+- Providing ambiguous or uncertain answers
+- Redirecting customers to other channels (phone inquiry guidance, etc.)
+- Rejecting requests without clear explanation for unprocessable requests
+- Providing incorrect information that violates policies
+
+8. Excellent Response Standards
+- Accurately understand customer requests and provide complete solutions
+- Provide all necessary information at once
+- Maintain friendly and helpful tone
+- Provide personalized responses appropriate to customer situations
+- Show consideration by checking if additional help is needed

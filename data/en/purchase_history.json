@@ -1,0 +1,92 @@
+[
+  {
+    "order_id": "ORD20250819000",
+    "product_name": "Toothbrush",
+    "price": 5000,
+    "category": "Personal Hygiene",
+    "purchase_date": "2025-09-01",
+    "delivery_date": null,
+    "delivery_status": "Order Received"
+  },
+  {
+    "order_id": "ORD20250819001",
+    "product_name": "Microsoft Mouse",
+    "price": 45000,
+    "category": "Electronics",
+    "purchase_date": "2025-09-01",
+    "delivery_date": null,
+    "delivery_status": "Order Received"
+  },
+  {
+    "order_id": "ORD20250817002",
+    "product_name": "North Face Windbreaker",
+    "price": 120000,
+    "category": "Clothing",
+    "purchase_date": "2025-08-27",
+    "delivery_date": "2025-08-30",
+    "delivery_status": "Delivered"
+  },
+  {
+    "order_id": "ORD20250814003",
+    "product_name": "Allbirds Wool Runner",
+    "price": 98000,
+    "category": "Shoes",
+    "purchase_date": "2025-08-30",
+    "delivery_date": "2025-09-01",
+    "delivery_status": "Delivered"
+  },
+  {
+    "order_id": "ORD20250812004",
+    "product_name": "Kiehl's Cream",
+    "price": 48000,
+    "category": "Cosmetics",
+    "purchase_date": "2025-08-29",
+    "delivery_date": null,
+    "delivery_status": "Order Received"
+  },
+  {
+    "order_id": "ORD20250809005",
+    "product_name": "Sennheiser Earphones",
+    "price": 89000,
+    "category": "Electronics",
+    "purchase_date": "2025-08-28",
+    "delivery_date": "2025-08-31",
+    "delivery_status": "Delivered"
+  },
+  {
+    "order_id": "ORD20250807006",
+    "product_name": "Uniqlo T-shirt",
+    "price": 15000,
+    "category": "Clothing",
+    "purchase_date": "2025-08-25",
+    "delivery_date": "2025-08-28",
+    "delivery_status": "Delivered"
+  },
+  {
+    "order_id": "ORD20250805007",
+    "product_name": "Nike Running Shoes",
+    "price": 129000,
+    "category": "Shoes",
+    "purchase_date": "2025-08-20",
+    "delivery_date": "2025-08-23",
+    "delivery_status": "Delivered"
+  },
+  {
+    "order_id": "ORD20250803008",
+    "product_name": "Samsung Galaxy Case",
+    "price": 25000,
+    "category": "Electronics",
+    "purchase_date": "2025-08-15",
+    "delivery_date": "2025-08-18",
+    "delivery_status": "Delivered"
+  },
+  {
+    "order_id": "ORD20250801009",
+    "product_name": "Laneige Sleeping Mask",
+    "price": 32000,
+    "category": "Cosmetics",
+    "purchase_date": "2025-08-10",
+    "delivery_date": "2025-08-13",
+    "delivery_status": "Delivered"
+  }
+]

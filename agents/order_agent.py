@@ -13,12 +13,19 @@ from config import config
 class OrderAgent:
     """주문 조회 에이전트"""
     
-    def __init__(self, llm_client: LLMClient):
+    def __init__(self, llm_client: LLMClient, language: str = None):
         self.llm = llm_client
+        self.language = language or config.LANGUAGE
         
-        # 데이터 로드
-        with open('data/purchase_history.json', 'r', encoding='utf-8') as f:
-            self.purchase_data = json.load(f)
+        # Load data
+        data_path = config.get_data_path('purchase_history.json', self.language)
+        try:
+            with open(data_path, 'r', encoding='utf-8') as f:
+                self.purchase_data = json.load(f)
+        except FileNotFoundError:
+            # Fallback to Korean data if localized version doesn't exist
+            with open('data/purchase_history.json', 'r', encoding='utf-8') as f:
+                self.purchase_data = json.load(f)
     
     @weave.op()
     def handle(self, user_input: str, context: List[Dict[str, Any]]) -> str:
@@ -36,9 +43,13 @@ class OrderAgent:
                 context_text += f"사용자: {turn.get('user', '')}\n"
                 context_text += f"봇: {turn.get('bot', '')}\n\n"
         
-        # Weave에서 프롬프트 가져오기
+        # Get prompt from Weave
+        prompt_manager.set_language(self.language)
         system_prompt = prompt_manager.get_order_agent_prompt()
-        user_prompt = f"""
+        
+        # Create localized user prompt
+        if self.language == "ko":
+            user_prompt = f"""
 **현재 사용자 입력:** "{user_input}"
 
 ## 대화 맥락
@@ -52,6 +63,36 @@ class OrderAgent:
 - 이전 대화에서 언급된 조건이나 필터가 있다면 적용
 - 사용자가 참조하는 이전 정보가 있다면 연결하여 설명
 - 환불 등 액션이 필요한 정보는 설명하지 말고 주문 정보만 제공"""
+        elif self.language == "en":
+            user_prompt = f"""
+**Current user input:** "{user_input}"
+
+## Conversation Context
+{context_text if context_text.strip() else "(First conversation)"}
+
+## Order Data
+{json.dumps(orders, ensure_ascii=False, indent=2)}
+
+## Task Instructions
+Please find and kindly guide order information that matches the user request considering the above conversation context.
+- Apply conditions or filters mentioned in previous conversations if any
+- Connect and explain if there's previous information the user is referencing
+- Only provide order information without explaining actions like refunds"""
+        elif self.language == "jp":
+            user_prompt = f"""
+**現在のユーザー入力:** "{user_input}"
+
+## 会話コンテキスト
+{context_text if context_text.strip() else "(初回会話)"}
+
+## 注文データ
+{json.dumps(orders, ensure_ascii=False, indent=2)}
+
+## 作業指示
+上記の会話コンテキストを考慮してユーザーリクエストに合った注文情報を見つけて親切にご案内してください。
+- 以前の会話で言及された条件やフィルターがあれば適用
+- ユーザーが参照している以前の情報があれば連結して説明
+- 返品などのアクションが必要な情報は説明せず注文情報のみ提供"""
 
         messages = [
             {"role": "system", "content": system_prompt},

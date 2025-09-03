@@ -12,8 +12,10 @@ from prompts.weave_prompts import prompt_manager
 class RefundAgent:
     """환불 처리 에이전트"""
     
-    def __init__(self, llm_client: LLMClient):
+    def __init__(self, llm_client: LLMClient, language: str = None):
         self.llm = llm_client
+        from config import config
+        self.language = language or config.LANGUAGE
     
     @weave.op()
     def handle(self, user_input: str, context: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -27,9 +29,13 @@ class RefundAgent:
                 context_text += f"사용자: {turn.get('user', '')}\n"
                 context_text += f"봇: {turn.get('bot', '')}\n\n"
         
-        # Weave에서 프롬프트 가져오기 (환불 정책은 이미 포함됨)
+        # Get prompt from Weave (refund policy is already included)
+        prompt_manager.set_language(self.language)
         system_prompt = prompt_manager.get_refund_agent_prompt()
-        user_prompt = f"""
+        
+        # Create localized user prompt
+        if self.language == "ko":
+            user_prompt = f"""
 **현재 사용자 입력:** "{user_input}"
 
 ## 대화 맥락
@@ -49,6 +55,48 @@ class RefundAgent:
 }}
 
 정확한 JSON 형식으로 응답해주세요."""
+        elif self.language == "en":
+            user_prompt = f"""
+**Current user input:** "{user_input}"
+
+## Conversation Context
+{context_text if context_text.strip() else "(First conversation)"}
+
+## Task Instructions
+Please process the user's refund request considering the above conversation context.
+Please provide a response in the following JSON format:
+
+{{
+    "refund_possible": true/false,
+    "refund_fee": number (refund fee, 0 if none),
+    "total_refund_amount": number (actual refund amount),
+    "reason": "detailed reason for refund possibility/impossibility",
+    "user_response": "friendly response to show to user",
+    "policy_applied": ["list of applied policies"]
+}}
+
+Please respond in accurate JSON format."""
+        elif self.language == "jp":
+            user_prompt = f"""
+**現在のユーザー入力:** "{user_input}"
+
+## 会話コンテキスト
+{context_text if context_text.strip() else "(初回会話)"}
+
+## 作業指示
+上記の会話コンテキストを考慮してユーザーの返品リクエストを処理してください。
+以下の形式のJSONで応答を提供してください:
+
+{{
+    "refund_possible": true/false,
+    "refund_fee": 数字 (返品手数料、なければ0),
+    "total_refund_amount": 数字 (実際の返品金額),
+    "reason": "返品可能/不可能な詳細理由",
+    "user_response": "ユーザーに表示する親切な応答",
+    "policy_applied": ["適用されたポリシーリスト"]
+}}
+
+正確なJSON形式で応答してください。"""
 
         messages = [
             {"role": "system", "content": system_prompt},

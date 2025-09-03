@@ -10,23 +10,25 @@ from prompts.weave_prompts import prompt_manager
 
 
 class PlanningAgent:
-    """작업 계획 수립 에이전트"""
+    """Task planning agent"""
     
-    def __init__(self, llm_client: LLMClient):
+    def __init__(self, llm_client: LLMClient, language: str = None):
         self.llm = llm_client
+        from config import config
+        self.language = language or config.LANGUAGE
     
     @weave.op()
     def create_plan(self, user_input: str, intent_result: Dict[str, Any], context: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        사용자 의도에 따른 작업 계획 수립
+        Create task plan based on user intent
         
         Args:
-            user_input: 사용자 입력
-            intent_result: Intent Agent 결과
-            context: 대화 맥락
+            user_input: User input
+            intent_result: Intent Agent result
+            context: Conversation context
             
         Returns:
-            계획 정보 (실행할 에이전트들의 순서와 파라미터)
+            Plan information (order and parameters of agents to execute)
         """
         
         # 대화 컨텍스트 준비

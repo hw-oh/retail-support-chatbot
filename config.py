@@ -34,9 +34,10 @@ class Config:
     # System Settings
     CURRENT_DATE: str = "2025-09-01"
     LANGUAGE: str = os.getenv("LANGUAGE", "ko")  # Default to Korean (ko, en, jp)
+    SUPPORTED_LANGUAGES: list = ["ko", "en", "jp"]  # Korean, English, Japanese
     
     # Prompt Settings
-    USE_LOCAL_PROMPTS: bool = os.getenv("USE_LOCAL_PROMPTS", "1") == "1"  # 개발 시 로컬 프롬프트 사용
+    USE_LOCAL_PROMPTS: bool = os.getenv("USE_LOCAL_PROMPTS", "1") == "1"  # Use local prompts for development
     
     # Retry Settings
     MAX_RETRIES: int = 3
@@ -48,6 +49,24 @@ class Config:
         if not cls.OPENAI_API_KEY:
             print("⚠️  Warning: OPENAI_API_KEY not set. Using mock mode.")
             return False
+        return True
+    
+    @classmethod
+    def get_data_path(cls, filename: str, language: str = None) -> str:
+        """Get localized data file path"""
+        if language is None:
+            language = cls.LANGUAGE
+        
+        # All languages now have their own subdirectory
+        return f"data/{language}/{filename}"
+    
+    @classmethod
+    def set_language(cls, language: str) -> bool:
+        """Set the current language"""
+        if language not in cls.SUPPORTED_LANGUAGES:
+            print(f"⚠️  Warning: Unsupported language '{language}'. Using default 'ko'.")
+            return False
+        cls.LANGUAGE = language
         return True
 
 
