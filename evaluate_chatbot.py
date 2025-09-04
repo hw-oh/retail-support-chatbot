@@ -141,19 +141,19 @@ async def main(language: str = "ko"):
         print("📋 평가 항목:")
         print("   1. 정책 준수 (Policy Compliance) - LLM 기반 평가 (점수 + 이유)")
         print("   2. 추론 성능 (Reasoning Performance) - LLM 기반 평가 (점수 + 이유)")
-        print("   3. 환불 정확도 (Refund Accuracy) - LLM 기반 평가 (전체/환불/수수료 정확도 + 이유)")
+        print("   3. 환불 정확도 (Refund Accuracy) - LLM 기반 평가 (점수 + 이유)")
     elif language == "en":
         print("🚀 Starting refund chatbot evaluation...")
         print("📋 Evaluation items:")
         print("   1. Policy Compliance - LLM-based evaluation (score + reason)")
         print("   2. Reasoning Performance - LLM-based evaluation (score + reason)")
-        print("   3. Refund Accuracy - LLM-based evaluation (overall/refund/fee accuracy + reason)")
+        print("   3. Refund Accuracy - LLM-based evaluation (score + reason)")
     elif language == "jp":
         print("🚀 返品チャットボット評価を開始...")
         print("📋 評価項目:")
         print("   1. ポリシー遵守 (Policy Compliance) - LLMベース評価 (スコア + 理由)")
         print("   2. 推論性能 (Reasoning Performance) - LLMベース評価 (スコア + 理由)")
-        print("   3. 返品精度 (Refund Accuracy) - LLMベース評価 (全体/返品/手数料精度 + 理由)")
+        print("   3. 返品精度 (Refund Accuracy) - LLMベース評価 (スコア + 理由)")
     
     # Execute evaluation
     results = await evaluation.evaluate(model)
