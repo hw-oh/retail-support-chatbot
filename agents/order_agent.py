@@ -290,8 +290,8 @@ IMPORTANT: Your response must be in English only. Do not use Korean or any other
     def _cal_days_since_delivery(self, order: Dict[str, Any]) -> Dict[str, Any]:
         enriched_order = order.copy()
         
-        if order.get("delivery_date"):
-            enriched_order["days_since_delivery"] = (datetime.strptime(config.CURRENT_DATE, "%Y-%m-%d") - datetime.strptime(order["delivery_date"], "%Y-%m-%d")).days
+        if order.get("purchase_date"):
+            enriched_order["days_since_delivery"] = (datetime.strptime(config.CURRENT_DATE, "%Y-%m-%d") - datetime.strptime(order["purchase_date"], "%Y-%m-%d")).days
         else:
             enriched_order["days_since_delivery"] = None
         
