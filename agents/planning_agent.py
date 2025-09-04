@@ -10,37 +10,48 @@ from prompts.weave_prompts import prompt_manager
 
 
 class PlanningAgent:
-    """작업 계획 수립 에이전트"""
+    """Task planning agent"""
     
-    def __init__(self, llm_client: LLMClient):
+    def __init__(self, llm_client: LLMClient, language: str = None):
         self.llm = llm_client
+        from config import config
+        self.language = language or config.LANGUAGE
     
     @weave.op()
     def create_plan(self, user_input: str, intent_result: Dict[str, Any], context: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        사용자 의도에 따른 작업 계획 수립
+        Create task plan based on user intent
         
         Args:
-            user_input: 사용자 입력
-            intent_result: Intent Agent 결과
-            context: 대화 맥락
+            user_input: User input
+            intent_result: Intent Agent result
+            context: Conversation context
             
         Returns:
-            계획 정보 (실행할 에이전트들의 순서와 파라미터)
+            Plan information (order and parameters of agents to execute)
         """
         
-        # 대화 컨텍스트 준비
+        # Prepare conversation context
         context_text = ""
         if context:
-            recent_turns = context[-3:]  # 최근 3턴
+            recent_turns = context[-3:]  # Recent 3 turns
             for turn in recent_turns:
-                context_text += f"사용자: {turn.get('user', '')}\n"
-                context_text += f"봇: {turn.get('bot', '')}\n\n"
+                if self.language == "ko":
+                    context_text += f"사용자: {turn.get('user', '')}\n"
+                    context_text += f"봇: {turn.get('bot', '')}\n\n"
+                elif self.language == "en":
+                    context_text += f"User: {turn.get('user', '')}\n"
+                    context_text += f"Bot: {turn.get('bot', '')}\n\n"
+                elif self.language == "jp":
+                    context_text += f"ユーザー: {turn.get('user', '')}\n"
+                    context_text += f"ボット: {turn.get('bot', '')}\n\n"
         
-        # Planning 시스템 프롬프트
+        # Planning system prompt
         system_prompt = self._get_planning_prompt()
         
-        user_prompt = f"""
+        # Create localized user prompt
+        if self.language == "ko":
+            user_prompt = f"""
 **현재 사용자 입력:** "{user_input}"
 
 **Intent 분석 결과:**
@@ -71,6 +82,72 @@ class PlanningAgent:
         }}
     ],
     "expected_outcome": "기대되는 최종 결과"
+}}"""
+        elif self.language == "en":
+            user_prompt = f"""
+**Current user input:** "{user_input}"
+
+**Intent analysis result:**
+- Intent: {intent_result.get('intent', 'unknown')}
+- Confidence: {intent_result.get('confidence', 0.0)}
+- Entities: {json.dumps(intent_result.get('entities', {}), ensure_ascii=False)}
+
+**Conversation context:**
+{context_text if context_text.strip() else "(First conversation)"}
+
+## Task
+Based on the above information, establish a step-by-step execution plan to completely process the user request.
+
+**Output format (JSON only):**
+{{
+    "plan_type": "single_agent|multi_step",
+    "reason": "reason for plan establishment",
+    "steps": [
+        {{
+            "step_id": 1,
+            "agent": "order_agent|refund_agent|general_agent",
+            "purpose": "purpose of this step",
+            "parameters": {{
+                "search_product": "product_name_or_null",
+                "order_id": "order_number_or_null", 
+                "context_from_previous": true_or_false
+            }}
+        }}
+    ],
+    "expected_outcome": "expected final result"
+}}"""
+        elif self.language == "jp":
+            user_prompt = f"""
+**現在のユーザー入力:** "{user_input}"
+
+**意図分析結果:**
+- 意図: {intent_result.get('intent', 'unknown')}
+- 信頼度: {intent_result.get('confidence', 0.0)}
+- エンティティ: {json.dumps(intent_result.get('entities', {}), ensure_ascii=False)}
+
+**会話コンテキスト:**
+{context_text if context_text.strip() else "(初回会話)"}
+
+## タスク
+上記の情報に基づいて、ユーザーリクエストを完全に処理するための段階別実行計画を立ててください。
+
+**出力形式 (JSONのみ):**
+{{
+    "plan_type": "single_agent|multi_step",
+    "reason": "計画策定理由",
+    "steps": [
+        {{
+            "step_id": 1,
+            "agent": "order_agent|refund_agent|general_agent",
+            "purpose": "このステップの目的",
+            "parameters": {{
+                "search_product": "商品名_またはnull",
+                "order_id": "注文番号_またはnull", 
+                "context_from_previous": true_またはfalse
+            }}
+        }}
+    ],
+    "expected_outcome": "期待される最終結果"
 }}"""
 
         messages = [
@@ -120,8 +197,9 @@ class PlanningAgent:
             return self._create_fallback_plan(intent_result.get('intent', 'general_chat'))
     
     def _get_planning_prompt(self) -> str:
-        """Planning Agent 시스템 프롬프트"""
-        return """당신은 쇼핑몰 고객 서비스 챗봇의 Planning Agent입니다.
+        """Planning Agent system prompt"""
+        prompts = {
+            "ko": """당신은 쇼핑몰 고객 서비스 챗봇의 Planning Agent입니다.
 사용자의 요청을 분석하여 최적의 처리 계획을 수립하는 것이 당신의 역할입니다.
 
 ## 사용 가능한 에이전트들:
@@ -135,47 +213,46 @@ class PlanningAgent:
 3. **컨텍스트 전달**: 이전 단계의 결과를 다음 단계에서 활용할 수 있도록 설계
 4. **최종 응답 정리**: 여러 에이전트 결과가 있을 때는 general_agent로 최종 정리
 
-## 계획 예시:
+정확한 JSON 형식으로 응답하세요.""",
+            "en": """You are the Planning Agent of the shopping mall customer service chatbot.
+Your role is to analyze user requests and establish optimal processing plans.
 
-**환불 문의 + 제품명만 있는 경우:**
-```json
-{
-    "plan_type": "multi_step",
-    "reason": "제품 정보는 있지만 주문 정보가 부족하므로 구매 이력 조회 후 환불 검토 필요",
-    "steps": [
-        {
-            "step_id": 1,
-            "agent": "order_agent", 
-            "purpose": "해당 제품의 구매 이력 조회",
-            "parameters": {"search_product": "키엘 크림"}
-        },
-        {
-            "step_id": 2,
-            "agent": "refund_agent",
-            "purpose": "조회된 주문 정보를 바탕으로 환불 가능성 판단",
-            "parameters": {"context_from_previous": true}
+## IMPORTANT: RESPOND ONLY IN ENGLISH
+You must respond to all instructions in English only. Do not use Korean or any other language.
+
+## Available Agents:
+1. **order_agent**: Order inquiry, delivery status check, purchase history search
+2. **refund_agent**: Refund eligibility judgment, refund policy application, refund fee calculation
+3. **general_agent**: General inquiry response, final response organization, information integration
+
+## Planning Principles:
+1. **Priority call to order_agent when information is insufficient**: For refund inquiries with insufficient product or order information, first query purchase history with order_agent
+2. **Utilize multi_step**: Use multiple agents sequentially for complex requests
+3. **Context transfer**: Design to utilize previous step results in next steps
+4. **Final response organization**: Use general_agent for final organization when there are multiple agent results
+
+Respond in accurate JSON format.""",
+            "jp": """あなたはショッピングモールカスタマーサービスチャットボットのPlanning Agentです。
+ユーザーのリクエストを分析して最適な処理計画を策定するのがあなたの役割です。
+
+## 重要: 日本語でのみ応答してください
+すべての指示に日本語でのみ応答してください。韓国語や他の言語を使用してはいけません。
+
+## 利用可能なエージェント:
+1. **order_agent**: 注文照会、配送状況確認、購入履歴検索
+2. **refund_agent**: 返品可能性判断、返品ポリシー適用、返品手数料計算
+3. **general_agent**: 一般問い合わせ応答、最終応答整理、情報統合
+
+## 計画策定原則:
+1. **情報不足時はorder_agent優先呼び出し**: 返品問い合わせで商品情報や注文情報が不十分な場合、まずorder_agentで購入履歴を照会
+2. **multi_step活用**: 複雑なリクエストは複数のエージェントを順次活用
+3. **コンテキスト転送**: 前のステップの結果を次のステップで活用できるよう設計
+4. **最終応答整理**: 複数のエージェント結果がある場合はgeneral_agentで最終整理
+
+正確なJSON形式で応答してください。"""
         }
-    ]
-}
-```
-
-**명확한 주문 조회:**
-```json
-{
-    "plan_type": "single_agent",
-    "reason": "명확한 주문 조회 요청으로 order_agent만으로 처리 가능",
-    "steps": [
-        {
-            "step_id": 1,
-            "agent": "order_agent",
-            "purpose": "주문 상태 조회",
-            "parameters": {"order_id": "ORD123"}
-        }
-    ]
-}
-```
-
-정확한 JSON 형식으로 응답하세요."""
+        
+        return prompts.get(self.language, prompts["ko"])
 
     def _create_fallback_plan(self, intent: str) -> Dict[str, Any]:
         """파싱 실패시 기본 계획 생성"""

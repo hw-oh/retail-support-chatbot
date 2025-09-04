@@ -1,22 +1,22 @@
 """
-간소화된 멀티턴 쇼핑몰 챗봇
-- Intent 분석 → 적절한 에이전트 라우팅 → 응답 생성
-- While 루프로 멀티턴 대화 지원
-- 지속적인 컨텍스트 관리
+Simplified multi-turn shopping mall chatbot
+- Intent analysis → Appropriate agent routing → Response generation
+- Multi-turn conversation support with while loop
+- Continuous context management
 """
 import weave
 import json
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, asdict
 
-# 에이전트 import
+# Agent imports
 from agents import LLMClient, IntentAgent, PlanningAgent, OrderAgent, RefundAgent, GeneralAgent
 from config import config
 
 
 @dataclass
 class AgentOutput:
-    """에이전트 출력 정보를 구조화"""
+    """Structure agent output information"""
     agent_name: str
     step_id: int
     raw_output: Any
@@ -28,7 +28,7 @@ class AgentOutput:
 
 @dataclass 
 class ConversationTurn:
-    """단일 대화 턴의 완전한 정보"""
+    """Complete information for a single conversation turn"""
     user_input: str
     bot_response: str
     intent: str
@@ -45,7 +45,7 @@ class ConversationTurn:
 
 
 class ContextManager:
-    """대화 컨텍스트 관리자 - 채팅 내용과 구조화된 데이터 분리"""
+    """Conversation context manager - separates chat content and structured data"""
     
     def __init__(self):
         self.conversation_history: List[ConversationTurn] = []
@@ -70,37 +70,80 @@ class ContextManager:
             })
         return legacy_context
     
-    def get_structured_context_for_llm(self) -> str:
-        """LLM 입력용 구조화된 컨텍스트 생성"""
+    def get_structured_context_for_llm(self, language: str = "ko") -> str:
+        """Generate structured context for LLM input"""
         recent_turns = self.get_recent_turns()
         if not recent_turns:
-            return "(첫 대화)"
+            if language == "ko":
+                return "(첫 대화)"
+            elif language == "en":
+                return "(First conversation)"
+            elif language == "jp":
+                return "(初回会話)"
         
         context_parts = []
         for i, turn in enumerate(recent_turns, 1):
-            context_parts.append(f"## 대화 {i}")
-            context_parts.append(f"사용자: {turn.user_input}")
-            context_parts.append(f"봇 응답: {turn.bot_response}")
+            # Localized conversation headers
+            if language == "ko":
+                context_parts.append(f"## 대화 {i}")
+                context_parts.append(f"사용자: {turn.user_input}")
+                context_parts.append(f"봇 응답: {turn.bot_response}")
+                
+                # Intent and entity information
+                if turn.intent != 'general_chat':
+                    context_parts.append(f"분석된 의도: {turn.intent}")
+                    if turn.entities:
+                        context_parts.append(f"추출된 정보: {json.dumps(turn.entities, ensure_ascii=False)}")
+                
+                # Agent-specific structured data
+                if turn.agent_outputs:
+                    for output in turn.agent_outputs:
+                        if output.structured_data:
+                            context_parts.append(f"## {output.agent_name} 결과")
+                            context_parts.append(json.dumps(output.structured_data, ensure_ascii=False, indent=2))
             
-            # 의도 및 엔티티 정보
-            if turn.intent != 'general_chat':
-                context_parts.append(f"분석된 의도: {turn.intent}")
-                if turn.entities:
-                    context_parts.append(f"추출된 정보: {json.dumps(turn.entities, ensure_ascii=False)}")
+            elif language == "en":
+                context_parts.append(f"## Conversation {i}")
+                context_parts.append(f"User: {turn.user_input}")
+                context_parts.append(f"Bot response: {turn.bot_response}")
+                
+                # Intent and entity information
+                if turn.intent != 'general_chat':
+                    context_parts.append(f"Analyzed intent: {turn.intent}")
+                    if turn.entities:
+                        context_parts.append(f"Extracted information: {json.dumps(turn.entities, ensure_ascii=False)}")
+                
+                # Agent-specific structured data
+                if turn.agent_outputs:
+                    for output in turn.agent_outputs:
+                        if output.structured_data:
+                            context_parts.append(f"## {output.agent_name} results")
+                            context_parts.append(json.dumps(output.structured_data, ensure_ascii=False, indent=2))
             
-            # 에이전트별 구조화된 데이터
-            if turn.agent_outputs:
-                for output in turn.agent_outputs:
-                    if output.structured_data:
-                        context_parts.append(f"## {output.agent_name} 결과")
-                        context_parts.append(json.dumps(output.structured_data, ensure_ascii=False, indent=2))
+            elif language == "jp":
+                context_parts.append(f"## 会話 {i}")
+                context_parts.append(f"ユーザー: {turn.user_input}")
+                context_parts.append(f"ボット応答: {turn.bot_response}")
+                
+                # Intent and entity information
+                if turn.intent != 'general_chat':
+                    context_parts.append(f"分析された意図: {turn.intent}")
+                    if turn.entities:
+                        context_parts.append(f"抽出された情報: {json.dumps(turn.entities, ensure_ascii=False)}")
+                
+                # Agent-specific structured data
+                if turn.agent_outputs:
+                    for output in turn.agent_outputs:
+                        if output.structured_data:
+                            context_parts.append(f"## {output.agent_name} 結果")
+                            context_parts.append(json.dumps(output.structured_data, ensure_ascii=False, indent=2))
             
-            context_parts.append("")  # 빈 줄로 구분
+            context_parts.append("")  # Empty line separator
         
         return "\n".join(context_parts)
     
     def get_latest_agent_output(self, agent_name: str) -> Optional[AgentOutput]:
-        """특정 에이전트의 최신 출력 반환"""
+        """Return the latest output from a specific agent"""
         for turn in reversed(self.conversation_history):
             for output in turn.agent_outputs:
                 if output.agent_name == agent_name:
@@ -112,30 +155,44 @@ class ContextManager:
 
 
 class SimplifiedChatbot:
-    """간소화된 멀티턴 챗봇"""
+    """Simplified multi-turn chatbot"""
     
-    def __init__(self):
-        # 1. Intent 분석 에이전트 (경량 모델)
+    def __init__(self, language: str = None):
+        self.language = language or config.LANGUAGE
+        
+        # 1. Intent analysis agent (lightweight model)
         intent_llm = LLMClient(model=config.INTENT_AGENT_MODEL)
-        self.intent_agent = IntentAgent(intent_llm)
+        self.intent_agent = IntentAgent(intent_llm, self.language)
         
-        # 2. Planning 에이전트 (경량 모델)
+        # 2. Planning agent (lightweight model)
         planning_llm = LLMClient(model=config.PLANNING_AGENT_MODEL)
-        self.planning_agent = PlanningAgent(planning_llm)
+        self.planning_agent = PlanningAgent(planning_llm, self.language)
         
-        # 3. 도메인별 에이전트들 (각각 적절한 모델 사용)
+        # 3. Domain-specific agents (each using appropriate model)
         order_llm = LLMClient(model=config.ORDER_AGENT_MODEL)
         refund_llm = LLMClient(model=config.REFUND_AGENT_MODEL)
         general_llm = LLMClient(model=config.GENERAL_AGENT_MODEL)
         
         self.agents = {
-            'order_agent': OrderAgent(order_llm),
-            'refund_agent': RefundAgent(refund_llm), 
-            'general_agent': GeneralAgent(general_llm)
+            'order_agent': OrderAgent(order_llm, self.language),
+            'refund_agent': RefundAgent(refund_llm, self.language), 
+            'general_agent': GeneralAgent(general_llm, self.language)
         }
         
-        # 4. 대화 컨텍스트 관리자
+        # 4. Conversation context manager
         self.context_manager = ContextManager()
+    
+    def set_language(self, language: str):
+        """Change the chatbot language"""
+        if language in config.SUPPORTED_LANGUAGES:
+            self.language = language
+            # Update all agents with new language
+            self.intent_agent.language = language
+            self.planning_agent.language = language
+            for agent in self.agents.values():
+                agent.language = language
+            return True
+        return False
     
     @weave.op()
     def chat(self, user_input: str, order_info: Dict[str, Any] = None) -> str:
@@ -160,36 +217,42 @@ class SimplifiedChatbot:
                 print(f"[WARNING] 에이전트 '{agent_name}'를 찾을 수 없습니다.")
                 continue
             
-            # 구조화된 컨텍스트 생성
-            structured_context = self.context_manager.get_structured_context_for_llm()
+            # Generate structured context with language support
+            structured_context = self.context_manager.get_structured_context_for_llm(self.language)
             
-            # 이전 스텝의 결과를 구조화된 컨텍스트에 추가
+            # Add previous step results to structured context
             if step['parameters'].get('context_from_previous') and agent_outputs:
                 prev_output = agent_outputs[-1]
                 if prev_output.structured_data:
-                    structured_context += f"\n\n## 이전 단계 결과\n{json.dumps(prev_output.structured_data, ensure_ascii=False, indent=2)}"
+                    if self.language == "ko":
+                        structured_context += f"\n\n## 이전 단계 결과\n{json.dumps(prev_output.structured_data, ensure_ascii=False, indent=2)}"
+                    elif self.language == "en":
+                        structured_context += f"\n\n## Previous Step Results\n{json.dumps(prev_output.structured_data, ensure_ascii=False, indent=2)}"
+                    elif self.language == "jp":
+                        structured_context += f"\n\n## 前のステップの結果\n{json.dumps(prev_output.structured_data, ensure_ascii=False, indent=2)}"
             
-            # 에이전트 실행
+            # Execute agent
             try:
-                # OrderAgent인 경우 order_info 전달
+                # Pass order_info for OrderAgent
                 if agent_name == 'order_agent' and hasattr(agent, 'handle_with_structured_context'):
                     raw_result = agent.handle_with_structured_context(user_input, structured_context, order_info)
                 elif hasattr(agent, 'handle_with_structured_context'):
                     raw_result = agent.handle_with_structured_context(user_input, structured_context)
                 else:
-                    # 레거시 방식으로 폴백
+                    # Fallback to legacy method
                     raw_result = self._call_agent_legacy(agent, agent_name, user_input, order_info)
                 
-                # 에이전트 출력을 구조화
+                # Structure agent output
                 agent_output = self._create_agent_output(agent_name, step['step_id'], raw_result)
                 agent_outputs.append(agent_output)
                 
             except Exception as e:
-                print(f"[ERROR] Step {step['step_id']} 실행 중 오류: {e}")
+                print(f"[ERROR] Error during step {step['step_id']} execution: {e}")
+                error_msg = f"Error occurred: {str(e)}" if self.language == "en" else f"エラーが発生しました: {str(e)}" if self.language == "jp" else f"오류 발생: {str(e)}"
                 error_output = AgentOutput(
                     agent_name=agent_name,
                     step_id=step['step_id'],
-                    raw_output=f"오류 발생: {str(e)}",
+                    raw_output=error_msg,
                     structured_data={"error": str(e), "agent_type": agent_name}
                 )
                 agent_outputs.append(error_output)
@@ -331,43 +394,83 @@ class SimplifiedChatbot:
         return str(last_output.raw_output)
     
     def chat_loop(self):
-        """멀티턴 대화 루프"""
-        print("\n🛍️ 쇼핑몰 챗봇에 오신걸 환영합니다!")
-        print("주문 조회와 환불 문의를 도와드립니다.")
-        print("'종료'를 입력하면 대화를 마칩니다.\n")
+        """Multi-turn conversation loop"""
+        if self.language == "ko":
+            print("\n🛍️ 쇼핑몰 챗봇에 오신걸 환영합니다!")
+            print("주문 조회와 환불 문의를 도와드립니다.")
+            print("'종료'를 입력하면 대화를 마칩니다.\n")
+            user_prompt = "고객님: "
+            exit_msg = "대화를 종료합니다. 감사합니다! 👋"
+            bot_prefix = "봇: "
+        elif self.language == "en":
+            print("\n🛍️ Welcome to Shopping Mall Chatbot!")
+            print("We help with order inquiries and refund requests.")
+            print("Type 'exit' to end the conversation.\n")
+            user_prompt = "Customer: "
+            exit_msg = "Ending conversation. Thank you! 👋"
+            bot_prefix = "Bot: "
+        elif self.language == "jp":
+            print("\n🛍️ ショッピングモールチャットボットへようこそ！")
+            print("注文照会と返品お問い合わせをサポートします。")
+            print("'終了'を入力すると会話を終了します。\n")
+            user_prompt = "お客様: "
+            exit_msg = "会話を終了します。ありがとうございました！ 👋"
+            bot_prefix = "ボット: "
         
         with weave.thread() as thread_ctx:
             print(f"Thread ID: {thread_ctx.thread_id}")
         
             while True:
                 try:
-                    user_input = input("고객님: ").strip()
+                    user_input = input(user_prompt).strip()
                     
-                    if user_input.lower() in ['종료', 'exit', 'quit']:
-                        print("대화를 종료합니다. 감사합니다! 👋")
+                    # Language-specific exit commands
+                    exit_commands = ['종료', 'exit', 'quit', '終了']
+                    if user_input.lower() in exit_commands:
+                        print(exit_msg)
                         break
                     
                     if not user_input:
                         continue
                     
-                    # 챗봇 응답
+                    # Chatbot response
                     response = self.chat(user_input)
-                    print(f"봇: {response}\n")
+                    print(f"{bot_prefix}{response}\n")
                     
                 except KeyboardInterrupt:
-                    print("\n\n대화를 종료합니다. 감사합니다! 👋")
+                    print(f"\n\n{exit_msg}")
                     break
                 except Exception as e:
                     print(f"오류 발생: {e}")
 
 
 def main():
-    """메인 실행 함수"""
-    # Weave 초기화
+    """Main execution function"""
+    # Language selection
+    print("🌍 Select Language / 언어를 선택하세요 / 言語を選択してください:")
+    print("1. 한국어 (Korean)")
+    print("2. English")
+    print("3. 日本語 (Japanese)")
+    
+    while True:
+        choice = input("Enter choice (1-3): ").strip()
+        if choice == "1":
+            language = "ko"
+            break
+        elif choice == "2":
+            language = "en"
+            break
+        elif choice == "3":
+            language = "jp"
+            break
+        else:
+            print("Invalid choice. Please enter 1, 2, or 3.")
+    
+    # Initialize Weave
     weave.init('wandb-korea/retail-chatbot-dev')
     
-    # 챗봇 생성 및 실행
-    chatbot = SimplifiedChatbot()
+    # Create and run chatbot
+    chatbot = SimplifiedChatbot(language=language)
     chatbot.chat_loop()
 
 

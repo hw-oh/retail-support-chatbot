@@ -1,0 +1,981 @@
+{
+  "dataset_info": {
+    "name": "Retail Support Chatbot Refund Evaluation Dataset",
+    "description": "Evaluation of refund policy compliance, handling of personal hygiene/defective items, and detection of date-calculation bugs",
+    "current_date": "2025-09-01",
+    "total_cases": 50,
+    "categories": {
+      "baseline_correct": {
+        "count": 20,
+        "expected_failure_rate": "<5%",
+        "description": "Basic/clear cases the model should easily get right (no bug impact)"
+      },
+      "tricky_mispredict": {
+        "count": 20,
+        "expected_failure_rate": ">30%",
+        "description": "Cases likely to be misjudged where hygiene/defective items should be refundable"
+      },
+      "delivery_date_bug": {
+        "count": 10,
+        "expected_failure_rate": ">80%",
+        "description": "Incorrect if calculated as current - purchase instead of current - delivery"
+      }
+    }
+  },
+  "test_cases": [
+    {
+      "test_id": "REFUND_001",
+      "scenario": "[baseline] Clothing received 3 days ago — refundable",
+      "user_query": "I want to refund the T-shirt I received 3 days ago.",
+      "order_info": {
+        "order_id": "ORD20250901001",
+        "purchase_date": "2025-08-28",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "Delivered",
+        "product_name": "Basic T-Shirt",
+        "category": "Clothing",
+        "price": 22000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Refund allowed within 7 days after delivery (3 days elapsed, 10% fee)",
+        "refund_fee": 2200
+      }
+    },
+    {
+      "test_id": "REFUND_002",
+      "scenario": "[baseline] Shoes received 6 days ago — refundable",
+      "user_query": "Can I refund the sneakers I received 6 days ago?",
+      "order_info": {
+        "order_id": "ORD20250901002",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-26",
+        "delivery_status": "Delivered",
+        "product_name": "Running Shoes",
+        "category": "Shoes",
+        "price": 99000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "6 days since delivery, within the 7-day window",
+        "refund_fee": 9900
+      }
+    },
+    {
+      "test_id": "REFUND_003",
+      "scenario": "[baseline] Exactly 7 days since delivery (bag) — refundable",
+      "user_query": "Is a refund possible for a bag received exactly 7 days ago?",
+      "order_info": {
+        "order_id": "ORD20250901003",
+        "purchase_date": "2025-08-26",
+        "delivery_date": "2025-08-25",
+        "delivery_status": "Delivered",
+        "product_name": "Canvas Eco Bag",
+        "category": "Bag",
+        "price": 45000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Within 7 days after delivery",
+        "refund_fee": 4500
+      }
+    },
+    {
+      "test_id": "REFUND_004",
+      "scenario": "[baseline] Laptop sleeve received 9 days ago — not refundable",
+      "user_query": "I want to refund a laptop sleeve I received 9 days ago.",
+      "order_info": {
+        "order_id": "ORD20250901004",
+        "purchase_date": "2025-08-20",
+        "delivery_date": "2025-08-23",
+        "delivery_status": "Delivered",
+        "product_name": "Laptop Sleeve",
+        "category": "Accessories",
+        "price": 38000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "Exceeded the 7-day post-delivery window",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "REFUND_005",
+      "scenario": "[baseline] Free cancellation at Order Received",
+      "user_query": "I just placed an order. Please cancel it.",
+      "order_info": {
+        "order_id": "ORD20250901005",
+        "purchase_date": "2025-09-01",
+        "delivery_date": null,
+        "delivery_status": "Order Received",
+        "product_name": "Wireless Mouse",
+        "category": "Electronics",
+        "price": 29000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Free cancellation before shipping",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_006",
+      "scenario": "[baseline] Free cancellation at Payment Completed",
+      "user_query": "I only paid and it hasn't been shipped yet. Please cancel.",
+      "order_info": {
+        "order_id": "ORD20250901006",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "Payment Completed",
+        "product_name": "Wired Charger",
+        "category": "Electronics",
+        "price": 15000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Free cancellation before shipping",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_007",
+      "scenario": "[baseline] Free cancellation at Product Preparation",
+      "user_query": "It says product is being prepared. Please cancel/refund.",
+      "order_info": {
+        "order_id": "ORD20250901007",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "Product Preparation",
+        "product_name": "Yoga Mat",
+        "category": "Sports Equipment",
+        "price": 42000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Free cancellation before shipping",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_008",
+      "scenario": "[baseline] Cancellation during Shipping — fee applies",
+      "user_query": "It's in transit. Can I cancel?",
+      "order_info": {
+        "order_id": "ORD20250901008",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "Shipping",
+        "product_name": "Gaming Keyboard",
+        "category": "Electronics",
+        "price": 89000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Cancellation during shipping allowed; 10% fee applies",
+        "refund_fee": 8900
+      }
+    },
+    {
+      "test_id": "REFUND_009",
+      "scenario": "[baseline] Cancellation during Shipping — minimum fee applies",
+      "user_query": "If it's in transit, I'd like to cancel.",
+      "order_info": {
+        "order_id": "ORD20250901009",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "Shipping",
+        "product_name": "Tumbler",
+        "category": "Household Goods",
+        "price": 12000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Cancellation during shipping 10% (minimum 2,000)",
+        "refund_fee": 2000
+      }
+    },
+    {
+      "test_id": "REFUND_010",
+      "scenario": "[baseline] E-reader received 2 days ago — refundable",
+      "user_query": "I'd like to refund an e-reader.",
+      "order_info": {
+        "order_id": "ORD20250901010",
+        "purchase_date": "2025-08-31",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "Delivered",
+        "product_name": "E-book Reader",
+        "category": "Electronics",
+        "price": 180000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "2 days since delivery",
+        "refund_fee": 18000
+      }
+    },
+    {
+      "test_id": "REFUND_011",
+      "scenario": "[baseline] Personal hygiene item (socks) — not refundable",
+      "user_query": "Can I refund socks I received 3 days ago?",
+      "order_info": {
+        "order_id": "ORD20250901011",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "Delivered",
+        "product_name": "Cotton Socks Set",
+        "category": "Socks",
+        "price": 15000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "Personal hygiene products are non-refundable",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "REFUND_012",
+      "scenario": "[baseline] Personal hygiene item (underwear) — not refundable",
+      "user_query": "The underwear size doesn't fit. Can I get a refund?",
+      "order_info": {
+        "order_id": "ORD20250901012",
+        "purchase_date": "2025-08-28",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "Delivered",
+        "product_name": "Cotton Briefs",
+        "category": "Underwear",
+        "price": 19000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "Personal hygiene products are non-refundable",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "REFUND_013",
+      "scenario": "[baseline] Clothing received 10 days ago — not refundable",
+      "user_query": "I want to refund a shirt I received 10 days ago.",
+      "order_info": {
+        "order_id": "ORD20250901013",
+        "purchase_date": "2025-08-20",
+        "delivery_date": "2025-08-22",
+        "delivery_status": "Delivered",
+        "product_name": "Oxford Shirt",
+        "category": "Clothing",
+        "price": 49000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "Exceeded the 7-day refund period",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "REFUND_014",
+      "scenario": "[baseline] Defective laptop adapter — refund (no fee)",
+      "user_query": "The charger is broken. Seems defective.",
+      "order_info": {
+        "order_id": "ORD20250901014",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "Delivered",
+        "product_name": "Laptop Adapter",
+        "category": "Electronics",
+        "price": 45000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Defective items are refundable with no fee",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_015",
+      "scenario": "[baseline] Defective book — refund (no fee)",
+      "user_query": "Pages are coming off the book. I'd like a refund.",
+      "order_info": {
+        "order_id": "ORD20250901015",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "Delivered",
+        "product_name": "Novel",
+        "category": "Books",
+        "price": 17000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Defective items have no refund fee",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_016",
+      "scenario": "[baseline] Shoes received 1 day ago — refundable",
+      "user_query": "I want to refund the running shoes I received yesterday.",
+      "order_info": {
+        "order_id": "ORD20250901016",
+        "purchase_date": "2025-08-31",
+        "delivery_date": "2025-08-31",
+        "delivery_status": "Delivered",
+        "product_name": "Running Shoes Pro",
+        "category": "Shoes",
+        "price": 129000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Within 7 days",
+        "refund_fee": 12900
+      }
+    },
+    {
+      "test_id": "REFUND_017",
+      "scenario": "[baseline] Home appliance received 8 days ago — not refundable",
+      "user_query": "Can I refund an air purifier received 8 days ago?",
+      "order_info": {
+        "order_id": "ORD20250901017",
+        "purchase_date": "2025-08-20",
+        "delivery_date": "2025-08-24",
+        "delivery_status": "Delivered",
+        "product_name": "Air Purifier",
+        "category": "Home Appliances",
+        "price": 210000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "More than 7 days have passed",
+        "refund_fee": null
+      }
+    },
+    {
+      "test_id": "REFUND_018",
+      "scenario": "[baseline] Low-priced general item — minimum fee applies",
+      "user_query": "I want to refund a mug.",
+      "order_info": {
+        "order_id": "ORD20250901018",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "Delivered",
+        "product_name": "Ceramic Mug",
+        "category": "Household Goods",
+        "price": 15000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Within 7 days; minimum fee 2,000 applies",
+        "refund_fee": 2000
+      }
+    },
+    {
+      "test_id": "REFUND_019",
+      "scenario": "[baseline] Book received 5 days ago — refundable",
+      "user_query": "I'd like to refund a workbook received 5 days ago.",
+      "order_info": {
+        "order_id": "ORD20250901019",
+        "purchase_date": "2025-08-28",
+        "delivery_date": "2025-08-27",
+        "delivery_status": "Delivered",
+        "product_name": "Math Workbook",
+        "category": "Books",
+        "price": 21000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Within 7 days",
+        "refund_fee": 2100
+      }
+    },
+    {
+      "test_id": "REFUND_020",
+      "scenario": "[baseline] Personal hygiene item (mask) — not refundable",
+      "user_query": "Can I refund masks?",
+      "order_info": {
+        "order_id": "ORD20250901020",
+        "purchase_date": "2025-08-29",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "Delivered",
+        "product_name": "KF94 Masks",
+        "category": "Masks",
+        "price": 8000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "Personal hygiene products are non-refundable",
+        "refund_fee": null
+      }
+    },
+    
+    {
+      "test_id": "REFUND_021",
+      "scenario": "[tricky] Defective shampoo (hygiene item) — refundable",
+      "user_query": "The shampoo leaked. Please refund.",
+      "order_info": {
+        "order_id": "ORD20250901021",
+        "purchase_date": "2025-08-25",
+        "delivery_date": "2025-08-27",
+        "delivery_status": "Delivered",
+        "product_name": "Daily Shampoo",
+        "category": "Shampoo",
+        "price": 12000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Defective hygiene items are refundable; no fee",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_022",
+      "scenario": "[tricky] Dried sheet mask — refundable (defect)",
+      "user_query": "The sheet masks are dry. Can I get a refund?",
+      "order_info": {
+        "order_id": "ORD20250901022",
+        "purchase_date": "2025-08-24",
+        "delivery_date": "2025-08-26",
+        "delivery_status": "Delivered",
+        "product_name": "Tea Tree Sheet Mask",
+        "category": "Sheet Masks",
+        "price": 7000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Defective item — fee waived",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_023",
+      "scenario": "[tricky] Hygiene item — free cancellation before shipping",
+      "user_query": "If the toothbrush hasn't shipped yet, please cancel.",
+      "order_info": {
+        "order_id": "ORD20250901023",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "Product Preparation",
+        "product_name": "Electric Toothbrush Refills",
+        "category": "Toothbrush",
+        "price": 14000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Free cancellation before shipping",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_024",
+      "scenario": "[tricky] Cosmetic defect after 14 days — refundable (defect)",
+      "user_query": "I got this lip balm 2 weeks ago and it has mold.",
+      "order_info": {
+        "order_id": "ORD20250901024",
+        "purchase_date": "2025-08-16",
+        "delivery_date": "2025-08-18",
+        "delivery_status": "Delivered",
+        "product_name": "Moisturizing Lip Balm",
+        "category": "Cosmetics",
+        "price": 9000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Defective items refundable even after the period",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_025",
+      "scenario": "[tricky] Underwear — cancellation before shipping",
+      "user_query": "I ordered underwear yesterday. Please cancel it.",
+      "order_info": {
+        "order_id": "ORD20250901025",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "Payment Completed",
+        "product_name": "Sports Bra",
+        "category": "Underwear",
+        "price": 32000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Free cancellation before shipping",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_026",
+      "scenario": "[tricky] Broken shaver blade — refundable (defect)",
+      "user_query": "The shaver blade arrived broken.",
+      "order_info": {
+        "order_id": "ORD20250901026",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "Delivered",
+        "product_name": "Electric Shaver",
+        "category": "Shaver",
+        "price": 160000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Defective item — no fee",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_027",
+      "scenario": "[tricky] Contact lens solution leaked — refundable (defect)",
+      "user_query": "The lens solution leaked. I want a refund.",
+      "order_info": {
+        "order_id": "ORD20250901027",
+        "purchase_date": "2025-08-26",
+        "delivery_date": "2025-08-28",
+        "delivery_status": "Delivered",
+        "product_name": "Contact Lenses",
+        "category": "Contact Lenses",
+        "price": 39000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Defective hygiene item — refundable",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_028",
+      "scenario": "[tricky] Sanitary pads smell defect — refundable",
+      "user_query": "The sanitary pads have a strong smell. Please refund.",
+      "order_info": {
+        "order_id": "ORD20250901028",
+        "purchase_date": "2025-08-21",
+        "delivery_date": "2025-08-24",
+        "delivery_status": "Delivered",
+        "product_name": "Organic Sanitary Pads",
+        "category": "Sanitary Products",
+        "price": 11000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Defective hygiene item — refundable",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_029",
+      "scenario": "[tricky] Deodorant spray malfunction — refundable",
+      "user_query": "The deodorant does not spray.",
+      "order_info": {
+        "order_id": "ORD20250901029",
+        "purchase_date": "2025-08-23",
+        "delivery_date": "2025-08-26",
+        "delivery_status": "Delivered",
+        "product_name": "Spray Deodorant",
+        "category": "Deodorant",
+        "price": 13000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Defective hygiene item — refundable",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_030",
+      "scenario": "[tricky] Lotion suspected spoilage — refundable (defect)",
+      "user_query": "There is a strange smell from the lotion.",
+      "order_info": {
+        "order_id": "ORD20250901030",
+        "purchase_date": "2025-08-19",
+        "delivery_date": "2025-08-22",
+        "delivery_status": "Delivered",
+        "product_name": "Moisturizing Lotion",
+        "category": "Lotion",
+        "price": 18000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Defective hygiene item — refundable (even if period exceeded)",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_031",
+      "scenario": "[tricky] Cream half-filled — refundable (defect)",
+      "user_query": "The cream jar is only half full.",
+      "order_info": {
+        "order_id": "ORD20250901031",
+        "purchase_date": "2025-08-22",
+        "delivery_date": "2025-08-25",
+        "delivery_status": "Delivered",
+        "product_name": "Moisturizing Cream",
+        "category": "Cream",
+        "price": 25000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Defective hygiene item — refundable",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_032",
+      "scenario": "[tricky] Toothpaste tube torn — refundable (defect)",
+      "user_query": "The toothpaste tube arrived torn.",
+      "order_info": {
+        "order_id": "ORD20250901032",
+        "purchase_date": "2025-08-26",
+        "delivery_date": "2025-08-28",
+        "delivery_status": "Delivered",
+        "product_name": "Herbal Toothpaste",
+        "category": "Toothpaste",
+        "price": 6000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Defective hygiene item — refundable",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_033",
+      "scenario": "[tricky] Foreign substance in soap — refundable",
+      "user_query": "There are foreign particles in the soap.",
+      "order_info": {
+        "order_id": "ORD20250901033",
+        "purchase_date": "2025-08-20",
+        "delivery_date": "2025-08-23",
+        "delivery_status": "Delivered",
+        "product_name": "Natural Soap",
+        "category": "Soap",
+        "price": 5000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Defective hygiene item — refundable",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_034",
+      "scenario": "[tricky] Facial cleanser foaming defect — refundable",
+      "user_query": "The facial cleanser doesn't foam. Please refund.",
+      "order_info": {
+        "order_id": "ORD20250901034",
+        "purchase_date": "2025-08-21",
+        "delivery_date": "2025-08-24",
+        "delivery_status": "Delivered",
+        "product_name": "Foam Cleanser",
+        "category": "Facial Cleanser",
+        "price": 9000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Defective hygiene item — refundable",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_035",
+      "scenario": "[tricky] Perfume spray malfunction/leak — refundable",
+      "user_query": "The perfume doesn't spray and leaks.",
+      "order_info": {
+        "order_id": "ORD20250901035",
+        "purchase_date": "2025-08-22",
+        "delivery_date": "2025-08-25",
+        "delivery_status": "Delivered",
+        "product_name": "Eau de Parfum",
+        "category": "Perfume",
+        "price": 54000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Defective hygiene item — refundable",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_036",
+      "scenario": "[tricky] Mask ear loop defect (period exceeded)",
+      "user_query": "The mask ear loops snap easily; received 3 weeks ago.",
+      "order_info": {
+        "order_id": "ORD20250901036",
+        "purchase_date": "2025-08-05",
+        "delivery_date": "2025-08-10",
+        "delivery_status": "Delivered",
+        "product_name": "Disposable Masks",
+        "category": "Masks",
+        "price": 6000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "May be customer misuse; not refundable",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_037",
+      "scenario": "[tricky] Lipstick color changed (period exceeded)",
+      "user_query": "The lipstick color changed.",
+      "order_info": {
+        "order_id": "ORD20250901037",
+        "purchase_date": "2025-08-12",
+        "delivery_date": "2025-08-15",
+        "delivery_status": "Delivered",
+        "product_name": "Matte Lipstick",
+        "category": "Cosmetics",
+        "price": 23000
+      },
+      "expected_result": {
+        "refund_possible": false,
+        "reason": "Cannot verify if defective; not refundable",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_038",
+      "scenario": "[tricky] Avoid hygiene-category misjudgment (pre-shipping)",
+      "user_query": "If the soap hasn't shipped yet, please cancel.",
+      "order_info": {
+        "order_id": "ORD20250901038",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "Payment Completed",
+        "product_name": "Bar Soap",
+        "category": "Soap",
+        "price": 4000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Free cancellation before shipping",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_039",
+      "scenario": "[tricky] Electric toothbrush motor defect",
+      "user_query": "The electric toothbrush does not work.",
+      "order_info": {
+        "order_id": "ORD20250901039",
+        "purchase_date": "2025-08-27",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "Delivered",
+        "product_name": "Electric Toothbrush",
+        "category": "Toothbrush",
+        "price": 89000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Defective hygiene item — refundable",
+        "refund_fee": 0
+      }
+    },
+    {
+      "test_id": "REFUND_040",
+      "scenario": "[tricky] Shampoo — cancellation before shipping",
+      "user_query": "I don't need the shampoo anymore. Has it shipped yet?",
+      "order_info": {
+        "order_id": "ORD20250901040",
+        "purchase_date": "2025-08-31",
+        "delivery_date": null,
+        "delivery_status": "Product Preparation",
+        "product_name": "Cool Shampoo",
+        "category": "Shampoo",
+        "price": 11000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Free cancellation before shipping",
+        "refund_fee": 0
+      }
+    },
+    
+    {
+      "test_id": "REFUND_041",
+      "scenario": "[bug] Purchase long ago, delivery 6 days ago (allowed)",
+      "user_query": "I'd like to refund a coat received 6 days ago.",
+      "order_info": {
+        "order_id": "ORD20250901041",
+        "purchase_date": "2025-08-20",
+        "delivery_date": "2025-08-26",
+        "delivery_status": "Delivered",
+        "product_name": "Wool Coat",
+        "category": "Clothing",
+        "price": 210000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "6 days since delivery (delivery date matters, not purchase)",
+        "refund_fee": 21000
+      }
+    },
+    {
+      "test_id": "REFUND_042",
+      "scenario": "[bug] Purchase 12 days ago, delivery 5 days ago",
+      "user_query": "I'll refund a backpack received 5 days ago.",
+      "order_info": {
+        "order_id": "ORD20250901042",
+        "purchase_date": "2025-08-20",
+        "delivery_date": "2025-08-27",
+        "delivery_status": "Delivered",
+        "product_name": "Travel Backpack",
+        "category": "Bag",
+        "price": 99000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "5 days since delivery",
+        "refund_fee": 9900
+      }
+    },
+    {
+      "test_id": "REFUND_043",
+      "scenario": "[bug] Purchase 15 days ago, delivery 7 days ago (boundary)",
+      "user_query": "Can I refund jeans received 7 days ago?",
+      "order_info": {
+        "order_id": "ORD20250901043",
+        "purchase_date": "2025-08-17",
+        "delivery_date": "2025-08-25",
+        "delivery_status": "Delivered",
+        "product_name": "Straight Jeans",
+        "category": "Clothing",
+        "price": 59000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "Exactly 7 days since delivery",
+        "refund_fee": 5900
+      }
+    },
+    {
+      "test_id": "REFUND_044",
+      "scenario": "[bug] Purchase 18 days ago, delivery 3 days ago",
+      "user_query": "Please refund a toaster received 3 days ago.",
+      "order_info": {
+        "order_id": "ORD20250901044",
+        "purchase_date": "2025-08-14",
+        "delivery_date": "2025-08-29",
+        "delivery_status": "Delivered",
+        "product_name": "2-Slot Toaster",
+        "category": "Kitchen Appliances",
+        "price": 69000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "3 days since delivery",
+        "refund_fee": 6900
+      }
+    },
+    {
+      "test_id": "REFUND_045",
+      "scenario": "[bug] Purchase 20 days ago, delivery 4 days ago",
+      "user_query": "I want to refund a desk received 4 days ago.",
+      "order_info": {
+        "order_id": "ORD20250901045",
+        "purchase_date": "2025-08-12",
+        "delivery_date": "2025-08-28",
+        "delivery_status": "Delivered",
+        "product_name": "Computer Desk",
+        "category": "Furniture",
+        "price": 129000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "4 days since delivery",
+        "refund_fee": 12900
+      }
+    },
+    {
+      "test_id": "REFUND_046",
+      "scenario": "[bug] Purchase 13 days ago, delivery 1 day ago",
+      "user_query": "I'd like a refund for a vacuum received yesterday.",
+      "order_info": {
+        "order_id": "ORD20250901046",
+        "purchase_date": "2025-08-19",
+        "delivery_date": "2025-08-31",
+        "delivery_status": "Delivered",
+        "product_name": "Cordless Vacuum",
+        "category": "Home Appliances",
+        "price": 239000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "1 day since delivery",
+        "refund_fee": 23900
+      }
+    },
+    {
+      "test_id": "REFUND_047",
+      "scenario": "[bug] Purchase 11 days ago, delivery 2 days ago",
+      "user_query": "Please refund a chair received 2 days ago.",
+      "order_info": {
+        "order_id": "ORD20250901047",
+        "purchase_date": "2025-08-21",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "Delivered",
+        "product_name": "Office Chair",
+        "category": "Furniture",
+        "price": 89000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "2 days since delivery",
+        "refund_fee": 8900
+      }
+    },
+    {
+      "test_id": "REFUND_048",
+      "scenario": "[bug] Purchase 16 days ago, delivery 6 days ago",
+      "user_query": "Refund for an e-book reader received 6 days ago.",
+      "order_info": {
+        "order_id": "ORD20250901048",
+        "purchase_date": "2025-08-16",
+        "delivery_date": "2025-08-26",
+        "delivery_status": "Delivered",
+        "product_name": "E-book Reader",
+        "category": "Electronics",
+        "price": 179000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "6 days since delivery",
+        "refund_fee": 17900
+      }
+    },
+    {
+      "test_id": "REFUND_049",
+      "scenario": "[bug] Purchase 14 days ago, delivery 2 days ago",
+      "user_query": "I'd like to refund a hoodie received 2 days ago.",
+      "order_info": {
+        "order_id": "ORD20250901049",
+        "purchase_date": "2025-08-18",
+        "delivery_date": "2025-08-30",
+        "delivery_status": "Delivered",
+        "product_name": "Hoodie Sweatshirt",
+        "category": "Clothing",
+        "price": 49000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "2 days since delivery",
+        "refund_fee": 4900
+      }
+    },
+    {
+      "test_id": "REFUND_050",
+      "scenario": "[bug] Purchase 10 days ago, delivery 1 day ago",
+      "user_query": "Can I refund a coffee machine received yesterday?",
+      "order_info": {
+        "order_id": "ORD20250901050",
+        "purchase_date": "2025-08-22",
+        "delivery_date": "2025-08-31",
+        "delivery_status": "Delivered",
+        "product_name": "Capsule Coffee Machine",
+        "category": "Kitchen Appliances",
+        "price": 159000
+      },
+      "expected_result": {
+        "refund_possible": true,
+        "reason": "1 day since delivery",
+        "refund_fee": 15900
+      }
+    }
+  ]
+}
+
+

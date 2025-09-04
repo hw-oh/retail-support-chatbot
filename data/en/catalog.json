@@ -1,0 +1,142 @@
+[
+  {
+    "product_id": "P001",
+    "product_name": "Nike Air Max Sneakers",
+    "price": 89000,
+    "category": "Shoes",
+    "description": "Comfortable sneakers with Air Max technology"
+  },
+  {
+    "product_id": "P002",
+    "product_name": "Adidas Hoodie",
+    "price": 45000,
+    "category": "Clothing",
+    "description": "Warm and comfortable hoodie"
+  },
+  {
+    "product_id": "P003",
+    "product_name": "Samsung Galaxy Case",
+    "price": 15000,
+    "category": "Electronics",
+    "description": "Clear case for Galaxy S24"
+  },
+  {
+    "product_id": "P004",
+    "product_name": "Logitech Wireless Mouse",
+    "price": 32000,
+    "category": "Electronics",
+    "description": "Wireless optical mouse"
+  },
+  {
+    "product_id": "P005",
+    "product_name": "Nature Republic Aloe Gel",
+    "price": 8000,
+    "category": "Cosmetics",
+    "description": "Soothing aloe gel"
+  },
+  {
+    "product_id": "P006",
+    "product_name": "Converse All Star Sneakers",
+    "price": 67000,
+    "category": "Shoes",
+    "description": "Classic design canvas sneakers"
+  },
+  {
+    "product_id": "P007",
+    "product_name": "Uniqlo Basic T-shirt",
+    "price": 12000,
+    "category": "Clothing",
+    "description": "Basic cotton t-shirt"
+  },
+  {
+    "product_id": "P008",
+    "product_name": "Apple AirPods Pro",
+    "price": 329000,
+    "category": "Electronics",
+    "description": "Noise cancelling wireless earphones"
+  },
+  {
+    "product_id": "P009",
+    "product_name": "YSL Lipstick",
+    "price": 42000,
+    "category": "Cosmetics",
+    "description": "Matte finish lipstick"
+  },
+  {
+    "product_id": "P010",
+    "product_name": "New Balance Running Shoes",
+    "price": 98000,
+    "category": "Shoes",
+    "description": "Running shoes with excellent cushioning"
+  },
+  {
+    "product_id": "P011",
+    "product_name": "H&M Jeans",
+    "price": 29000,
+    "category": "Clothing",
+    "description": "Slim fit jeans"
+  },
+  {
+    "product_id": "P012",
+    "product_name": "Xiaomi Power Bank",
+    "price": 28000,
+    "category": "Electronics",
+    "description": "20000mAh high capacity power bank"
+  },
+  {
+    "product_id": "P013",
+    "product_name": "The Body Shop Hand Cream",
+    "price": 15000,
+    "category": "Cosmetics",
+    "description": "Shea butter hand cream"
+  },
+  {
+    "product_id": "P014",
+    "product_name": "Vans Checkerboard Slip-on",
+    "price": 59000,
+    "category": "Shoes",
+    "description": "Classic checkerboard pattern slip-on"
+  },
+  {
+    "product_id": "P015",
+    "product_name": "Zara Coat",
+    "price": 89000,
+    "category": "Clothing",
+    "description": "Wool blend winter coat"
+  },
+  {
+    "product_id": "P016",
+    "product_name": "Sony Bluetooth Headphones",
+    "price": 159000,
+    "category": "Electronics",
+    "description": "Over-ear bluetooth headphones"
+  },
+  {
+    "product_id": "P017",
+    "product_name": "Laneige Water Sleeping Mask",
+    "price": 25000,
+    "category": "Cosmetics",
+    "description": "Overnight hydrating mask"
+  },
+  {
+    "product_id": "P018",
+    "product_name": "Dr. Martens Boots",
+    "price": 189000,
+    "category": "Shoes",
+    "description": "Classic leather combat boots"
+  },
+  {
+    "product_id": "P019",
+    "product_name": "Gap Sweatshirt",
+    "price": 39000,
+    "category": "Clothing",
+    "description": "Cotton blend sweatshirt"
+  },
+  {
+    "product_id": "P020",
+    "product_name": "Nintendo Switch",
+    "price": 399000,
+    "category": "Electronics",
+    "description": "Portable gaming console"
+  }
+]

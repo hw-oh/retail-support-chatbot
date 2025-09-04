@@ -1,0 +1,142 @@
+[
+  {
+    "product_id": "P001",
+    "product_name": "ナイキ エアマックス スニーカー",
+    "price": 89000,
+    "category": "シューズ",
+    "description": "エアマックス技術を採用した快適なスニーカー"
+  },
+  {
+    "product_id": "P002",
+    "product_name": "アディダス パーカー",
+    "price": 45000,
+    "category": "衣類",
+    "description": "暖かく快適なパーカー"
+  },
+  {
+    "product_id": "P003",
+    "product_name": "サムスン ギャラクシー ケース",
+    "price": 15000,
+    "category": "電子機器",
+    "description": "Galaxy S24用透明ケース"
+  },
+  {
+    "product_id": "P004",
+    "product_name": "ロジテック ワイヤレスマウス",
+    "price": 32000,
+    "category": "電子機器",
+    "description": "ワイヤレス光学マウス"
+  },
+  {
+    "product_id": "P005",
+    "product_name": "ネイチャーリパブリック アロエジェル",
+    "price": 8000,
+    "category": "化粧品",
+    "description": "鎮静効果のあるアロエジェル"
+  },
+  {
+    "product_id": "P006",
+    "product_name": "コンバース オールスター スニーカー",
+    "price": 67000,
+    "category": "シューズ",
+    "description": "クラシックなデザインのキャンバススニーカー"
+  },
+  {
+    "product_id": "P007",
+    "product_name": "ユニクロ ベーシック Tシャツ",
+    "price": 12000,
+    "category": "衣類",
+    "description": "ベーシックなコットンTシャツ"
+  },
+  {
+    "product_id": "P008",
+    "product_name": "アップル エアポッズ プロ",
+    "price": 329000,
+    "category": "電子機器",
+    "description": "ノイズキャンセリング ワイヤレスイヤホン"
+  },
+  {
+    "product_id": "P009",
+    "product_name": "イヴ・サンローラン リップスティック",
+    "price": 42000,
+    "category": "化粧品",
+    "description": "マットフィニッシュ リップスティック"
+  },
+  {
+    "product_id": "P010",
+    "product_name": "ニューバランス ランニングシューズ",
+    "price": 98000,
+    "category": "シューズ",
+    "description": "優れたクッション性を持つランニングシューズ"
+  },
+  {
+    "product_id": "P011",
+    "product_name": "H&M ジーンズ",
+    "price": 29000,
+    "category": "衣類",
+    "description": "スリムフィット ジーンズ"
+  },
+  {
+    "product_id": "P012",
+    "product_name": "シャオミ モバイルバッテリー",
+    "price": 28000,
+    "category": "電子機器",
+    "description": "20000mAh 大容量モバイルバッテリー"
+  },
+  {
+    "product_id": "P013",
+    "product_name": "ザ・ボディショップ ハンドクリーム",
+    "price": 15000,
+    "category": "化粧品",
+    "description": "シアバター ハンドクリーム"
+  },
+  {
+    "product_id": "P014",
+    "product_name": "バンズ チェッカーボード スリッポン",
+    "price": 59000,
+    "category": "シューズ",
+    "description": "クラシック チェッカーボード柄 スリッポン"
+  },
+  {
+    "product_id": "P015",
+    "product_name": "ザラ コート",
+    "price": 89000,
+    "category": "衣類",
+    "description": "ウール混紡 ウィンターコート"
+  },
+  {
+    "product_id": "P016",
+    "product_name": "ソニー ブルートゥース ヘッドホン",
+    "price": 159000,
+    "category": "電子機器",
+    "description": "オーバーイヤー ブルートゥース ヘッドホン"
+  },
+  {
+    "product_id": "P017",
+    "product_name": "ラネージュ ウォーター スリーピング マスク",
+    "price": 25000,
+    "category": "化粧品",
+    "description": "オーバーナイト 保湿マスク"
+  },
+  {
+    "product_id": "P018",
+    "product_name": "ドクターマーチン ブーツ",
+    "price": 189000,
+    "category": "シューズ",
+    "description": "クラシック レザー コンバットブーツ"
+  },
+  {
+    "product_id": "P019",
+    "product_name": "ギャップ スウェットシャツ",
+    "price": 39000,
+    "category": "衣類",
+    "description": "コットン混紡 スウェットシャツ"
+  },
+  {
+    "product_id": "P020",
+    "product_name": "ニンテンドー スイッチ",
+    "price": 399000,
+    "category": "電子機器",
+    "description": "ポータブル ゲームコンソール"
+  }
+]
